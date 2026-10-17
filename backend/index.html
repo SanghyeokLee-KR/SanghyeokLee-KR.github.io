@@ -62,12 +62,12 @@
       </div>
       <div class="c5" style="display:flex;flex-direction:column">
         <ol class="toc">
-          <li><span class="no">01</span><span class="nm">failstop<em>주문이 두 번 들어가거나 사라지지 않는 거래소</em></span><span class="p">03</span></li>
+          <li><span class="no">01</span><span class="nm">failstop<em>주문 멱등성과 옛 리더 차단을 구현한 모의 거래소</em></span><span class="p">03</span></li>
           <li><span class="no">02</span><span class="nm">SafetyNevi<em>재난문자를 지도 위 위험 구역으로</em></span><span class="p">07</span></li>
-          <li><span class="no">03</span><span class="nm">sangkwon-platform-poly<em>220만 행을 안전하게 다시 넣는 상권 서비스</em></span><span class="p">10</span></li>
+          <li><span class="no">03</span><span class="nm">sangkwon-platform-poly<em>220만 행 재적재와 서버 두 대의 요청 제한</em></span><span class="p">10</span></li>
           <li><span class="no">04</span><span class="nm">DeliveryPro<em>묶음배달 방문 순서를 서버가 계산</em></span><span class="p">12</span></li>
           <li><span class="no">05</span><span class="nm">appintoss-meetup<em>출시 전 보안 문제를 풀고 낸 토스 미니앱</em></span><span class="p">14</span></li>
-          <li><span class="no">06</span><span class="nm">DevHub · polytalk<em>다시 열어 고친 코드, 서버에 평문이 남지 않는 채팅</em></span><span class="p">15</span></li>
+          <li><span class="no">06</span><span class="nm">DevHub · polytalk<em>끝난 뒤 다시 고친 커뮤니티, 종단 간 암호화 채팅</em></span><span class="p">15</span></li>
         </ol>
         <div class="journey mt-a" aria-hidden="true">
           <span class="dot be"></span><span class="dot be"></span><span class="dot be"></span><span class="dot be"></span><span class="dot be"></span><span class="dot infra"></span><span class="dot infra"></span><span class="dot infra"></span><span class="ring"></span>
@@ -82,8 +82,8 @@
 <section class="sheet" id="about"><div class="in">
   <div class="run"><span><b>소개</b></span><span class="pg">02 / 15</span></div>
   <div class="body">
-    <h2 class="h">기능을 만들고 나면, 그 기능이 언제 틀어지는지가 궁금해집니다</h2>
-    <p class="lede">주문 버튼을 두 번 누르면 어떻게 될까, 서버가 두 대가 되면 이 카운터는 그대로 맞을까, 응답이 느린 진짜 이유는 쿼리일까. 이런 질문을 붙잡고 코드를 고쳐 왔습니다. 그래서 기능을 만들 때 테스트와 측정 기록을 함께 남기는 편입니다.</p>
+    <h2 class="h">중복 요청, 서버 증설, 느린 응답에서 생기는 문제를 주로 고쳤습니다</h2>
+    <p class="lede">같은 주문이 두 번 들어오는 경우, 서버가 두 대가 되면서 카운터를 서버마다 따로 세는 경우, 응답이 느린 원인을 찾는 일을 주로 했습니다. 고친 동작은 테스트로 고정하고, 성능은 고치기 전과 후를 같은 조건에서 쟀습니다.</p>
     <div class="g mt">
       <div class="c4 cap">
         <p class="cap-k">01</p>
@@ -93,12 +93,12 @@
       <div class="c4 cap">
         <p class="cap-k">02</p>
         <p class="cap-t">서버가 여러 대여도 같은 규칙으로</p>
-        <p class="cap-d">리더 권한은 리스와 epoch로 확인하고, 요청 제한과 배치 중복 실행 방지는 DB에서 함께 쓰게 했습니다. 서버를 늘려도 규칙이 느슨해지지 않게 하려는 것이었습니다.</p>
+        <p class="cap-d">리더 권한은 리스와 epoch로 확인하고, 요청 제한과 배치 중복 실행 방지는 DB에서 함께 쓰게 했습니다. 서버 수만큼 한도가 늘어나거나 같은 배치가 두 번 도는 일을 막기 위해서입니다.</p>
       </div>
       <div class="c4 cap">
         <p class="cap-k">03</p>
-        <p class="cap-t">느리면 먼저 재 봅니다</p>
-        <p class="cap-d">부하 시험으로 병목이 쿼리가 아니라 응답 크기라는 걸 찾아 줄였고, 가상 스레드가 묶여 서버가 멈추는 원인을 찾아 락을 바꿨습니다.</p>
+        <p class="cap-t">느린 원인은 측정해서 찾았습니다</p>
+        <p class="cap-d">k6 부하 시험에서 시설 조회 응답이 387KB인 것을 찾아 55KB로 줄였습니다. 가상 스레드가 묶여 서버가 멈추던 문제는 <code>synchronized</code>를 <code>ReentrantLock</code>으로 바꿔 고쳤습니다.</p>
       </div>
     </div>
     <div class="g mt-a">
@@ -129,8 +129,8 @@
   <div class="run"><span><b>01 failstop</b> · 모의 거래소 백엔드</span><span class="pg">03 / 15</span></div>
   <div class="body">
     <p class="kicker">혼자 진행한 프로젝트 · 2026년 7월 ~ 10월</p>
-    <h2 class="h">주문이 두 번 들어가거나, 들어갔는지 모르게 되는 일이 없게 만들었습니다</h2>
-    <p class="lede">실제 돈은 다루지 않지만 거래소처럼 동작하는 모의 거래소입니다. 사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. 서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데 가장 공을 들였습니다. Claude·Codex와 함께 만들었고, 설계의 결정은 제가 확정했습니다.</p>
+    <h2 class="h">주문이 중복되거나 처리 여부를 알 수 없는 상태로 남지 않게 주문 경로를 나눴습니다</h2>
+    <p class="lede">실제 돈은 다루지 않지만 거래소처럼 동작하는 모의 거래소입니다. 사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. 서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데 가장 공을 들였습니다. Claude·Codex를 함께 썼고, 설계 결정은 직접 했습니다.</p>
     <div class="chain mt-a">
       <div class="node"><p class="nk">POST /orders</p><p class="nt">주문 API</p><p class="nd">클라이언트가 만든 주문 키로 같은 주문을 알아보고, 내용이 다르면 거절합니다.</p></div>
       <div class="node"><p class="nk">command_journal</p><p class="nt">명령 저널</p><p class="nd">엔진보다 먼저 DB에 커밋합니다. 리더 권한이 확인돼야 한 줄이 들어갑니다.</p></div>
@@ -139,7 +139,7 @@
     </div>
     <div class="metrics m3 mt-a">
       <div class="metric"><div class="n">4<small>건</small></div><div class="l">장애 시험으로 찾아 고친 버그</div><div class="c">리더 리스, DB 연결, 응답 코드에서</div></div>
-      <div class="metric"><div class="n">0<small>건</small></div><div class="l">확인받은 뒤 사라진 주문</div><div class="c">엄격 동기 복제로 바꾼 뒤, 내 PC의 장애 시험에서</div></div>
+      <div class="metric"><div class="n">0<small>건</small></div><div class="l">확인해 준 뒤 사라진 주문</div><div class="c">엄격 동기 복제로 바꾼 뒤, 제 PC의 장애 시험에서</div></div>
       <div class="metric"><div class="n">30% → 100%</div><div class="l">같은 부하에서 접수된 주문 비율</div><div class="c">가상 스레드가 묶이는 문제를 고친 뒤</div></div>
     </div>
   </div>
@@ -150,7 +150,7 @@
   <div class="run"><span><b>01 failstop</b> · 주문 접수와 멱등성</span><span class="pg">04 / 15</span></div>
   <div class="body">
     <p class="kicker">주문 API</p>
-    <h2 class="h">같은 주문을 몇 번 다시 보내도, 결과는 하나로 모이게 했습니다</h2>
+    <h2 class="h">같은 주문을 여러 번 다시 보내도 주문은 하나만 생기게 했습니다</h2>
     <div class="g mt" style="flex:1">
       <div class="c5" style="display:flex;flex-direction:column">
         <ol class="notes">
@@ -176,7 +176,7 @@
 <b>← 201 Created</b>
 <span class="k">응답이 오지 않아 같은 요청을 다시 보내면</span>
 <b>← 200 OK</b>   X-Idempotent-Replay: true</pre>
-        <p class="quote mt-a">어떤 경우든 같은 키로 다시 보내면 결과는 하나로 모입니다. 사용자가 '주문이 들어갔는지 모르는' 상태로 남지 않게 하는 것이 목표였습니다.</p>
+        <p class="quote mt-a">응답을 받지 못한 클라이언트는 같은 키로 다시 보내면 됩니다. 주문이 들어갔는지 모르는 상태로 남지 않게 하려고 응답을 이렇게 나눴습니다.</p>
       </div>
     </div>
   </div>
@@ -187,7 +187,7 @@
   <div class="run"><span><b>01 failstop</b> · 단일 리더와 옛 리더 차단</span><span class="pg">05 / 15</span></div>
   <div class="body">
     <p class="kicker">앱 서버 두 대, 주문장을 바꾸는 서버는 하나</p>
-    <h2 class="h">잠깐 멈췄다 돌아온 옛 리더가, 주문장을 건드리지 못하게 했습니다</h2>
+    <h2 class="h">잠깐 멈췄다 돌아온 옛 리더의 쓰기를 리스와 epoch로 막았습니다</h2>
     <div class="g mt">
       <div class="c6" style="display:flex;flex-direction:column">
         <p class="p">리더만 기한이 있는 리스를 쥐고, 리더가 바뀔 때마다 epoch를 1씩 올립니다. 까다로운 건 잠깐 멈췄던 옛 리더가 자기가 아직 리더라고 믿고 쓰기를 이어 가는 경우였습니다. 그래서 권한을 확인하는 일과 쓰는 일을 나누지 않고, SQL 한 문장 안에 넣었습니다.</p>
@@ -202,12 +202,12 @@ SELECT ...
         <p class="p mt-s">세 조건 중 하나라도 틀리면 0행이 들어가고, 옛 리더의 쓰기는 거기서 끝납니다. 확인과 기록 사이에 틈이 없어서, 그 사이에 리더가 바뀌는 일도 생기지 않습니다.</p>
       </div>
       <div class="c6" style="display:flex;flex-direction:column">
-        <p class="sub-k">장애를 일부러 내 보다가 찾아 고친 문제</p>
+        <p class="sub-k">장애 시험 중 찾아서 고친 문제</p>
         <ol class="attack">
           <li><span class="k">DB 지연</span><span class="a">DB를 느리게만 했는데 리더가 바뀌었습니다</span><span class="r">정산 트랜잭션의 <code>FOR SHARE</code>가 리스 갱신을 막고 있었습니다. <code>FOR KEY SHARE</code>와 유일 인덱스로 바꾼 뒤, 같은 시험 세 번 모두 리더가 그대로였습니다.</span></li>
           <li><span class="k">연결 끊김</span><span class="a">연결이 끊기면 리더 없이 멈췄습니다</span><span class="r">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 13.9초 만에 이어받았습니다.</span></li>
           <li><span class="k">리더 교대</span><span class="a">새 리더가 이미 끝난 리스를 받았습니다</span><span class="r">만료 시각을 잠금을 기다리기 전부터 세고 있었습니다. 잠금을 얻은 뒤부터 세도록 고치자 이어받기가 10초 안팎으로 고르게 나왔습니다.</span></li>
-          <li><span class="k">옛 리더</span><span class="a">물러난 리더가 500을 돌려줬습니다</span><span class="r">리더가 아닌 서버의 응답을 503으로 바꿔, 다시 돌린 모든 시험에서 주문 500이 한 건도 없었습니다.</span></li>
+          <li><span class="k">옛 리더</span><span class="a">물러난 리더가 500을 돌려줬습니다</span><span class="r">리더가 아닌 서버는 503을 돌려주게 바꿨습니다. 그 뒤로 다시 돌린 시험에서는 주문 500이 한 건도 나오지 않았습니다.</span></li>
         </ol>
       </div>
     </div>
@@ -225,7 +225,7 @@ SELECT ...
   <div class="run"><span><b>01 failstop</b> · 원장 검증과 성능</span><span class="pg">06 / 15</span></div>
   <div class="body">
     <p class="kicker">장애 시험과 부하 시험</p>
-    <h2 class="h">'복구됐다'는 로그 대신, 원장이 맞는지 SQL로 확인했습니다</h2>
+    <h2 class="h">장애 시험 뒤에는 원장이 맞는지 SQL로 확인했습니다</h2>
     <div class="g mt">
       <div class="c5">
         <p class="p">장애를 넣은 뒤에는 SQL 불변식으로 판정합니다. 어긋난 행이 하나라도 나오면 실패입니다.</p>
@@ -236,15 +236,15 @@ SELECT ...
         </ul>
       </div>
       <div class="c7">
-        <p class="p">이렇게 확인하다가, 비동기 복제에서는 확인받은 주문도 사라질 수 있다는 걸 직접 봤습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+        <p class="p">이 검사를 돌리다가, 비동기 복제에서는 클라이언트에 확인해 준 주문도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
         <div class="vs mt-s">
-          <div class="vc"><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p><p class="vd">예비 DB를 8초 멈춘 뒤 주 DB를 끄자, 확인받은 주문 122건 중 36건이 사라졌습니다.</p></div>
-          <div class="vc on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험에서 사라진 주문이 없었습니다.</p></div>
+          <div class="vc"><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p><p class="vd">예비 DB를 8초 멈춘 뒤 주 DB를 끄자, 확인해 준 주문 122건 중 36건이 사라졌습니다.</p></div>
+          <div class="vc on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험에서 사라진 주문이 없었습니다. 두 시험 모두 제 PC에서 돌렸습니다.</p></div>
         </div>
       </div>
     </div>
     <div class="mt-a">
-        <p class="sub-k">느린 곳은 재서 찾고 고쳤습니다</p>
+        <p class="sub-k">성능 병목과 수정 결과</p>
         <table class="tbl">
           <thead><tr><th>무엇이 막혔나</th><th>어떻게 고쳤나</th><th class="num">전 → 후</th></tr></thead>
           <tbody>
@@ -254,7 +254,7 @@ SELECT ...
           </tbody>
         </table>
         <div class="mt-s cap-row">
-          <p class="note">모두 내 PC의 Docker에서 같은 회차 안에서 전후를 비교한 값입니다. 가상 스레드 시험은 CPU를 2개로 묶어서 쟀습니다.</p>
+          <p class="note">모두 제 PC의 Docker에서 같은 조건으로 고치기 전과 후를 잰 값입니다. 가상 스레드 시험만 CPU를 2개로 묶었습니다.</p>
           <p class="links"><a href="https://github.com/SanghyeokLee-KR/failstop">GitHub 저장소</a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/docs/portfolio/failstop-presentation.pdf">발표 자료</a><a href="https://sanghyeoklee-kr.github.io/infra/#failstop">인프라 판에서 보기</a></p>
         </div>
     </div>
@@ -270,11 +270,11 @@ SELECT ...
         <p class="kicker">4인 팀 Tech Lead · PM · 2025년 9월 ~ 12월 · 졸업작품</p>
         <h2 class="h">재난문자를 지도 위 위험 구역으로 바꾸고, 가까운 대피소로 안내했습니다</h2>
         <p class="lede">재난문자는 글자뿐이라 내 주변이 위험한지 바로 알기 어렵습니다. 그래서 행안부 재난문자를 받아 지도에 위험 구역으로 그리고, 지금 운영 중인 가까운 대피소까지 길을 안내하는 서비스를 만들었습니다. 평가 기간에는 실제 도메인에서 일주일 동안 운영했습니다.</p>
-        <p class="role mt-s"><span><b>제가 한 일</b> 지도 핵심(위험 구역 · 경로)과 WebSocket, Python AI 서버, Oracle 스키마와 관리자, 배포. 게시판 API와 처음 수집기, 화면 퍼블리싱은 팀원이 맡았습니다.</span></p>
+        <p class="role mt-s"><span><b>제가 한 일</b> 지도 핵심(위험 구역 · 경로)과 WebSocket, Python AI 서버, 관리자 기능과 팀원과 함께 짠 Oracle 스키마, 배포. 게시판 API와 처음 수집기, 화면 퍼블리싱은 팀원이 맡았습니다.</span></p>
         <ol class="notes mt-a">
           <li><span class="t">공식 단계가 있으면 그대로, 없을 때만 AI에게</span><span class="d">공식 API의 긴급단계가 '위급'이나 '긴급'이면 바로 60분짜리 위험 구역을 만듭니다. 단계가 비어 있을 때만 따로 띄운 Python 서버의 분류 모델에게 묻습니다.</span></li>
           <li><span class="t">DB 커밋이 끝난 뒤에만 알립니다</span><span class="d">롤백됐는데 알림이 먼저 나가면 없는 재난을 알리게 됩니다. 그래서 <code>afterCommit</code>에서만 WebSocket으로 보냅니다.</span></li>
-          <li><span class="t">서버를 늘려도 모두가 받도록</span><span class="d">운영 구성에서는 Kafka를 거치게 하고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙은 사용자든 같은 알림을 받게 짰습니다.</span></li>
+          <li><span class="t">서버를 늘려도 모두가 받도록</span><span class="d">운영 구성에서는 Kafka를 거치게 하고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙은 사용자든 같은 알림을 받게 짰습니다. 평가 기간에는 서버 한 대로 돌렸습니다.</span></li>
         </ol>
       </div>
       <figure class="fig c5 grow"><div class="frame light contain"><img src="../assets/img/safetynevi/flow.jpg" alt="행안부 재난문자 API, 수집 스케줄러, 긴급단계 판단과 AI 보조, 위험 구역 생성, Kafka, 서버별 컨슈머 그룹, WebSocket으로 이어지는 흐름도"></div>
@@ -288,7 +288,7 @@ SELECT ...
   <div class="run"><span><b>02 SafetyNevi</b> · 대피소 추천</span><span class="pg">08 / 15</span></div>
   <div class="body">
     <p class="kicker">경로 탐색</p>
-    <h2 class="h">가장 가까운 곳이 아니라, 가는 길이 안전한 대피소를 고르게 했습니다</h2>
+    <h2 class="h">위험 구역 안에 있거나 가는 길이 구역을 지나는 대피소는 추천에서 뺐습니다</h2>
     <div class="g mt" style="flex:1">
       <figure class="fig c6" style="display:flex;flex-direction:column">
         <div class="frame light">
@@ -321,7 +321,7 @@ SELECT ...
           <li><span class="t">가는 길이 구역을 지나도 뺍니다</span><span class="d">점과 선분 사이의 최단거리를 계산해, 출발지에서 대피소로 가는 길이 위험 원을 가로지르는지 봅니다.</span></li>
           <li><span class="t">세 가지 기준으로 보여 줍니다</span><span class="d">운영 중인 가장 가까운 곳, 가장 가까운 곳, 수용 인원이 가장 큰 곳을 하나씩 고릅니다. 실제 도로 경로는 Kakao Mobility로 받고, 그 경로가 위험 원을 지나면 화면에서 경고합니다.</span></li>
         </ol>
-        <p class="quote mt-a">처음에는 추천이 자꾸 빗나갔습니다. 운영 여부를 '정상·영업·운영'이라는 값으로 보고 있었는데, 실제 데이터에는 '사용중'이라고 적혀 있었습니다. 데이터부터 열어 보는 습관이 여기서 생겼습니다.</p>
+        <p class="quote mt-a">처음에는 운영 중인 대피소가 추천에 제대로 잡히지 않았습니다. 운영 여부를 '정상·영업·운영' 값으로 판단했는데, 실제 데이터에는 '사용중'으로 들어 있었습니다. '사용중'만 운영 중으로 보도록 고치고, 이 규칙을 테스트로 고정했습니다.</p>
       </div>
     </div>
   </div>
@@ -332,11 +332,11 @@ SELECT ...
   <div class="run"><span><b>02 SafetyNevi</b> · 부하 시험과 AI 모델 평가</span><span class="pg">09 / 15</span></div>
   <div class="body">
     <p class="kicker">졸업 뒤 다시 열어 손본 작업 · 2026년</p>
-    <h2 class="h">느린 이유는 쿼리가 아니라 응답 크기였습니다</h2>
+    <h2 class="h">시설 조회 응답을 387KB에서 55KB로 줄였습니다</h2>
     <div class="g mt">
       <div class="c6">
         <p class="p">k6로 동시 사용자 60명까지 부하를 걸어 보니, 시설 조회 한 번이 1,500건, 387KB를 내려보내고 있었습니다. 응답을 필드별로 나눠 보니 주소가 25.2%였는데, 지도 마커에는 주소가 필요 없었습니다. 그래서 목록 전용 DTO를 따로 만들어 주소를 빼고 응답 압축을 켰습니다.</p>
-        <p class="p">재다 보니 k6가 <code>Accept-Encoding</code>을 보내지 않아 압축 효과가 잡히지 않는다는 것도 알게 돼서, 시나리오부터 고쳤습니다.</p>
+        <p class="p">처음에는 압축을 켜도 효과가 잡히지 않았는데, k6가 <code>Accept-Encoding</code>을 보내지 않고 있었습니다. 그래서 시나리오부터 고쳤습니다.</p>
         <table class="tbl mt">
           <thead><tr><th>시설 조회</th><th class="num">전</th><th class="num">후</th></tr></thead>
           <tbody>
@@ -345,10 +345,10 @@ SELECT ...
             <tr><td>처리량</td><td class="num">초당 347건</td><td class="num">초당 579건</td></tr>
           </tbody>
         </table>
-        <p class="note mt-s">로컬 H2 단일 서버에서 같은 시나리오로 잰 전후 비교입니다.</p>
+        <p class="note mt-s">개인 PC, H2 DB, 서버 1대, k6 최대 동시 사용자 60명에서 같은 시나리오로 잰 전후 비교입니다.</p>
       </div>
       <div class="c6 split">
-        <p class="sub-k">AI 분류 모델은 점수부터 의심했습니다</p>
+        <p class="sub-k">AI 분류 모델의 데이터 누수 수정</p>
         <p class="p">재난문자의 위험도를 가르는 모델을 처음 돌렸을 때 정확도가 99%가 나왔습니다. 너무 높아서 확인해 보니, 데이터를 부풀린(업샘플) 뒤에 학습용과 평가용을 나눠 같은 문장이 양쪽에 들어가 있었습니다. 먼저 나누고, 불균형은 클래스 가중치로 다루도록 고쳤습니다.</p>
         <div class="metrics m3 mt">
           <div class="metric"><div class="n">78<small>%</small></div><div class="l">재난 종류 분류 정확도</div><div class="c">누수를 고친 뒤</div></div>
@@ -404,7 +404,7 @@ SELECT ...
           <div class="vc"><p class="vk">서버마다 따로 세면</p><p class="vn">10<small>회</small></p><p class="vd">로그인 한도가 10분에 5회여도, 서버 두 대가 따로 세면 10회까지 통과합니다.</p></div>
           <div class="vc on"><p class="vk">DB에서 함께 세면</p><p class="vn">5<small>회</small></p><p class="vd">어느 서버로 들어와도 같은 줄을 세서, 한도가 그대로 지켜집니다.</p></div>
         </div>
-        <p class="p mt">그래서 공유 테이블에 먼저 1을 더하고, 그다음 한도를 확인하게 했습니다. 같은 새 키가 동시에 처음 들어와 기본 키가 부딪히면 UPDATE로 다시 시도해, 한 번도 빠지지 않게 했습니다.</p>
+        <p class="p mt">그래서 공유 테이블에 먼저 1을 더하고, 그다음 한도를 확인하게 했습니다. 같은 새 키가 동시에 처음 들어와 기본 키가 부딪히면 UPDATE로 한 번 더 시도해, 세는 데서 빠지는 요청이 없게 했습니다.</p>
         <pre class="code mt-s">MERGE INTO RATE_LIMIT_BUCKET b
 USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
    ON (b.RATE_KEY = s.RATE_KEY)
@@ -420,9 +420,9 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
           <li><span class="t">무거운 경계와 숫자를 나눴습니다</span><span class="d">상권 경계(GeoJSON)는 <code>/geo</code>로, 매출 같은 숫자는 <code>/summary</code>로 따로 받아 화면이 필요한 것만 다시 부르게 했습니다.</span></li>
           <li><span class="t">적재 시점이 달라도 빈 값이 나오지 않게</span><span class="d">매출 · 점포 · 유동인구 · 변화지표를 쿼리 하나로 모으되, 각 데이터는 매출의 최신 분기를 넘지 않는 자기 최신 분기를 씁니다.</span></li>
           <li><span class="t">결과에 상한을 두었습니다</span><span class="d">요약은 2만 행까지, 매출 목록은 필터를 꼭 받고 5,000행까지만 돌려주며, 잘렸는지를 응답에 표시합니다.</span></li>
-          <li><span class="t">응답과 예외는 한 가지 모양으로</span><span class="d">모든 API가 같은 응답 봉투를 쓰고, 제약 위반과 낙관적 락 충돌은 409, 처리하지 못한 예외는 내부 메시지를 숨긴 500으로 돌려줍니다.</span></li>
+          <li><span class="t">응답과 예외는 한 가지 모양으로</span><span class="d">모든 API가 같은 응답 형식을 쓰고, 제약 위반과 낙관적 락 충돌은 409, 처리하지 못한 예외는 내부 메시지를 숨긴 500으로 돌려줍니다.</span></li>
         </ol>
-        <p class="links mt-a"><a href="https://github.com/sangkwon-poly/sangkwon-platform-poly">GitHub 저장소</a><a href="https://sanghyeoklee-kr.github.io/infra/#sangkwon">무중단 배포는 인프라 판에</a></p>
+        <p class="links mt-a"><a href="https://github.com/sangkwon-poly/sangkwon-platform-poly">GitHub 저장소</a><a href="https://sanghyeoklee-kr.github.io/infra/#sangkwon">롤링 배포는 인프라 판에</a></p>
       </div>
     </div>
   </div>
@@ -436,7 +436,7 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
     <h2 class="h">라이더가 어느 집부터 들러야 할지, 서버가 계산하게 했습니다</h2>
     <div class="g mt" style="flex:1">
       <figure class="fig c7 grow"><div class="frame light contain"><img src="../assets/img/delivery/route.jpg" alt="배달지 5곳을 서버가 계산한 순서와 구간 경로로 그린 라이더 화면"></div>
-        <figcaption>배달지 5곳을 서버가 계산한 순서대로 그린 라이더 화면입니다. 총 14.58km, 약 38분이고, 방문 순서는 정확한 답입니다.</figcaption></figure>
+        <figcaption>배달지 5곳을 서버가 계산한 순서대로 그린 라이더 화면입니다. 데모용 격자 도로망에서 총 14.58km, 약 38분이고, 방문 순서는 Held-Karp로 구한 정확한 답입니다.</figcaption></figure>
       <div class="c5 compact" style="display:flex;flex-direction:column">
         <ol class="notes">
           <li><span class="t">도로망을 방향이 있는 그래프로</span><span class="d">일방통행과 건널 수 없는 길을 담으려고, 데모용 격자 도로망(25×21)을 방향 그래프(CSR)로 만들었습니다. 간선 값은 도로 종류별 속도로 구한 소요 시간입니다.</span></li>
@@ -461,7 +461,7 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
       <div class="c3 cap">
         <p class="cap-k">01</p>
         <p class="cap-t">응답과 예외 규약</p>
-        <p class="cap-d">API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 응답 봉투 하나와 오류 코드 8종, 업무 예외로 통일하고, 예전 핸들러와 부딪히지 않게 적용 범위를 좁혔습니다.</p>
+        <p class="cap-d">API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 응답은 ApiResponse 하나로 감싸고, 실패는 오류 코드 8종과 BusinessException으로 알리게 했습니다. 예전 핸들러와 부딪히지 않게 적용 범위도 좁혔습니다.</p>
       </div>
       <div class="c3 cap">
         <p class="cap-k">02</p>
@@ -476,7 +476,7 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
       <div class="c3 cap">
         <p class="cap-k">04</p>
         <p class="cap-t">받아서 바로 실행되게</p>
-        <p class="cap-d">h2 프로파일에서 Oracle 호환 모드로 띄우고 데모 데이터를 넣습니다. 지도 키가 없으면 서버가 계산한 경로를 SVG로 그려, 누구나 받아서 바로 돌려 볼 수 있습니다.</p>
+        <p class="cap-d">h2 프로파일에서 Oracle 호환 모드로 띄우고 데모 데이터를 넣습니다. 지도 키가 없으면 서버가 계산한 경로를 SVG로 그려, 외부 키 없이도 경로 계산 결과를 확인할 수 있습니다.</p>
       </div>
     </div>
     <div class="shots mt-a">
@@ -493,7 +493,7 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
   <div class="run"><span><b>05 appintoss-meetup</b> · 하모니, 토스 미니앱</span><span class="pg">14 / 15</span></div>
   <div class="body">
     <p class="kicker">4인 팀 팀장 · 2026년 6월 · 토스 앱에 정식 출시</p>
-    <h2 class="h">출시 직전 보안 검토에서 막힌 문제를 풀고, 일주일 만에 출시했습니다</h2>
+    <h2 class="h">출시 직전 보안 검토에서 걸린 문제를 고치고, 시작 7일 만에 출시했습니다</h2>
     <p class="lede">토스 앱 안에서, 친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 미니앱입니다. 저는 팀장으로 제품과 정책을 정하고, 출시 전 보안 문제 해결과 최종 승인을 맡았습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다.</p>
     <div class="g mt" style="flex:1">
       <div class="c7" style="display:flex;flex-direction:column">
@@ -502,7 +502,7 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
           <li><span class="k">신고</span><span class="a">키만 바꿔 신고하면 남의 댓글을 숨길 수 있었습니다</span><span class="r">신고자와 요청 제한의 기준을 서버가 확인한 IP로 바꿨습니다. nginx가 클라이언트가 보낸 <code>X-Forwarded-For</code>를 실제 접속 주소로 덮어쓰고, 앱은 127.0.0.1에만 열어 두었습니다.</span></li>
           <li><span class="k">재시도</span><span class="a">다시 보내면 같은 곡이 여러 번 올라갔습니다</span><span class="r">멱등 토큰을 '요청한 사람의 키 + 토큰'으로 묶고, 첫 트랙 내용의 해시로 같은 곡을 알아봐 이미 있는 코드를 돌려줍니다.</span></li>
         </ol>
-        <p class="quote mt-a">독립 검토에서 출시 불가 판정을 받았던 항목을 고친 뒤 다시 검토를 받아 통과했고, 6월 26일 토스 앱에 전체 공개로 출시했습니다.</p>
+        <p class="quote mt-a">독립 검토 판정은 출시 불가, 조건부 통과, 통과 순으로 바뀌었습니다. 세 번째 검토를 통과한 뒤 출시를 승인했고, 6월 26일 토스 앱에 전체 공개로 출시했습니다.</p>
       </div>
       <div class="c5" style="display:flex;flex-direction:column">
         <figure class="fig"><div class="frame light"><img src="../assets/img/harmony/dfd.jpg" alt="인터넷, EC2 공개면, localhost 세 신뢰 경계와 nginx, node API, SQLite 사이의 데이터 흐름"></div>
@@ -528,11 +528,11 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
       <div class="c6 compact" style="display:flex;flex-direction:column">
         <p class="kicker">4인 팀 PM · 2024년 6월 ~ 7월</p>
         <h3 class="h3">DevHub<small>개발자 커뮤니티</small></h3>
-        <p class="p mt-s">인증과 보안, 카카오페이 결제창 연동, 실시간 채팅, 챗봇을 맡았습니다. 프로젝트가 끝나고 다시 열어 보니 고칠 곳이 보여서, 하나씩 고치고 테스트로 묶었습니다.</p>
+        <p class="p mt-s">인증과 보안, 카카오페이 결제창 연동, 실시간 채팅, 챗봇을 맡았습니다. 프로젝트가 끝난 뒤 코드를 다시 열어 아래 문제를 고치고 테스트 17건을 붙였습니다.</p>
         <ol class="notes mt">
           <li><span class="t">Security를 켜면 모든 요청이 막혔습니다</span><span class="d">세션 로그인 정보를 요청마다 SecurityContext에 올려 주는 필터를 넣고, 회원 수정 · 글쓰기 · 결제 · 출석 같은 경로만 로그인을 요구하게 했습니다.</span></li>
           <li><span class="t">음수를 빼면 포인트가 오히려 늘었습니다</span><span class="d">0 이하 차감을 거부하고 잔액이 충분할 때만 빼도록 고쳤고, 트랜잭션은 서비스 계층에 두었습니다.</span></li>
-          <li><span class="t">챗봇 키 하나 때문에 앱이 뜨지 않았습니다</span><span class="d">키 파일이 있을 때만 챗봇 클라이언트를 만들게 해, 키가 없어도 앱은 뜨고 챗봇은 안내 문구를 돌려줍니다.</span></li>
+          <li><span class="t">챗봇 키 파일이 없으면 앱이 뜨지 않았습니다</span><span class="d">키 파일이 있을 때만 챗봇 클라이언트를 만들게 해, 키가 없어도 앱은 뜨고 챗봇은 안내 문구를 돌려줍니다.</span></li>
         </ol>
         <figure class="fig mt-a"><div class="frame light fixed"><img src="../assets/img/devhub/architecture.jpg" alt="브라우저, Spring Security, Controller, Service, Repository, Oracle과 H2, 외부 API로 이어지는 계층 구조"></div></figure>
         <p class="links mt-s"><a href="https://github.com/SanghyeokLee-KR/DevHub">DevHub 저장소</a></p>
