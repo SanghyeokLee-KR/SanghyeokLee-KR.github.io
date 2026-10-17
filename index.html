@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>이상혁 · System · Infra Engineer</title>
-<meta name="description" content="서버를 직접 세워 보고, 일부러 장애를 내 보면서 배우는 시스템 · 인프라 엔지니어 이상혁의 포트폴리오입니다.">
+<meta name="description" content="시스템·인프라 엔지니어 이상혁의 포트폴리오입니다. Linux 서버 운영, AWS 구성, 장애 시험과 백엔드 작업을 정리했습니다.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="assets/fonts/plex.css">
@@ -34,7 +34,7 @@
     <div class="h-id">
       <h1 class="name" id="who" aria-label="이상혁"><span class="ch" aria-hidden="true">이</span><span class="ch" aria-hidden="true">상</span><span class="ch" aria-hidden="true">혁</span></h1>
       <p class="en-name fade">Lee Sang Hyeok</p>
-      <p class="statement fade d2">서버를 직접 세워 보고,<br>일부러 장애를 내 보면서 배웁니다.</p>
+      <p class="statement fade d2">Linux 서버와 AWS를 직접 구성하고,<br>장애를 내서 복구를 확인합니다.</p>
       <dl class="contact-mini fade d3">
         <div><dt>Email</dt><dd><a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></dd></div>
         <div><dt>GitHub</dt><dd><a href="https://github.com/SanghyeokLee-KR">github.com/SanghyeokLee-KR</a></dd></div>
@@ -47,13 +47,13 @@
         <div class="sc-head">
           <p class="lbl">대표 작업</p>
           <h2>failstop</h2>
-          <a class="link-arrow" href="work/failstop/">사례 읽기 <span class="arrow" aria-hidden="true">→</span></a>
-          <p class="d">사람이 몰려도, DB가 멈춰도 이어지는 거래소입니다. 아래는 2026년 10월 AWS 서울 리전에서 주 DB의 전원을 끊은 시험입니다.</p>
+          <a class="link-arrow" href="work/failstop/">자세히 보기 <span class="arrow" aria-hidden="true">→</span></a>
+          <p class="d">직접 만든 모의 거래소를 AWS에 올려 운영했습니다. 2026년 10월 서울 리전에서 주 DB 전원을 끊는 시험을 했습니다.</p>
         </div>
         <div class="sc-fig">
           <svg class="sc wide" viewBox="0 0 444 236" role="img" aria-labelledby="sc-t sc-d">
             <title id="sc-t">주 DB가 멈췄을 때 예비 DB가 이어받는 장면</title>
-            <desc id="sc-d">로드밸런서 뒤 두 데이터센터에 거래 서버와 DB가 한 대씩 있습니다. 주 DB의 전원을 끊자 예비 DB가 23.0초 만에 스스로 새 주 DB가 됐고, 끊기기 직전에 들어온 주문 196건을 하나씩 대조한 결과 사라진 주문은 없었습니다.</desc>
+            <desc id="sc-d">로드밸런서 뒤 두 데이터센터에 거래 서버와 DB가 한 대씩 있습니다. 주 DB의 전원을 끊자 23.0초 만에 예비 DB가 스스로 새 주 DB가 됐습니다. 끊기기 직전에 들어온 주문 196건을 하나씩 대조했고, 사라진 주문은 없었습니다.</desc>
             <rect class="z" x="104" y="4" width="336" height="104"/>
             <text class="zl" x="112" y="19">데이터센터 1 · AZ-a</text>
             <rect class="z" x="104" y="128" width="336" height="104"/>
@@ -94,21 +94,21 @@
           </svg>
         </div>
         <ol class="sc-log">
-          <li data-p="1"><span class="k">01</span><span>주 DB의 전원을 갑자기 끊습니다</span><span class="v">전원 차단</span></li>
-          <li data-p="2" class="g"><span class="k">02</span><span>예비 DB가 스스로 새 주 DB가 됩니다</span><span class="v">승격</span></li>
-          <li data-p="3" class="g"><span class="k">03</span><span>끊기기 직전 주문 196건을 하나씩 대조합니다</span><span class="v">유실 0건</span></li>
+          <li data-p="1"><span class="k">01</span><span>주 DB 전원을 끊습니다</span><span class="v">전원 차단</span></li>
+          <li data-p="2" class="g"><span class="k">02</span><span>예비 DB가 새 주 DB로 승격됩니다</span><span class="v">승격</span></li>
+          <li data-p="3" class="g"><span class="k">03</span><span>차단 직전 주문 196건을 대조합니다</span><span class="v">유실 0건</span></li>
         </ol>
         <div class="ticks" id="ticks" aria-hidden="true"></div>
       </div>
     </div>
   </div>
 
-  <div class="figs fade d3" role="list" aria-label="failstop에서 확인한 숫자">
-    <p class="figs-k lbl"><span>failstop에서 확인한 숫자</span><span>모든 시험의 환경과 회차를 함께 기록했습니다</span></p>
-    <div class="fig" role="listitem"><p class="n">179<small>회</small></p><p class="l">일부러 낸 장애</p><p class="c">내 PC에서, 모두 30초 안에 이어받았습니다</p></div>
-    <div class="fig" role="listitem" id="fig-failover"><p class="n">23.0<small>초</small></p><p class="l">주 DB가 꺼진 뒤 이어받기까지</p><p class="c">AWS에서, 확인한 주문 196건 중 사라진 것 0건</p></div>
-    <div class="fig" role="listitem"><p class="n">4<small>분</small> 44<small>초</small></p><p class="l">경보부터 서버가 늘어나기까지</p><p class="c">AI가 제안하고 제가 승인한 뒤 67초 만에 합류</p></div>
-    <div class="fig" role="listitem"><p class="n">36.7<small>만 원</small></p><p class="l">한 달 예상 운영비</p><p class="c">예산 40만 원 안, 세금 포함</p></div>
+  <div class="figs fade d3" role="list" aria-label="failstop의 숫자">
+    <p class="figs-k lbl"><span>failstop의 숫자</span></p>
+    <div class="fig" role="listitem"><p class="n">179<small>회</small></p><p class="l">일부러 낸 장애</p><p class="c">제 PC의 Docker에서 시험했고, 모두 30초 안에 복구됐습니다</p></div>
+    <div class="fig" role="listitem" id="fig-failover"><p class="n">23.0<small>초</small></p><p class="l">주 DB가 꺼지고 예비 DB가 넘겨받기까지</p><p class="c">AWS 서울 리전에서 잰 값입니다</p></div>
+    <div class="fig" role="listitem"><p class="n">4<small>분</small> 44<small>초</small></p><p class="l">CPU 경보부터 조회 서버 합류까지</p><p class="c">AI 제안을 승인하고 67초 뒤 조회 서버가 합류했습니다</p></div>
+    <div class="fig" role="listitem"><p class="n">36.7<small>만 원</small></p><p class="l">한 달 예상 운영비</p><p class="c">세금 포함, 예산 40만 원 이내입니다</p></div>
   </div>
 </section>
 
@@ -126,7 +126,7 @@
   <ol class="index">
     <li class="work" data-kind="infra backend" data-img="assets/img/failstop/aws-map.jpg" data-cap="AWS 운영 구성도"><div class="w-in"><a href="work/failstop/">
       <span class="w-no">01</span>
-      <span class="w-main"><span class="w-title">failstop <span class="star">대표 작업</span></span><span class="w-line">사람이 몰려도, DB가 멈춰도 이어지는 거래소</span></span>
+      <span class="w-main"><span class="w-title">failstop <span class="star">대표 작업</span></span><span class="w-line">모의 거래소의 AWS 이중화 구성과 DB 페일오버 시험</span></span>
       <span class="w-role">혼자 진행<br>Claude·Codex와 함께<span class="w-kind"><span class="i">인프라</span> · 백엔드</span></span>
       <span class="w-year">2026<small>7–10월</small></span>
       <span class="w-thumb"><img src="assets/img/failstop/aws-map.jpg" alt="" loading="lazy"></span>
@@ -134,15 +134,15 @@
 
     <li class="work" data-kind="infra" data-img="assets/img/nginx/infra.jpg" data-tone="light" data-cap="NLB 뒤 서버 세 대와 감시 흐름"><div class="w-in"><a href="work/keep-nginx-alive/">
       <span class="w-no">02</span>
-      <span class="w-main"><span class="w-title">keep-nginx-alive</span><span class="w-line">공격을 막을 수 없는 경기에서 서버를 지킨 기록</span></span>
+      <span class="w-main"><span class="w-title">keep-nginx-alive</span><span class="w-line">공격자를 차단할 수 없는 CTF에서 nginx를 다운 없이 유지한 방어 구조</span></span>
       <span class="w-role">3인 팀 조장<br>공격/방어 CTF<span class="w-kind"><span class="i">인프라</span></span></span>
       <span class="w-year">2026<small>5월</small></span>
       <span class="w-thumb light"><img src="assets/img/nginx/infra.jpg" alt="" loading="lazy"></span>
     </a></div></li>
 
-    <li class="work" data-kind="infra" data-img="assets/img/pipeline/latency.jpg" data-cap="지연과 처리율 천장 측정"><div class="w-in"><a href="work/high-throughput-image-pipeline/">
+    <li class="work" data-kind="infra" data-img="assets/img/pipeline/latency.jpg" data-cap="지연 시간과 처리량 한계"><div class="w-in"><a href="work/high-throughput-image-pipeline/">
       <span class="w-no">03</span>
-      <span class="w-main"><span class="w-title">high-throughput-image-pipeline</span><span class="w-line">작은 서버 한 대로 속도를 끌어올린 과정</span></span>
+      <span class="w-main"><span class="w-title">high-throughput-image-pipeline</span><span class="w-line">t3.micro 한 대에서 이미지 수집 처리량 최적화와 CPU 병목 확인</span></span>
       <span class="w-role">3인 팀<br>팀 제출본으로 채택<span class="w-kind"><span class="i">인프라</span></span></span>
       <span class="w-year">2026<small>6월</small></span>
       <span class="w-thumb"><img src="assets/img/pipeline/latency.jpg" alt="" loading="lazy"></span>
@@ -150,7 +150,7 @@
 
     <li class="work" data-kind="infra" data-img="assets/img/lunch/architecture.jpg" data-tone="light" data-cap="수집부터 배포까지의 구조"><div class="w-in"><a href="work/ai-lunch-curator/">
       <span class="w-no">04</span>
-      <span class="w-main"><span class="w-title">ai-lunch-curator</span><span class="w-line">식단표 수집부터 Teams 알림, 배포까지 알아서 굴러가게</span></span>
+      <span class="w-main"><span class="w-title">ai-lunch-curator</span><span class="w-line">식단표 수집, AI 정리, Teams 알림과 CI/CD 배포</span></span>
       <span class="w-role">3인 팀 조장<span class="w-kind"><span class="i">인프라</span></span></span>
       <span class="w-year">2026<small>6월</small></span>
       <span class="w-thumb light"><img src="assets/img/lunch/architecture.jpg" alt="" loading="lazy"></span>
@@ -158,7 +158,7 @@
 
     <li class="work" data-kind="infra backend" data-img="assets/img/sangkwon/infra.jpg" data-tone="light" data-cap="두 가용 영역의 EC2와 로드밸런서"><div class="w-in"><a href="work/sangkwon-platform-poly/">
       <span class="w-no">05</span>
-      <span class="w-main"><span class="w-title">sangkwon-platform-poly</span><span class="w-line">서버 한 대가 빠져도 멈추지 않는 상권 비교 서비스</span></span>
+      <span class="w-main"><span class="w-title">sangkwon-platform-poly</span><span class="w-line">서울 상권 비교 서비스와 EC2 두 대 순차 배포</span></span>
       <span class="w-role">4인 팀 팀장<span class="w-kind"><span class="i">인프라</span> · 백엔드</span></span>
       <span class="w-year">2026<small>7월</small></span>
       <span class="w-thumb light"><img src="assets/img/sangkwon/infra.jpg" alt="" loading="lazy"></span>
@@ -166,7 +166,7 @@
 
     <li class="work" data-kind="backend" data-img="assets/img/safetynevi/flow.jpg" data-tone="light" data-cap="재난문자가 위험 구역이 되기까지"><div class="w-in"><a href="work/safetynevi/">
       <span class="w-no">06</span>
-      <span class="w-main"><span class="w-title">SafetyNevi</span><span class="w-line">재난문자를 지도 위 위험 구역으로 바꾸고, 안전한 대피소로</span></span>
+      <span class="w-main"><span class="w-title">SafetyNevi</span><span class="w-line">재난문자를 지도 위 위험 구역으로 바꾸고, 가는 길이 구역을 지나지 않는 대피소를 추천하는 서비스</span></span>
       <span class="w-role">4인 팀 Tech Lead · PM<br>졸업작품<span class="w-kind">백엔드</span></span>
       <span class="w-year">2025<small>9–12월</small></span>
       <span class="w-thumb light"><img src="assets/img/safetynevi/flow.jpg" alt="" loading="lazy"></span>
@@ -174,7 +174,7 @@
 
     <li class="work" data-kind="backend" data-img="assets/img/delivery/route.jpg" data-tone="light" data-cap="서버가 계산한 묶음배달 순서"><div class="w-in"><a href="work/deliverypro/">
       <span class="w-no">07</span>
-      <span class="w-main"><span class="w-title">DeliveryPro</span><span class="w-line">라이더가 어느 집부터 들를지, 서버가 계산합니다</span></span>
+      <span class="w-main"><span class="w-title">DeliveryPro</span><span class="w-line">묶음배달 방문 순서를 서버에서 계산하는 배달 플랫폼</span></span>
       <span class="w-role">5인 팀 조장<span class="w-kind">백엔드</span></span>
       <span class="w-year">2025<small>1–2월</small></span>
       <span class="w-thumb light"><img src="assets/img/delivery/route.jpg" alt="" loading="lazy"></span>
@@ -182,7 +182,7 @@
 
     <li class="work" data-kind="backend" data-img="assets/img/harmony/dfd.jpg" data-tone="light" data-cap="신뢰 경계와 데이터 흐름"><div class="w-in"><a href="work/appintoss-meetup/">
       <span class="w-no">08</span>
-      <span class="w-main"><span class="w-title">하모니</span><span class="w-line">출시 전 보안 문제를 풀고 낸 토스 미니앱 · appintoss-meetup</span></span>
+      <span class="w-main"><span class="w-title">하모니</span><span class="w-line">친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 토스 미니앱</span></span>
       <span class="w-role">4인 팀 팀장<br>보안 문제 해결 · 최종 승인<span class="w-kind">백엔드</span></span>
       <span class="w-year">2026<small>6월</small></span>
       <span class="w-thumb light"><img src="assets/img/harmony/dfd.jpg" alt="" loading="lazy"></span>
@@ -190,7 +190,7 @@
 
     <li class="work" data-kind="backend" data-img="assets/img/devhub/architecture.jpg" data-tone="light" data-cap="계층 구조"><div class="w-in"><a href="work/devhub/">
       <span class="w-no">09</span>
-      <span class="w-main"><span class="w-title">DevHub</span><span class="w-line">끝난 뒤 다시 열어 고친 개발자 커뮤니티</span></span>
+      <span class="w-main"><span class="w-title">DevHub</span><span class="w-line">프로젝트 종료 후 코드를 고치고 테스트를 붙인 개발자 커뮤니티</span></span>
       <span class="w-role">4인 팀 PM<span class="w-kind">백엔드</span></span>
       <span class="w-year">2024<small>6–7월</small></span>
       <span class="w-thumb light"><img src="assets/img/devhub/architecture.jpg" alt="" loading="lazy"></span>
@@ -210,8 +210,8 @@
 <section class="sec wrap" id="about" aria-labelledby="about-h">
   <div class="sec-head"><h2 class="sec-title" id="about-h"><span class="no">02</span>소개</h2></div>
   <div class="grid about">
-    <h3 class="about-h rv">백엔드로 시작했지만,<br>지금은 서버가 멈추는 순간이<br>더 궁금합니다.</h3>
-    <p class="about-lede rv">처음에는 기능을 만드는 일이 재미있었습니다. 그런데 직접 만든 서비스를 배포해 보니, 서버가 갑자기 멈추거나 사람이 한꺼번에 몰리면 어떻게 되는지가 더 궁금해졌습니다. 그래서 지금은 설정을 손으로 하나씩 해 보고, 일부러 장애를 내서 정말 복구되는지 확인하면서 공부하고 있습니다.</p>
+    <h3 class="about-h rv">백엔드 개발에서 시작해<br>지금은 서버 운영과<br>장애 대응을 공부합니다.</h3>
+    <p class="about-lede rv">처음에는 웹 서비스 기능을 만드는 백엔드 프로젝트를 주로 했습니다. 만든 서비스를 직접 배포하면서 서버가 죽거나 요청이 몰릴 때의 동작을 확인할 일이 많아졌고, 지금은 Linux 서버와 AWS 구성을 직접 설정한 뒤 장애를 내서 복구되는지 확인하는 작업을 주로 합니다.</p>
 
     <div class="tl rv" id="tl">
       <div class="sub-h"><p class="lbl">지금까지 해 온 프로젝트</p><p class="tl-key" aria-hidden="true"><i>백엔드</i><i class="in">인프라</i></p></div>
@@ -235,10 +235,10 @@
     <div class="about-caps rv">
       <p class="lbl sub-h">이렇게 일합니다</p>
       <ol class="caps">
-        <li><span class="k">01</span><div><p class="t">리눅스 서버를 직접 다룹니다</p><p class="d">계정과 권한, 로그, 방화벽, 디스크를 직접 설정했습니다. 디스크를 하나 빼 보고, 용량을 일부러 채워서 경보가 제대로 오는지도 확인했습니다.</p></div></li>
-        <li><span class="k">02</span><div><p class="t">장애를 일부러 내 봅니다</p><p class="d">DB를 강제로 꺼서 예비 DB가 바로 이어받는지, 그 사이 주문이 사라지지 않는지 확인했습니다. CTF 경기에서는 공격을 받는 동안에도 서비스를 한 번도 내리지 않았습니다.</p></div></li>
-        <li><span class="k">03</span><div><p class="t">지켜보는 일도 자동으로 합니다</p><p class="d">Prometheus와 Grafana로 상태를 보고, 경보가 울리면 AI가 원인을 정리해 Teams로 보고하게 했습니다. 배포는 GitHub Actions에 맡겼습니다.</p></div></li>
-        <li><span class="k">04</span><div><p class="t">기능을 만들 때는 테스트와 측정 기록을 함께 남깁니다</p><p class="d">주문 버튼을 두 번 누르면 어떻게 될까, 서버가 두 대가 되면 이 카운터는 그대로 맞을까. 이런 질문을 붙잡고 코드를 고쳐 왔습니다.</p></div></li>
+        <li><span class="k">01</span><div><p class="t">Linux 서버 운영</p><p class="d">계정과 권한, 로그, 방화벽, 디스크를 직접 설정했습니다. RAID1에서 디스크를 빼고 교체해 봤고, 디스크 용량을 일부러 채워 경보가 오는지 확인했습니다.</p></div></li>
+        <li><span class="k">02</span><div><p class="t">장애 시험과 복구 확인</p><p class="d">주 DB를 강제로 끄고, 예비 DB가 승격되는 동안 주문이 사라지는지 대조했습니다. 공격/방어 CTF에서는 경기 내내 채점 서비스가 한 번도 내려가지 않았습니다.</p></div></li>
+        <li><span class="k">03</span><div><p class="t">관제와 배포 자동화</p><p class="d">Prometheus와 Grafana로 지표를 보고, 경보가 울리면 AI가 원인을 정리해 Teams로 보고하게 했습니다. 배포는 GitHub Actions로 자동화했습니다.</p></div></li>
+        <li><span class="k">04</span><div><p class="t">백엔드 개발</p><p class="d">같은 주문이 두 번 들어올 때의 멱등 처리, 서버가 두 대일 때 요청 제한 카운터를 DB에서 공유하는 문제처럼 데이터가 어긋날 수 있는 부분을 테스트와 측정으로 확인하며 고쳤습니다.</p></div></li>
       </ol>
     </div>
     <div class="about-stack rv">
@@ -256,7 +256,7 @@
 
 <!-- 문서 -->
 <section class="sec wrap" id="docs" aria-labelledby="docs-h">
-  <div class="sec-head"><h2 class="sec-title" id="docs-h"><span class="no">03</span>문서로 보기</h2><p class="muted" style="font-size:15px">같은 내용을 지원하는 직무에 맞춰 15쪽으로 엮었습니다.</p></div>
+  <div class="sec-head"><h2 class="sec-title" id="docs-h"><span class="no">03</span>문서로 보기</h2><p class="muted" style="font-size:15px">직무별로 15쪽 PDF 두 개로 정리했습니다.</p></div>
   <ul class="docs">
     <li class="doc"><a href="infra.pdf" download>
       <span class="d-k">PDF</span>
@@ -277,7 +277,7 @@
 
 <!-- 연락 -->
 <footer class="foot wrap" id="contact">
-  <p class="say">함께 일할 자리에 대해 이야기 나누고 싶습니다.</p>
+  <p class="say">연락은 이메일로 주세요.</p>
   <a class="mail" href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a>
   <div class="foot-meta">
     <span>이상혁 · Lee Sang Hyeok</span>

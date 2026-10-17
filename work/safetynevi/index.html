@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SafetyNevi · 이상혁</title>
-<meta name="description" content="재난문자를 지도 위 위험 구역으로 바꾸고, 가는 길이 안전한 대피소로 안내하는 재난 대피 서비스. 4인 팀 졸업작품에서 Tech Lead와 PM을 맡았습니다.">
+<meta name="description" content="재난문자를 지도에 위험 구역으로 표시하고, 가는 길이 위험 구역을 지나지 않는 대피소를 추천하는 재난 대피 서비스입니다. 4인 팀 졸업작품에서 Tech Lead와 PM을 맡았습니다.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../../assets/fonts/plex.css">
@@ -91,11 +91,11 @@
   <div class="grid case-row">
     <div class="case-l">
       <h1 class="case-title" id="t">SafetyNevi</h1>
-      <p class="case-deck">재난문자를 지도 위 위험 구역으로 바꾸고, <br>가는 길이 안전한 대피소로 안내했습니다.</p>
+      <p class="case-deck">재난문자를 지도에 위험 구역으로 표시하고, <br>가까운 대피소까지 경로를 안내하는 서비스입니다.</p>
     </div>
     <dl class="case-meta">
       <div><dt>기간</dt><dd>2025년 9월 – 12월</dd></div>
-      <div><dt>형태</dt><dd>4인 팀 졸업작품입니다. Tech Lead와 PM을 맡았습니다.</dd></div>
+      <div><dt>형태</dt><dd>4인 팀 졸업작품에서 Tech Lead와 PM을 맡았습니다.</dd></div>
       <div><dt>분야</dt><dd>백엔드</dd></div>
       <div><dt>기술</dt><dd>Java 21 · Spring Boot 3.5 · WebSocket(STOMP) · Oracle · Python FastAPI · scikit-learn · Redis · Kafka · Docker · GitHub Actions · Kakao Map · Mobility</dd></div>
       <div><dt>자료</dt><dd class="lk"><a href="https://github.com/SanghyeokLee-KR/SafetyNevi">GitHub 저장소</a></dd></div>
@@ -103,7 +103,7 @@
   </div>
   <figure class="hero-shot">
     <div class="plate light"><img src="../../assets/img/safetynevi/map.jpg" width="1600" height="1000" alt="SafetyNevi 지도 화면: 현재 위치와 날씨, 대피소·보건소·경찰서·소방서 같은 주변 시설 탐색 메뉴, 길찾기 탭"></div>
-    <figcaption><b>지도 화면</b> · 현재 위치를 중심으로 대피소와 주변 시설을 찾고, 길찾기 탭에서 대피소까지 가는 길을 안내합니다.</figcaption>
+    <figcaption><b>지도 화면</b> · 내 위치 주변의 대피소와 시설을 찾고, 길찾기 탭에서 대피소까지 가는 길을 봅니다.</figcaption>
   </figure>
 </section>
 
@@ -113,7 +113,7 @@
       <li><a href="#ch-intro"><span class="n">01</span>개요</a></li>
       <li><a href="#ch-alert"><span class="n">02</span>위험 구역 알림</a></li>
       <li><a href="#ch-route"><span class="n">03</span>대피소 추천</a></li>
-      <li><a href="#ch-load"><span class="n">04</span>부하 시험</a></li>
+      <li><a href="#ch-load"><span class="n">04</span>부하 테스트</a></li>
       <li><a href="#ch-ai"><span class="n">05</span>AI 분류 모델</a></li>
       <li><a href="#ch-sec"><span class="n">06</span>보안</a></li>
       <li><a href="#ch-deploy"><span class="n">07</span>배포</a></li>
@@ -129,17 +129,17 @@
 <section class="chap wrap" id="ch-intro" aria-labelledby="h1">
   <div class="grid ch-head">
     <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">글자뿐인 재난문자를, 지도에서 바로 알아볼 수 있게 했습니다</h2>
+    <h2 class="ch-h" id="h1">재난문자 위험 구역 표시와 대피소 안내</h2>
     <div class="prose">
       <p>재난문자는 글자뿐이라 내 주변이 위험한지, 어디로 가야 하는지 바로 알기 어렵습니다. 그래서 행정안전부 재난문자를 받아 지도에 위험 구역으로 그리고, 지금 운영 중인 가까운 대피소까지 길을 안내하는 서비스를 만들었습니다. 메인 서버는 Spring Boot이고, 재난문자를 분류하는 AI 서버는 Python FastAPI로 따로 띄웠습니다.</p>
-      <p>네 명이 만든 졸업작품에서 저는 Tech Lead와 PM을 맡아 지도의 핵심인 위험 구역과 경로, 실시간 알림, AI 서버, DB 스키마와 관리자, 배포를 만들었습니다. 평가 기간에는 <em>실제 도메인에서 일주일 동안 운영</em>했습니다.</p>
+      <p>저는 위험 구역과 경로 탐색, 실시간 알림, AI 서버, 배포를 만들었습니다.</p>
     </div>
   </div>
   <div class="facts mt-l rv">
-    <div class="fact"><p class="n">1<small>주</small></p><p class="l">실제 도메인에서 운영한 기간</p><p class="c">2025년 12월 졸업작품 평가 기간.</p></div>
-    <div class="fact"><p class="n">60<small>분</small></p><p class="l">공식 경보가 만드는 위험 구역</p><p class="c">긴급단계가 '위급'이나 '긴급'이면 바로 만듭니다.</p></div>
-    <div class="fact"><p class="n">55<small>KB</small></p><p class="l">시설 조회 한 번의 응답 크기</p><p class="c">387KB에서 줄였습니다. 2026년, 로컬 H2에서 잰 값.</p></div>
-    <div class="fact"><p class="n">1.00</p><p class="l">위험 문자 재현율</p><p class="c">평가 1,202건 기준. AI는 공식 단계가 없을 때만 씁니다.</p></div>
+    <div class="fact"><p class="n">1<small>주</small></p><p class="l">실제 도메인에서 운영한 기간</p><p class="c">2025년 12월 졸업작품 평가 때입니다.</p></div>
+    <div class="fact"><p class="n">3<small>곳</small></p><p class="l">가는 길까지 살펴 추천하는 대피소</p><p class="c">위험 구역 안에 있거나 구역을 지나가는 곳은 뺍니다.</p></div>
+    <div class="fact"><p class="n">55<small>KB</small></p><p class="l">시설 조회 한 번의 응답 크기</p><p class="c">387KB였던 응답에서 주소를 빼고 압축을 켰습니다.</p></div>
+    <div class="fact"><p class="n">1.00</p><p class="l">위험 문자 재현율</p><p class="c">평가 데이터 1,202건 기준이고, 정밀도는 0.57입니다.</p></div>
   </div>
 </section>
 
@@ -147,22 +147,22 @@
 <section class="chap wrap" id="ch-alert" aria-labelledby="h2">
   <div class="grid ch-head">
     <p class="ch-no"><b>02</b>재난문자에서 위험 구역까지</p>
-    <h2 class="ch-h" id="h2">공식 단계가 있으면 그대로 따르고, 없을 때만 AI에게 물었습니다</h2>
+    <h2 class="ch-h" id="h2">재난문자 수집과 위험 구역 생성</h2>
     <div class="prose">
-      <p>처음 수집기는 네이버 화면을 긁어 오는 방식이었습니다. 페이지 구조가 바뀌면 바로 깨지는 방식이라, 저는 데이터 소스를 행정안전부 재난문자와 기상청 단기예보 공식 API로 바꿨습니다. 공식 API에는 정부가 매긴 긴급단계가 들어 있어서, 위험한지 아닌지를 AI가 새로 추측할 필요가 없었습니다.</p>
+      <p>팀원이 만든 첫 수집기는 네이버 화면을 긁어 오는 방식이라, 페이지 구조가 바뀌면 바로 깨질 수 있었습니다. 그래서 저는 행정안전부 재난문자와 기상청 단기예보 공식 API에서 데이터를 받도록 바꿨습니다. 공식 API 응답에는 긴급단계 값이 있어서, 이 값이 있으면 AI 분류 없이 위험 여부를 정합니다.</p>
     </div>
   </div>
   <div class="split mt-l">
     <figure class="a5 rv">
       <div class="plate light flowimg"><img src="../../assets/img/safetynevi/flow.jpg" width="1173" height="1323" loading="lazy" alt="행안부 재난문자 API, 수집 스케줄러, 긴급단계 판단과 AI 보조, 위험 구역 생성, Kafka 토픽, 서버별 컨슈머 그룹, WebSocket으로 이어지는 흐름도"></div>
-      <figcaption><b>위험 구역이 화면에 뜨기까지</b> · 재난문자가 들어와 사용자 화면에 위험 구역으로 뜨기까지의 흐름입니다.</figcaption>
+      <figcaption><b>위험 구역이 화면에 뜨기까지</b> · 수집부터 Kafka와 WebSocket을 거쳐 브라우저에 닿기까지입니다.</figcaption>
     </figure>
     <div class="b7">
       <ol class="notes rv">
-        <li><span class="t">공식 단계가 있으면 그대로, 없을 때만 AI에게</span><span class="d">공식 API의 긴급단계가 '위급'이나 '긴급'이면 바로 60분짜리 위험 구역을 만듭니다. 단계가 비어 있을 때만 따로 띄운 Python 서버의 분류 모델에게 묻습니다.</span></li>
-        <li><span class="t">구역은 화면이 그립니다</span><span class="d">서버는 재난문자의 수신 지역 이름으로 위험 구역을 만들고, 브라우저가 그 이름을 시군구 경계 데이터(GeoJSON)에 맞춰 지도에 칠합니다.</span></li>
-        <li><span class="t">DB 커밋이 끝난 뒤에만 알립니다</span><span class="d">롤백됐는데 알림이 먼저 나가면 없는 재난을 알리게 됩니다. 그래서 커밋이 끝난 뒤에만 WebSocket과 웹푸시로 보냅니다.</span></li>
-        <li><span class="t">서버를 늘려도 모두가 받도록</span><span class="d">운영 구성에서는 Kafka를 거치게 하고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙은 사용자든 같은 알림을 받게 짰습니다. Kafka와 Redis는 운영 프로파일에서만 켜지도록 코드와 설정까지 마쳤고, 평가 기간에는 서버 한 대로 운영했습니다.</span></li>
+        <li><span class="t">위급 · 긴급이면 바로 구역으로</span><span class="d">긴급단계가 위급이나 긴급이면 60분짜리 위험 구역을 바로 만듭니다. 단계가 없는 문자만 따로 띄운 Python 서버의 분류 모델에 묻습니다.</span></li>
+        <li><span class="t">구역 표시는 브라우저에서</span><span class="d">서버는 재난문자의 수신 지역 이름으로 구역을 만들고, 브라우저가 이 이름을 시군구 경계 GeoJSON에 맞춰 칠합니다.</span></li>
+        <li><span class="t">DB 커밋이 끝난 뒤에만 알립니다</span><span class="d">알림을 먼저 보내고 저장이 롤백되면 DB에 없는 재난을 알리게 됩니다. 그래서 WebSocket과 웹푸시는 커밋 뒤에 보냅니다.</span></li>
+        <li><span class="t">서버가 여러 대일 때의 알림 전달</span><span class="d">알림을 Kafka로 흘리고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙어 있든 같은 알림을 받게 했습니다. Kafka와 Redis는 운영 프로파일에서 켜지게 해 두었고, 평가 기간에는 서버 한 대로 돌렸습니다.</span></li>
       </ol>
       <pre class="code mt-l rv">DisasterZone saved = disasterZoneRepository.save(zone);
 DisasterZoneResponse response = DisasterZoneResponse.from(saved);
@@ -177,26 +177,25 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <!-- 03 대피소 추천 -->
 <section class="chap wrap" id="ch-route" aria-labelledby="h3">
   <div class="grid ch-head">
-    <p class="ch-no"><b>03</b>대피소 추천 · 경로 탐색</p>
-    <h2 class="ch-h" id="h3">가장 가까운 곳이 아니라, 가는 길이 안전한 대피소를 고르게 했습니다</h2>
+    <p class="ch-no"><b>03</b>대피소 추천</p>
+    <h2 class="ch-h" id="h3">위험 구역을 피하는 대피소 추천</h2>
     <div class="prose">
-      <p>가까운 대피소만 고르면 위험 구역 한가운데로 안내할 수도 있습니다. 그래서 관리자가 발령한 원형 위험 구역을 기준으로, 대피소가 구역 안에 있는지와 가는 길이 구역을 지나는지를 함께 봅니다. 장면을 골라 후보가 걸러지는 순서를 따라가 보세요.</p>
+      <p>거리만 보고 고르면 위험 구역 한가운데로 안내할 수도 있습니다. 그래서 관리자가 발령한 원형 위험 구역을 기준으로, 대피소가 구역 안에 있는지와 가는 길이 구역을 지나는지를 같이 봅니다.</p>
     </div>
   </div>
 
   <div class="flow mt-l rv" id="shelter-flow" data-title="대피소 후보를 거르는 순서"></div>
-  <p class="note-s">그림 속 거리와 자리는 설명을 위한 예시입니다. 거르는 기준은 서버의 경로 탐색 코드와 같습니다.</p>
 
   <div class="split mt-l">
     <ol class="a7 notes cols rv">
       <li><span class="t">반경을 넓혀 가며 찾습니다</span><span class="d">위경도 사각형 범위로 5km, 20km, 100km 순으로 넓혀, 후보가 3곳 이상 나올 때까지 찾습니다.</span></li>
-      <li><span class="t">구역 안의 대피소는 뺍니다</span><span class="d">위험 원 안에 있는 대피소는 거리와 상관없이 후보에서 제외합니다.</span></li>
-      <li><span class="t">가는 길이 구역을 지나도 뺍니다</span><span class="d">점과 선분 사이의 최단거리를 계산해, 출발지에서 대피소로 가는 길이 위험 원을 가로지르는지 봅니다.</span></li>
-      <li><span class="t">세 가지 기준으로 보여 줍니다</span><span class="d">운영 중인 가장 가까운 곳, 가장 가까운 곳, 수용 인원이 가장 큰 곳을 하나씩 고릅니다.</span></li>
+      <li><span class="t">구역 안의 대피소는 뺍니다</span><span class="d">원 안에 있는 대피소는 아무리 가까워도 뺍니다.</span></li>
+      <li><span class="t">가는 길이 구역을 지나도 뺍니다</span><span class="d">구역 중심에서 출발지와 대피소를 잇는 선분까지의 최단거리가 반지름보다 짧으면, 길이 구역을 가로지른다고 봅니다.</span></li>
+      <li><span class="t">남은 후보에서 세 곳을 보여 줍니다</span><span class="d">운영 중인 곳 가운데 가장 가까운 곳, 거리만 본 가장 가까운 곳, 수용 인원이 가장 큰 곳입니다.</span></li>
     </ol>
     <div class="b5 rv">
-      <p class="quote">처음에는 추천이 자꾸 빗나갔습니다. 운영 여부를 '정상 · 영업 · 운영'이라는 값으로 보고 있었는데, 실제 데이터에는 '사용중'이라고 적혀 있었습니다.</p>
-      <p class="lede-s mt-m">데이터부터 열어 보는 습관이 여기서 생겼습니다. 지금은 '사용중'인 대피소만 운영 중으로 보는지를 테스트로 확인합니다.</p>
+      <p class="quote">처음에는 운영 중인 대피소가 추천에 제대로 잡히지 않았습니다. 운영 여부를 '정상 · 영업 · 운영' 값으로 판단했는데, 실제 데이터에는 '사용중'으로 들어 있었습니다.</p>
+      <p class="lede-s mt-m">'사용중'만 운영 중으로 보도록 고치고, 이 규칙을 테스트로 고정했습니다.</p>
     </div>
   </div>
 </section>
@@ -204,20 +203,20 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <!-- 04~05: 숫자와 측정이 이어지는 두 장은 남색 띠로 묶는다 -->
 <div class="dark">
 
-<!-- 04 부하 시험 -->
+<!-- 04 부하 테스트 -->
 <section class="chap wrap" id="ch-load" aria-labelledby="h4">
   <div class="grid ch-head">
-    <p class="ch-no"><b>04</b>부하 시험 · 졸업 뒤 다시 열어 손본 작업 · 2026년</p>
-    <h2 class="ch-h" id="h4">느린 이유는 쿼리가 아니라 응답 크기였습니다</h2>
+    <p class="ch-no"><b>04</b>졸업 뒤 다시 본 부하 테스트</p>
+    <h2 class="ch-h" id="h4">k6 부하 테스트와 시설 조회 응답 크기 축소</h2>
     <div class="prose">
-      <p>k6로 동시 사용자 60명까지 부하를 걸어 보니, 시설 조회 한 번이 1,500건, 387KB를 내려보내고 있었습니다. 응답을 필드별로 나눠 보니 주소가 25.2%였는데, 지도 마커에는 주소가 필요 없었습니다. 그래서 목록 전용 DTO를 따로 만들어 주소를 빼고 응답 압축을 켰습니다.</p>
+      <p>졸업하고 2026년에 다시 열어 k6로 동시 사용자 60명까지 부하를 걸어 봤더니, 시설 조회 한 번에 1,500건, 387KB가 내려가고 있었습니다. 필드별로 나눠 보니 응답의 4분의 1이 주소였는데, 지도 마커에는 주소가 필요 없습니다. 그래서 목록 전용 DTO를 만들어 주소를 빼고 응답 압축을 켰습니다.</p>
     </div>
   </div>
   <div class="split mt-l">
     <div class="a6 rv">
       <div class="vs">
-        <div><p class="vk">고치기 전</p><p class="vn">387<small>KB</small></p><p class="vd">시설 조회 한 번에 1,500건을 주소까지 모두 담아 보냈습니다.</p></div>
-        <div class="on"><p class="vk">목록 전용 DTO와 압축</p><p class="vn">55<small>KB</small></p><p class="vd">마커에 필요 없는 주소를 빼고, 응답 압축을 켰습니다.</p></div>
+        <div><p class="vk">고치기 전</p><p class="vn">387<small>KB</small></p><p class="vd">마커에 쓰지 않는 주소까지 전부 담겨 있었습니다.</p></div>
+        <div class="on"><p class="vk">목록 전용 DTO와 압축</p><p class="vn">55<small>KB</small></p><p class="vd">같은 1,500건에서 주소를 빼고 압축해 보냅니다.</p></div>
       </div>
     </div>
     <div class="b6 rv">
@@ -229,8 +228,8 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
           <tr><td>처리량</td><td class="num">초당 347건</td><td class="num">초당 579건</td></tr>
         </tbody>
       </table>
-      <p class="note-s">로컬 H2 단일 서버에서 같은 시나리오로 잰 전후 비교입니다.</p>
-      <p class="lede-s mt-m">재다 보니 k6가 <code>Accept-Encoding</code>을 보내지 않아 압축 효과가 잡히지 않는다는 것도 알게 돼서, 시나리오부터 고쳤습니다.</p>
+      <p class="note-s">측정 환경: 개인 PC, H2 DB, 서버 1대, k6 최대 동시 사용자 60명. 전후 같은 시나리오로 쟀습니다.</p>
+      <p class="lede-s mt-m">처음에는 압축을 켜도 효과가 잡히지 않았습니다. k6가 <code>Accept-Encoding</code>을 보내지 않고 있어서, 시나리오부터 고쳤습니다.</p>
     </div>
   </div>
 </section>
@@ -238,32 +237,32 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <!-- 05 AI 분류 모델 -->
 <section class="chap wrap" id="ch-ai" aria-labelledby="h5">
   <div class="grid ch-head">
-    <p class="ch-no"><b>05</b>AI 분류 모델 · Python FastAPI</p>
-    <h2 class="ch-h" id="h5">정확도 99%가 나왔을 때, 점수부터 의심했습니다</h2>
+    <p class="ch-no"><b>05</b>AI 분류 모델</p>
+    <h2 class="ch-h" id="h5">재난문자 분류 모델과 데이터 누수 수정</h2>
     <div class="prose">
-      <p>재난문자의 위험도를 가르는 모델을 처음 돌렸을 때 정확도가 99%가 나왔습니다. 너무 높아서 확인해 보니, 데이터를 부풀린(업샘플) 뒤에 학습용과 평가용을 나눠 같은 문장이 양쪽에 들어가 있었습니다. <em>먼저 나누고, 불균형은 클래스 가중치로 다루도록</em> 고쳤습니다.</p>
+      <p>재난문자의 위험도를 가르는 모델을 처음 돌렸더니 정확도가 99%였습니다. 값이 지나치게 높아 확인해 보니, 업샘플링을 먼저 하고 학습용과 평가용을 나눈 탓에 같은 문장이 양쪽에 들어가 있었습니다. 순서를 바꿔 데이터를 먼저 나누고, 불균형은 클래스 가중치로 다뤘습니다.</p>
     </div>
   </div>
   <div class="panels mt-l rv">
     <div class="panel">
-      <p class="k">재난 종류 분류<span>누수를 고친 뒤</span></p>
+      <p class="k">재난 종류 분류<span>데이터 누수를 고친 뒤</span></p>
       <p class="n">78<small>%</small></p>
       <p class="d">재난문자가 어떤 재난에 관한 것인지 가르는 정확도입니다.</p>
     </div>
     <div class="panel">
       <p class="k">위험 문자 재현율<span>평가 1,202건</span></p>
       <p class="n">1.00</p>
-      <p class="d">위험한 문자를 놓치지 않는 쪽을 먼저 택했고, 그 대가로 정밀도는 <em>0.57</em>입니다.</p>
+      <p class="d">재현율을 우선했고, 정밀도는 0.57입니다.</p>
     </div>
     <div class="panel">
       <p class="k">학습한 재난문자<span>위험은 0.8%</span></p>
       <p class="n">18,399<small>건</small></p>
-      <p class="d">위험 문자가 아주 드물어, 업샘플 대신 클래스 가중치로 불균형을 다뤘습니다.</p>
+      <p class="d">위험 문자 비율이 낮아서 정확도와 함께 재현율과 정밀도를 봤습니다.</p>
     </div>
   </div>
   <div class="grid mt-l">
     <ol class="notes cols inset rv">
-      <li><span class="t">AI는 보조로만 씁니다</span><span class="d">위험 판정의 첫 근거는 언제나 공식 긴급단계입니다. 모델은 공식 단계가 비어 있는 문자에만 씁니다.</span></li>
+      <li><span class="t">AI는 보조로만 씁니다</span><span class="d">공식 긴급단계가 있는 문자는 모델을 거치지 않습니다.</span></li>
       <li><span class="t">AI 서버가 멈춰도 수집은 이어집니다</span><span class="d">메인 서버는 AI 서버에 연결 3초, 응답 5초 제한을 걸고, 답을 받지 못하면 안전으로 처리해 수집을 계속합니다.</span></li>
     </ol>
   </div>
@@ -274,37 +273,37 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <!-- 06 보안 -->
 <section class="chap wrap" id="ch-sec" aria-labelledby="h6">
   <div class="grid ch-head">
-    <p class="ch-no"><b>06</b>그 밖에 손본 보안</p>
-    <h2 class="ch-h" id="h6">로그인과 알림 구독처럼 밖으로 열린 입구를 하나씩 막았습니다</h2>
+    <p class="ch-no"><b>06</b>보안</p>
+    <h2 class="ch-h" id="h6">로그인과 웹푸시 구독 API 보안 처리</h2>
   </div>
   <ol class="chain mt-l rv">
-    <li><p class="nk">SSRF</p><p class="nt">웹푸시 주소 검사</p><p class="nd">https만 받고 localhost와 IP 주소는 거절해, 서버가 내부망으로 요청을 보내게 하는 공격을 막았습니다.</p></li>
-    <li><p class="nk">rate limit</p><p class="nt">IP별 요청 제한</p><p class="nd">API는 분당 300건, 푸시 등록은 30건까지 받습니다. X-Forwarded-For는 설정을 켰을 때만 믿습니다.</p></li>
-    <li><p class="nk">lockout</p><p class="nt">로그인 잠금</p><p class="nd">5번 틀리면 잠그고, 대소문자만 바꾼 아이디도 같은 계정으로 셉니다.</p></li>
-    <li><p class="nk">enumeration</p><p class="nt">가입 여부 숨기기</p><p class="nd">비밀번호 찾기에서 없는 계정에도 가짜 질문을 보여 줘, 가입했는지가 드러나지 않습니다.</p></li>
+    <li><p class="nk">SSRF</p><p class="nt">웹푸시 주소 검사</p><p class="nd">https만 받고 localhost와 IP 주소는 거절해, 서버가 내부망으로 요청을 보내지 않게 했습니다.</p></li>
+    <li><p class="nk">rate limit</p><p class="nt">IP마다 한도</p><p class="nd">API는 분당 300건, 푸시 등록은 30건까지 받습니다. X-Forwarded-For는 설정을 켰을 때만 믿습니다.</p></li>
+    <li><p class="nk">lockout</p><p class="nt">5번 틀리면 잠금</p><p class="nd">대소문자만 바꾼 아이디로 다시 시도해도 같은 계정으로 셉니다.</p></li>
+    <li><p class="nk">enumeration</p><p class="nt">가입 여부 숨기기</p><p class="nd">비밀번호 찾기에서 없는 계정에도 가짜 질문을 보여 줍니다.</p></li>
   </ol>
 </section>
 
 <!-- 07 배포 -->
 <section class="chap wrap" id="ch-deploy" aria-labelledby="h7">
   <div class="grid ch-head">
-    <p class="ch-no"><b>07</b>배포 · CI/CD</p>
-    <h2 class="ch-h" id="h7">푸시하면 테스트와 이미지, 배포까지 이어지게 했습니다</h2>
+    <p class="ch-no"><b>07</b>배포</p>
+    <h2 class="ch-h" id="h7">GitHub Actions와 Docker Compose 배포</h2>
     <div class="prose">
-      <p>AWS EC2 한 대에 Docker Compose로 배포했습니다. GitHub Actions가 테스트를 돌리고 이미지를 만들어 GHCR에 올리면, 서버가 그 이미지를 받아 교체합니다. 비밀 값은 이미지에 넣지 않고 서버의 설정 파일로 따로 붙였습니다.</p>
+      <p>AWS EC2 한 대에 Docker Compose로 배포했습니다. GitHub Actions가 테스트를 돌리고 이미지를 만들어 GHCR에 올리면, 서버가 그 이미지를 받아 교체합니다. 비밀번호와 키는 이미지에 넣지 않고, 서버에 둔 설정 파일로 따로 넣었습니다.</p>
     </div>
   </div>
   <div class="split mt-l">
     <figure class="a7 rv">
       <div class="plate light pan"><img src="../../assets/img/safetynevi/infra.jpg" width="1600" height="1148" loading="lazy" alt="배포·인프라 구성도: GitHub, GitHub Actions, GHCR, 서버의 docker compose pull로 이어지는 배포와 EC2 한 대 위의 Spring Boot, Redis, Kafka, 외부의 FastAPI, Oracle DB, 공공 API"></div>
       <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-      <figcaption><b>배포 · 인프라 구성도</b> · EC2 한 대 위의 메인 서버와, 바깥의 AI 서버 · Oracle DB · 공공 API.</figcaption>
+      <figcaption><b>배포 · 인프라 구성도</b> · 메인 서버는 EC2 한 대에 있고, AI 서버와 Oracle DB, 공공 API는 바깥에 있습니다.</figcaption>
     </figure>
     <ol class="b5 notes rv">
-      <li><span class="t">테스트가 먼저입니다</span><span class="d">GitHub Actions가 서버 테스트와 프론트 타입 검사를 통과해야 이미지를 만듭니다.</span></li>
-      <li><span class="t">서버는 이미지만 받습니다</span><span class="d">GHCR에 올라간 이미지를 서버가 <code>docker compose pull</code>로 받아 다시 띄웁니다.</span></li>
-      <li><span class="t">상태를 읽을 수 있게</span><span class="d">Actuator의 health · liveness · readiness와 Prometheus 지표를 열어, 앱 상태를 밖에서 확인할 수 있게 했습니다.</span></li>
-      <li><span class="t">로컬은 Docker 없이도</span><span class="d">로컬과 테스트는 H2와 메모리 구현으로 바로 뜨고, Redis와 Kafka는 운영 프로파일에서만 켜집니다.</span></li>
+      <li><span class="t">테스트 통과 후 이미지 빌드</span><span class="d">서버 테스트와 프론트 타입 검사를 통과해야 이미지를 만듭니다.</span></li>
+      <li><span class="t">서버는 이미지만 받습니다</span><span class="d">서버에서는 빌드하지 않고, <code>docker compose pull</code>로 받아 다시 띄우기만 합니다.</span></li>
+      <li><span class="t">상태 확인 엔드포인트</span><span class="d">Actuator의 health · liveness · readiness와 Prometheus 지표를 열어 두었습니다.</span></li>
+      <li><span class="t">로컬은 Docker 없이도</span><span class="d">로컬과 테스트는 H2와 메모리 구현으로 바로 뜹니다.</span></li>
     </ol>
   </div>
 </section>
@@ -313,23 +312,23 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <section class="chap wrap" id="ch-team" aria-labelledby="h8">
   <div class="grid ch-head">
     <p class="ch-no"><b>08</b>팀과 역할</p>
-    <h2 class="ch-h" id="h8">네 명이 나눠 만들었고, 서버와 지도의 핵심을 맡았습니다</h2>
+    <h2 class="ch-h" id="h8">팀 구성과 담당 범위</h2>
   </div>
   <div class="grid mt-l">
     <div class="inset role-cols rv">
       <div>
         <p class="subk">제가 한 일</p>
         <ol class="notes">
-          <li><span class="t">지도 핵심</span><span class="d">위험 구역과 경로 탐색, WebSocket 실시간 알림</span></li>
+          <li><span class="t">지도</span><span class="d">위험 구역과 경로 탐색, WebSocket 실시간 알림</span></li>
           <li><span class="t">AI 서버</span><span class="d">Python 서버와 재난문자 분류 모델</span></li>
-          <li><span class="t">DB와 관리자</span><span class="d">Oracle 스키마, 관리자 기능</span></li>
+          <li><span class="t">DB와 관리자</span><span class="d">팀원과 함께 짠 Oracle 스키마, 관리자 기능</span></li>
           <li><span class="t">운영 보강과 배포</span><span class="d">공식 API 전환, Redis · Kafka, CI/CD, 관측, 보안, Docker 배포</span></li>
         </ol>
       </div>
       <div class="theirs">
         <p class="subk">팀원이 맡은 일</p>
         <ol class="notes">
-          <li><span class="t">백엔드</span><span class="d">처음 재난문자 수집기, 게시판 · 공지 · 문의 API, DB 스키마</span></li>
+          <li><span class="t">백엔드</span><span class="d">처음 재난문자 수집기, 게시판 · 공지 · 문의 API</span></li>
           <li><span class="t">프론트엔드</span><span class="d">전체 화면 퍼블리싱과 반응형, 로고 · 아이콘, 회원 화면</span></li>
           <li><span class="t">콘텐츠</span><span class="d">재난 행동요령 콘텐츠, 테스트 데이터셋</span></li>
         </ol>
@@ -347,7 +346,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
   <a href="../deliverypro/">
     <span class="k">다음 작업 <span class="mono">07</span></span>
     <span class="t">DeliveryPro <span class="arrow" aria-hidden="true">→</span></span>
-    <span class="d">라이더가 어느 집부터 들를지, 서버가 계산합니다</span>
+    <span class="d">묶음배달 방문 순서를 서버에서 계산하는 배달 플랫폼</span>
   </a>
 </section>
 

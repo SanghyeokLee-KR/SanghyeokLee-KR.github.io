@@ -14,7 +14,7 @@
       cf: { label: 'CloudFront', sub: '웹·API 진입점' },
       lb: { label: '로드밸런서', sub: '3개 AZ 연결' },
       app1: { label: '거래 서버 1', sub: '주문 체결·조회' },
-      q: { label: '조회 서버', sub: '사람이 몰릴 때만 켭니다' },
+      q: { label: '조회 서버', sub: '사람이 몰릴 때만 켜짐' },
       app2: { label: '거래 서버 2', sub: '주문 체결·조회' },
       hap: { label: 'HAProxy', kind: 'small' },
       db1: { label: '주 DB', sub: 'PostgreSQL 17 · Patroni' },
@@ -23,7 +23,7 @@
       s3: { label: 'S3', sub: '배포 파일' },
       ssm: { label: 'SSM', sub: 'SSH 대신 원격 관리' },
       teams: { label: 'Teams', sub: '운영 채널' },
-      ai: { label: '온프레미스 AI 서버', sub: '제안만 합니다' }
+      ai: { label: '온프레미스 AI 서버', sub: '제안까지만' }
     },
     initNodes: { q: 'off' },
     layouts: {
@@ -111,35 +111,35 @@
     },
     scenarios: [
       {
-        label: '주문 한 건', title: '주문 한 건이 지나가는 길',
-        result: '엔진보다 DB 기록이 먼저입니다. DB에 먼저 남은 주문만 매칭 엔진이 체결합니다.',
+        label: '주문 한 건', title: '주문 한 건의 처리 경로',
+        result: '커밋이 끝난 주문은 주 DB와 예비 DB에 모두 남아 있어서, 거래 서버가 죽어도 사라지지 않습니다.',
         steps: [
           { say: '사용자의 주문은 CloudFront를 지나 로드밸런서로 들어옵니다.', move: ['u_cf', 'cf_lb'], set: { cf: 'on', lb: 'on' } },
-          { say: '로드밸런서는 두 데이터센터에 한 대씩 둔 거래 서버로 보냅니다.', move: ['lb_a1'], set: { app1: 'on' } },
-          { say: '거래 서버는 주문을 엔진에 넘기기 전에 DB의 명령 저널에 먼저 기록합니다. DB 연결은 HAProxy를 거쳐 주 DB로 갑니다.', move: ['a1_h', 'h_d1'], set: { hap: 'on', db1: 'on' } },
-          { say: 'Patroni 엄격 동기 복제를 써서, 주 DB가 멈추면 같은 내용을 가진 예비 DB만 새 주 DB가 됩니다. 동기 예비 DB가 없으면 앱이 주문을 423으로 막습니다.', move: ['rep'], set: { db2: 'on' } },
-          { say: 'DB에 먼저 남은 주문만 매칭 엔진이 체결하고, 결과는 원장에 남습니다.', move: ['-h_d1', '-a1_h', '-lb_a1', '-cf_lb', '-u_cf'], set: { app1: 'ok' }, badge: { app1: { text: '체결', tone: 'accent' } } }
+          { say: '로드밸런서가 데이터센터마다 한 대씩 있는 거래 서버로 넘깁니다.', move: ['lb_a1'], set: { app1: 'on' } },
+          { say: '거래 서버는 엔진보다 먼저 DB의 명령 저널에 주문을 적습니다. HAProxy가 지금의 주 DB로 연결해 줍니다.', move: ['a1_h', 'h_d1'], set: { hap: 'on', db1: 'on' } },
+          { say: '예비 DB에도 같은 기록이 써져야 커밋이 끝납니다(Patroni 엄격 동기 복제).', move: ['rep'], set: { db2: 'on' } },
+          { say: '그다음에 매칭 엔진이 체결하고, 결과가 원장에 남습니다.', move: ['-h_d1', '-a1_h', '-lb_a1', '-cf_lb', '-u_cf'], set: { app1: 'ok' }, badge: { app1: { text: '체결', tone: 'accent' } } }
         ]
       },
       {
-        label: '주 DB가 꺼지면', title: '주 DB의 전원을 갑자기 끊었을 때',
-        result: '2026년 10월 AWS에서 실제로 해 본 시험입니다. 예비 DB가 23.0초 만에 주 DB가 됐고, 확인한 주문 196건 중 사라진 주문은 없었습니다.',
+        label: '주 DB가 꺼지면', title: '주 DB 전원 차단 시험',
+        result: '2026년 10월 AWS 서울 리전에서 한 시험입니다. DB 전환에는 AI가 관여하지 않고 Patroni가 처리합니다.',
         init: { nodes: { app1: 'on', app2: 'on', hap: 'on', db1: 'on', db2: 'on', q: 'off' }, lit: ['a1_h', 'a2_h', 'h_d1', 'rep'] },
         steps: [
-          { say: '주 DB 서버의 전원을 갑자기 끊었습니다.', set: { db1: 'down' }, badge: { db1: { text: '전원 차단' } }, unlit: ['h_d1', 'rep'] },
-          { say: '예비 DB가 스스로 새 주 DB가 됩니다. 되돌리기 어려운 일이라 AI에게 맡기지 않고, 검증된 Patroni 규칙이 맡습니다.', clock: { to: 23.0, label: '주 DB가 꺼진 뒤 이어받기까지 · 실측' }, set: { db2: 'ok' }, rename: { db2: '새 주 DB' }, badge: { db2: { text: '23.0초', tone: 'accent' } } },
-          { say: '끊기기 직전에 들어온 주문 196건을 하나씩 대조했고, 사라진 주문은 없었습니다.', badge: { db2: { text: '196건 중 유실 0건', tone: 'accent' } } }
+          { say: '주 DB 서버의 전원을 끊습니다.', set: { db1: 'down' }, badge: { db1: { text: '전원 차단' } }, unlit: ['h_d1', 'rep'] },
+          { say: '예비 DB가 스스로 새 주 DB가 됩니다.', clock: { to: 23.0, label: '주 DB가 꺼지고 예비 DB가 넘겨받기까지' }, set: { db2: 'ok' }, rename: { db2: '새 주 DB' }, badge: { db2: { text: '23.0초', tone: 'accent' } } },
+          { say: '끊기기 직전 주문 196건을 하나씩 대조했습니다. 사라진 주문은 없었습니다.', badge: { db2: { text: '196건 중 유실 0건', tone: 'accent' } } }
         ]
       },
       {
-        label: '사람이 몰리면', title: '사람이 몰릴 때 서버를 늘리는 순서',
-        result: '2026년 10월 10일 AWS에서 실제로 부하를 걸었을 때의 기록입니다. 경보부터 조회 서버 합류까지 4분 44초가 걸렸습니다.',
+        label: '사람이 몰리면', title: '부하가 올라갈 때 조회 서버를 늘리는 순서',
+        result: '경보부터 조회 서버 합류까지 4분 44초가 걸렸습니다.',
         steps: [
-          { time: '03:02:12', say: '사람이 몰려 CPU 경보가 울리고, Teams로 바로 알림이 갑니다.', burst: 3, move: ['u_cf', 'cf_lb', 'lb_a1'], move2: ['mon_t', 't_op'], set: { cf: 'on', lb: 'on', app1: 'on', mon: 'on', teams: 'on', op: 'on' }, badge: { mon: { text: 'CPU 경보' } } },
-          { time: '03:03:57', say: 'AI가 지표와 서버 수, 최근 조치를 모아 조회 서버를 한 대 늘리자고 제안합니다. 허용해 둔 조치 밖의 제안은 코드가 먼저 걸러 냅니다.', move: ['mon_ai'], set: { ai: 'on' }, badge: { ai: { text: '조회 서버 +1', tone: 'accent' } } },
-          { time: '03:05:49', say: '저는 근거를 확인하고 승인합니다. 서버를 바꾸는 일은 제가 승인해야 실행됩니다.', set: { op: 'ok' }, badge: { op: { text: '승인', tone: 'accent' } } },
-          { time: '03:06:56', say: '승인하고 67초 뒤 조회 서버가 합류합니다.', pre: { q: 'pending' }, hold: 900, move: ['lb_q'], set: { q: 'ok' }, badge: { q: { text: '합류', tone: 'accent' } } },
-          { time: '03:07', say: '경보가 풀리고, AI가 정리한 장애 보고서가 Teams로 옵니다.', move: ['ai_t'], badge: { mon: null, teams: { text: '보고서', tone: 'accent' } } }
+          { time: '03:02:12', say: '부하가 올라가 CPU 경보가 울리고, Teams로 알림이 갑니다.', burst: 3, move: ['u_cf', 'cf_lb', 'lb_a1'], move2: ['mon_t', 't_op'], set: { cf: 'on', lb: 'on', app1: 'on', mon: 'on', teams: 'on', op: 'on' }, badge: { mon: { text: 'CPU 경보' } } },
+          { time: '03:03:57', say: 'AI가 지표를 모아 보고, 조회 서버를 한 대 늘리자고 제안합니다.', move: ['mon_ai'], set: { ai: 'on' }, badge: { ai: { text: '조회 서버 +1', tone: 'accent' } } },
+          { time: '03:05:49', say: '운영자인 제가 제안을 확인하고 승인합니다. 승인 전에는 서버를 바꾸지 않습니다.', set: { op: 'ok' }, badge: { op: { text: '승인', tone: 'accent' } } },
+          { time: '03:06:56', say: '67초 뒤 조회 서버가 합류합니다.', pre: { q: 'pending' }, hold: 900, move: ['lb_q'], set: { q: 'ok' }, badge: { q: { text: '합류', tone: 'accent' } } },
+          { time: '03:07', say: '경보가 풀리고, AI가 쓴 장애 보고서가 Teams에 올라옵니다.', move: ['ai_t'], badge: { mon: null, teams: { text: '보고서', tone: 'accent' } } }
         ]
       }
     ]
@@ -163,8 +163,8 @@
       wide: {
         w: 1200, h: 520,
         zones: [
-          { x: 16, y: 112, w: 1168, h: 150, right: true, label: '투명 방화벽', sub: 'pfSense 브리지 · 서버 설정은 그대로 두고 그 앞에 끼웠습니다' },
-          { x: 16, y: 296, w: 1168, h: 200, label: 'nftables', sub: '서버마다 한 번 더 · 기본은 모두 막고 필요한 것만 엽니다', solid: true, bottom: true }
+          { x: 16, y: 112, w: 1168, h: 150, right: true, label: '투명 방화벽', sub: 'pfSense 브리지 · 서버 설정은 그대로 두고 앞에 끼움' },
+          { x: 16, y: 296, w: 1168, h: 200, label: 'nftables', sub: '서버마다 한 번 더 · 기본 차단, 필요한 것만 허용', solid: true, bottom: true }
         ],
         nodes: {
           net: { x: 24, y: 24, w: 150, h: 48 },
@@ -215,22 +215,22 @@
     },
     scenarios: [
       {
-        label: '평소 요청', title: '평소의 요청이 지나가는 길',
-        result: '막는 일을 층마다 나눠 맡겼습니다. 서버마다 nftables로 한 번 더 막습니다.',
+        label: '평소 요청', title: '정상 요청의 경로',
+        result: 'L7 입구, L3·L4 포트 정책, IDS, 서버별 nftables로 차단과 탐지를 나눴습니다.',
         steps: [
           { say: '요청이 경계 방화벽을 지나 투명 방화벽의 HAProxy 입구에 닿습니다.', move: ['n_f', 'f_h'], set: { fw: 'on' } },
-          { say: 'HAProxy가 암호화된 요청을 풀어 내용을 확인하고, 웹 진입 서버로 보냅니다.', move: ['h_w'], set: { haproxy: 'ok', web: 'on' } },
+          { say: 'HAProxy가 암호화를 풀어 내용을 보고, 웹 진입 서버로 넘깁니다.', move: ['h_w'], set: { haproxy: 'ok', web: 'on' } },
           { say: '웹 서버는 앱 서버의 8080 포트로만 갈 수 있습니다.', move: ['w_p'], set: { pol: 'ok' }, badge: { pol: { text: '허용 8080', tone: 'accent' } } },
-          { say: 'Suricata가 웹과 앱 사이를 지켜보는 가운데, 요청이 앱 서버에 닿습니다.', move: ['p_i', 'i_a'], set: { ids: 'on', app: 'ok' } },
-          { say: '서버마다 nftables가 기본은 모두 막고 필요한 것만 엽니다. 규칙은 원본 하나로 여섯 대에 똑같이 맞췄습니다.' }
+          { say: '웹과 앱 사이는 Suricata가 지켜봅니다. 요청이 앱 서버에 닿았습니다.', move: ['p_i', 'i_a'], set: { ids: 'on', app: 'ok' } },
+          { say: '서버 안에서는 nftables가 기본은 모두 막고 필요한 것만 엽니다. 규칙 파일 하나로 여섯 대를 똑같이 맞췄습니다.' }
         ]
       },
       {
         label: 'SQL 주입', title: 'SQL 주입 시험 요청',
-        result: '입구에서 요청을 열어 보고 403으로 돌려보냈습니다. 웹 서버까지 닿지 않습니다.',
+        result: 'HAProxy 입구에서 403으로 돌려보내고, 요청은 웹 서버까지 가지 않습니다.',
         steps: [
           { say: '시험용 SQL 주입 요청이 경계 방화벽을 지나 들어옵니다.', move: ['n_f', 'f_h'], set: { fw: 'on' } },
-          { say: 'HAProxy가 암호화를 풀어 내용을 확인하고 SQL 주입을 알아봅니다.', set: { haproxy: 'block' }, badge: { haproxy: { text: '차단' } } },
+          { say: 'HAProxy가 내용을 열어 보고 SQL 주입을 알아챕니다.', set: { haproxy: 'block' }, badge: { haproxy: { text: '차단' } } },
           { say: '요청은 403으로 돌아갑니다.', move: ['-f_h', '-n_f'], set: { net: 'on' }, badge: { haproxy: { text: '403' } } }
         ]
       },
@@ -240,17 +240,17 @@
         init: { nodes: { web: 'on' } },
         steps: [
           { say: '웹 진입 서버에서 주 DB로 바로 가는 연결을 시도합니다.', move: ['w_p'], set: { pol: 'on' } },
-          { say: '포트 정책에 없는 길이라 투명 방화벽에서 막힙니다.', ghost: ['p_d'], set: { pol: 'block' }, badge: { pol: { text: '차단 DB' } } }
+          { say: '포트 정책에 없는 길이라 투명 방화벽에서 막힙니다.', ghost: ['p_d'], set: { pol: 'block' }, badge: { pol: { text: 'DB 차단' } } }
         ]
       },
       {
         label: '스크립트 삽입', title: '스크립트 삽입 시도',
-        result: 'Suricata가 웹과 앱 사이에서 찾아내 관제 서버에 경보를 보냈습니다.',
+        result: 'Suricata는 IDS라서 차단하지 않고, 탐지해서 경보를 보냅니다.',
         init: { nodes: { web: 'on' } },
         steps: [
           { say: '웹 서버에서 앱 서버로 가는 요청에 스크립트 삽입 시도가 섞여 있습니다.', move: ['w_p', 'p_i'], set: { pol: 'on' } },
-          { say: 'Suricata가 웹과 앱 사이를 지켜보다 스크립트 삽입 시도를 찾아냅니다.', set: { ids: 'ok' }, badge: { ids: { text: '탐지', tone: 'accent' } } },
-          { say: '관제 서버로 경보를 보냅니다.', move: ['i_o'], set: { ops: 'ok' }, badge: { ops: { text: '경보', tone: 'accent' } } }
+          { say: 'Suricata가 이 시도를 찾아냅니다.', set: { ids: 'ok' }, badge: { ids: { text: '탐지', tone: 'accent' } } },
+          { say: '관제 서버로 경보가 갑니다.', move: ['i_o'], set: { ops: 'ok' }, badge: { ops: { text: '경보', tone: 'accent' } } }
         ]
       }
     ]

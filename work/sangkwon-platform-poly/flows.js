@@ -33,7 +33,7 @@
           u_alb: ['user', 'r', 'alb', 'l'],
           alb_a: ['alb', 'r', 'a', 'l', { mid: 400 }],
           alb_b: ['alb', 'r', 'b', 'l', { mid: 400 }],
-          a_db: ['a', 'r', 'db', 'l', { fb: 0.3, mid: 944, label: 'JDBC · 지갑', lx: 952, ly: 158 }],
+          a_db: ['a', 'r', 'db', 'l', { fb: 0.3, mid: 944, label: 'JDBC · Wallet', lx: 952, ly: 158 }],
           b_db: ['b', 'r', 'db', 'l', { fb: 0.7, mid: 944 }]
         }
       },
@@ -67,16 +67,16 @@
         steps: [
           { say: '사용자의 요청은 HTTPS로 ALB에 들어옵니다. 인증서와 TLS 종료는 ALB가 맡습니다.', move: ['u_alb'], set: { alb: 'on' } },
           { say: 'ALB는 헬스체크를 통과한 서버 가운데 한 대로 요청을 보냅니다. 이번에는 가용 영역 a의 EC2-A입니다.', move: ['alb_a'], set: { a: 'on' } },
-          { say: 'EC2-A는 로그인 세션을 자기 메모리가 아니라 DB(Spring Session JDBC)에서 읽습니다.', move: ['a_db'], set: { db: 'on' }, badge: { db: { text: '세션' } } },
+          { say: 'EC2-A는 로그인 세션을 자기 메모리가 아니라 DB에서 읽습니다. Spring Session JDBC를 썼습니다.', move: ['a_db'], set: { db: 'on' }, badge: { db: { text: '세션' } } },
           { say: '다음 요청이 가용 영역 c의 EC2-B로 가도, 같은 DB에서 같은 세션을 읽어 로그인이 그대로 이어집니다.', move: ['u_alb', 'alb_b', 'b_db'], set: { b: 'ok', a: 'ok' }, badge: { b: { text: '같은 세션', tone: 'accent' } } }
         ]
       },
       {
         label: '한 대씩 배포', title: '새 버전을 한 대씩 올리는 순서',
-        result: '교체는 늘 한 대씩입니다. 어느 단계에서든 요청을 받는 서버가 한 대 이상 남도록 정한 배포 순서입니다.',
+        result: '교체는 늘 한 대씩입니다. 어느 단계에서든 요청을 받는 서버가 적어도 한 대는 남습니다.',
         init: { nodes: { alb: 'on', a: 'on', b: 'on', db: 'on' }, lit: ['u_alb', 'alb_a', 'alb_b', 'a_db', 'b_db'] },
         steps: [
-          { say: 'EC2-A에 새 jar를 올리고 서비스를 다시 시작합니다. 진행 중인 요청은 최대 20초까지 기다렸다가 내려갑니다.', set: { a: 'pending' }, badge: { a: { text: '교체 중' } } },
+          { say: 'EC2-A에 새 jar를 올리고 서비스를 다시 시작합니다. 처리 중인 요청은 최대 20초까지 마저 처리하고 내려갑니다.', set: { a: 'pending' }, badge: { a: { text: '교체 중' } } },
           { say: 'ALB 헬스체크가 A를 대상에서 빼고, 그동안 들어오는 요청은 B가 모두 받습니다.', unlit: ['alb_a', 'a_db'], move: ['u_alb', 'alb_b'], set: { b: 'ok' }, badge: { b: { text: '요청 받는 중', tone: 'accent' } } },
           { say: 'A가 헬스체크를 통과하면 다시 대상에 들어옵니다. 그다음에야 B로 넘어갑니다.', move: ['alb_a', 'a_db'], set: { a: 'ok' }, badge: { a: { text: '새 버전', tone: 'accent' }, b: null } },
           { say: 'B도 같은 순서로 바꿉니다. 이번에는 A가 요청을 모두 받습니다.', unlit: ['alb_b', 'b_db'], set: { b: 'pending' }, badge: { b: { text: '교체 중' }, a: { text: '요청 받는 중', tone: 'accent' } }, move: ['u_alb', 'alb_a'] },
@@ -85,7 +85,7 @@
       },
       {
         label: '로그인 한도', title: '두 서버가 한 줄을 함께 셉니다',
-        result: '로그인 한도(10분에 5회)가 서버 수와 상관없이 그대로 지켜집니다. 서버마다 따로 셌다면 10회까지 통과했을 것입니다.',
+        result: '10분에 5회라는 로그인 한도가 서버 수와 상관없이 그대로 지켜집니다.',
         steps: [
           { say: '로그인 요청이 EC2-A로 들어옵니다. 서버는 DB의 공유 테이블에 먼저 1을 더하고, 그다음 한도를 확인합니다.', move: ['u_alb', 'alb_a', 'a_db'], set: { alb: 'on', a: 'on', db: 'on' }, badge: { db: { text: '1 / 5' } } },
           { say: '다음 요청은 EC2-B로 갑니다. B도 같은 줄에 더해서 2가 됩니다.', move: ['u_alb', 'alb_b', 'b_db'], set: { b: 'on' }, badge: { db: { text: '2 / 5' } } },

@@ -75,33 +75,33 @@
     },
     scenarios: [
       {
-        label: '배달지 5곳', title: '배달지 다섯 곳의 순서를 정하는 길',
-        result: '배달지 5곳을 묶은 데모에서 총 14.58km, 약 38분이 나왔고 방문 순서는 정확한 답입니다. 화면의 경로와 DB에 저장된 순서가 어긋나지 않습니다.',
+        label: '배달지 5곳', title: '배달지 다섯 곳 순서 정하기',
+        result: '14.58km, 약 38분짜리 순서가 나왔습니다. 화면에 그린 경로와 DB에 저장한 순서는 같은 계산에서 나옵니다.',
         steps: [
-          { say: '라이더가 목적지 다섯 곳이 묶인 배차를 수락하면, 서버가 방문 순서와 경로를 계산합니다.', move: ['r_api'], set: { rider: 'on', api: 'on' } },
-          { say: '배달지는 도로 위에 있지 않아서, 가장 가까운 교차로에 붙입니다. 400m 격자 색인으로 찾고, 1,500m 넘게 떨어지면 구역 밖으로 봅니다.', move: ['api_snap'], set: { snap: 'on' } },
-          { say: '정차지마다 다익스트라를 한 번씩 돌려, 정차지끼리의 소요 시간표를 만듭니다. 목적지를 다 찾으면 바로 멈춥니다.', move: ['snap_dij'], set: { dij: 'on' }, badge: { dij: { text: '6 × 6 시간표' } } },
-          { say: '시간표 위에서 Held-Karp로 방문 순서를 정합니다. 12곳까지는 정확한 답이고, 이번은 다섯 곳입니다.', move: ['dij_hk'], set: { hk: 'ok' }, badge: { hk: { text: '정확한 답', tone: 'accent' } } },
+          { say: '라이더가 다섯 집이 묶인 배차를 수락하면 서버가 계산을 시작합니다.', move: ['r_api'], set: { rider: 'on', api: 'on' } },
+          { say: '집은 도로 위에 있지 않으니, 먼저 가장 가까운 교차로에 붙입니다.', move: ['api_snap'], set: { snap: 'on' } },
+          { say: '정차지마다 다익스트라를 한 번씩 돌려, 서로 몇 초 걸리는지 표로 만듭니다.', move: ['snap_dij'], set: { dij: 'on' }, badge: { dij: { text: '6 × 6 시간표' } } },
+          { say: '이 표로 Held-Karp를 돌려 순서를 정합니다. 다섯 곳이면 정확한 답이 나옵니다.', move: ['dij_hk'], set: { hk: 'ok' }, badge: { hk: { text: '정확한 답', tone: 'accent' } } },
           { say: '계산한 순서는 DB에 저장하고, 화면에는 순서와 구간 좌표를 함께 돌려줍니다.', move: ['hk_db'], move2: ['-dij_hk', '-snap_dij', '-api_snap', '-r_api'], set: { db: 'ok', rider: 'ok' }, badge: { rider: { text: '14.58km · 약 38분', tone: 'accent' } } }
         ]
       },
       {
         label: '12곳이 넘으면', title: '정차지가 12곳을 넘을 때',
-        result: '12곳까지는 정확한 답을 구하고, 그보다 많으면 근사로 내려가며 정확한 답인지를 결과에 함께 표시합니다.',
+        result: '정확한 답 대신 근사로 순서를 정하고, 그 사실을 응답에 담습니다.',
         steps: [
-          { say: '묶인 정차지가 12곳을 넘는 경우입니다. 교차로에 붙이고 시간표를 만드는 단계는 같습니다.', move: ['r_api', 'api_snap', 'snap_dij'], set: { rider: 'on', api: 'on', snap: 'on', dij: 'on' } },
-          { say: '정확한 답은 12곳까지만 구합니다. 그보다 많으면 최근접 이웃으로 순서를 잡고 2-opt로 다듬는 근사로 내려갑니다.', move: ['dij_apx'], set: { hk: 'off', apx: 'ok' } },
-          { say: '정한 순서는 똑같이 저장하고, 응답에는 정확한 답이 아니라는 표시(exact=false)를 함께 담습니다.', move: ['apx_db'], move2: ['-dij_apx', '-snap_dij', '-api_snap', '-r_api'], set: { db: 'ok', rider: 'ok' }, badge: { apx: { text: 'exact=false' } } }
+          { say: '정차지가 12곳을 넘어도, 교차로에 붙이고 시간표를 만드는 데까지는 같습니다.', move: ['r_api', 'api_snap', 'snap_dij'], set: { rider: 'on', api: 'on', snap: 'on', dij: 'on' } },
+          { say: '여기서는 최근접 이웃으로 순서를 먼저 잡고, 2-opt로 다듬습니다.', move: ['dij_apx'], set: { hk: 'off', apx: 'ok' } },
+          { say: '순서는 똑같이 저장하고, 응답에 exact=false를 붙여 근사라는 걸 알립니다.', move: ['apx_db'], move2: ['-dij_apx', '-snap_dij', '-api_snap', '-r_api'], set: { db: 'ok', rider: 'ok' }, badge: { apx: { text: 'exact=false' } } }
         ]
       },
       {
-        label: '지도 키가 없으면', title: '받아서 바로 돌려 볼 수 있게',
-        result: '외부 지도 키가 없어도 서버가 계산한 경로를 화면에서 그대로 확인할 수 있습니다.',
+        label: '지도 키가 없으면', title: '지도 키 없이 돌려 볼 때',
+        result: '지도 키가 없어도 계산한 경로는 그대로 볼 수 있습니다.',
         init: { nodes: { api: 'on', snap: 'on', dij: 'on', hk: 'ok', db: 'ok' }, lit: ['api_snap', 'snap_dij', 'dij_hk', 'hk_db'] },
         steps: [
-          { say: '서버의 응답에는 방문 순서와 구간마다의 좌표가 함께 들어 있습니다.', move: ['-r_api'], set: { rider: 'on' } },
-          { say: '카카오 지도 키가 있으면, 실제 지도 위에 서버가 계산한 경로를 얹습니다.', move: ['r_k'], set: { kmap: 'ok' } },
-          { say: '키가 없으면 지도 대신 서버가 계산한 경로와 매장 · 배달지를 SVG로 그립니다. 누구나 받아서 바로 돌려 볼 수 있게 한 장치입니다.', move: ['r_s'], set: { svgv: 'ok' } }
+          { say: '서버 응답에는 방문 순서와 구간마다의 좌표가 함께 들어 있습니다.', move: ['-r_api'], set: { rider: 'on' } },
+          { say: '카카오 지도 키가 있으면 실제 지도 위에 경로를 얹습니다.', move: ['r_k'], set: { kmap: 'ok' } },
+          { say: '키가 없으면 지도 없이 경로와 매장, 배달지만 SVG로 그립니다.', move: ['r_s'], set: { svgv: 'ok' } }
         ]
       }
     ]

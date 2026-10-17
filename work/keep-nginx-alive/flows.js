@@ -72,50 +72,50 @@
     scenarios: [
       {
         label: '평소 채점', title: '채점 봇이 5분마다 확인하는 길',
-        result: '채점 봇은 로드밸런서 주소 하나만 봅니다. 뒤에 있는 서버 가운데 정상인 곳이 응답하면 채점은 통과합니다.',
+        result: '채점 봇은 로드밸런서 주소 하나만 봅니다. 뒤의 서버 중 한 곳만 정상이어도 채점은 통과합니다.',
         steps: [
           { say: '채점 봇이 5분마다 제출한 주소로 페이지를 요청합니다.', move: ['bot_nlb'], set: { nlb: 'on' } },
           { say: '로드밸런서는 세 서버의 /healthz를 보고, 정상인 서버로만 보냅니다. #1은 2초마다 자기 페이지 본문을 검사해 정상일 때만 200을 냅니다.', move: ['nlb_ngx'], set: { ngx: 'ok', s2: 'ok', s3: 'ok' }, badge: { ngx: { text: '/healthz 200', tone: 'accent' } } },
-          { say: '정상 페이지가 200으로 돌아갑니다. 공격자가 들어올 수 있는 서버는 #1 하나뿐이고, #2와 #3은 SSH를 막아 두었습니다.', move: ['-nlb_ngx', '-bot_nlb'], badge: { nlb: { text: '200', tone: 'accent' } } }
+          { say: '정상 페이지가 200으로 돌아갑니다. #2와 #3은 SSH를 막아 두어 공격자가 들어올 수 없습니다.', move: ['-nlb_ngx', '-bot_nlb'], badge: { nlb: { text: '200', tone: 'accent' } } }
         ]
       },
       {
         label: 'nginx가 꺼지면', title: 'nginx가 강제로 꺼졌을 때',
-        result: 'Teams 알림 기록으로 00:03:45에 다운을 알아챘고 00:03:47에 복구를 마쳐, 2초가 걸렸습니다.',
+        result: '00:03:45에 다운 알림이, 00:03:47에 복구 알림이 Teams로 왔습니다. 2초 걸렸습니다.',
         steps: [
           { say: 'nginx가 강제로 꺼지고, Teams로 다운 알림이 갑니다.', set: { ngx: 'down' }, badge: { ngx: { text: '다운' } }, move: ['ngx_t'] },
-          { say: 'systemd가 꺼진 nginx를 2초 뒤 다시 띄웁니다. 다섯 겹 가운데 가장 앞에 있는 장치입니다.', move: ['g_ngx'], set: { guard: 'on' }, clock: { to: 2.0, label: '다운에서 복구까지 · Teams 알림 기록' } },
+          { say: 'systemd가 꺼진 nginx를 2초 뒤 다시 띄웁니다. 복구 장치 중 첫 단계입니다.', move: ['g_ngx'], set: { guard: 'on' }, clock: { to: 2.0, label: '다운에서 복구까지' } },
           { say: 'nginx가 돌아오고, 복구 시간을 담은 알림이 Teams로 갑니다.', move: ['ngx_t'], set: { ngx: 'ok', teams: 'ok' }, badge: { ngx: null, teams: { text: '복구 2초', tone: 'accent' } } }
         ]
       },
       {
         label: '1차 공격', title: '감시 스크립트를 노린 공격',
-        result: '감시 스크립트 하나를 꺼도 남아 있던 다른 복구 장치가 1분 안에 nginx를 되살렸습니다.',
+        result: '감시 스크립트를 꺼도 남아 있던 다른 복구 장치가 1분 안에 nginx를 되살렸습니다.',
         steps: [
           { say: '공격자가 감시 스크립트와 nginx를 한꺼번에 끕니다.', move: ['atk_ngx'], set: { atk: 'on', ngx: 'down', guard: 'pending' }, badge: { ngx: { text: '다운' }, guard: { text: '감시 스크립트 꺼짐' } } },
-          { say: '한 줄을 끊어도 다른 줄이 살립니다. 남아 있던 다른 복구 장치가 nginx를 다시 띄웁니다.', move: ['g_ngx'], set: { ngx: 'ok', guard: 'on' }, badge: { ngx: { text: '1분 안에 복구', tone: 'accent' }, guard: null } },
+          { say: '남아 있던 다른 복구 장치가 nginx를 다시 띄웁니다.', move: ['g_ngx'], set: { ngx: 'ok', guard: 'on' }, badge: { ngx: { text: '1분 안에 복구', tone: 'accent' }, guard: null } },
           { say: '공격자는 이어서 docker와 .ssh 폴더를 살펴봤지만, 채점 봇에는 정상 페이지가 그대로 나갑니다.', move: ['bot_nlb', 'nlb_ngx', '-nlb_ngx', '-bot_nlb'], set: { nlb: 'on' } }
         ]
       },
       {
         label: '2차 공격', title: 'apache2로 80번 포트를 빼앗았을 때',
-        result: '그 서버는 스스로 빠지고 로드밸런서가 다른 서버로 우회해, 채점에는 끊김이 없었습니다.',
+        result: '#1이 스스로 빠지고 로드밸런서가 #2와 #3으로 돌려, 채점은 끊기지 않았습니다.',
         init: { nodes: { ngx: 'ok', s2: 'ok', s3: 'ok' } },
         steps: [
           { say: '공격자가 nginx를 멈추고 apache2를 설치해 80번 포트를 차지합니다.', move: ['atk_ngx'], set: { atk: 'on', ngx: 'block' }, rename: { ngx: 'apache2' }, badge: { ngx: { text: '80번 빼앗김' } } },
           { say: '채점 페이지가 사라지자 #1은 헬스체크에 실패하고, 로드밸런서 대상에서 빠집니다.', unlit: ['nlb_ngx', 'atk_ngx'], badge: { ngx: { text: '대상에서 빠짐' } } },
           { say: '로드밸런서는 #2와 #3으로 보냅니다. 채점 봇은 끊김 없이 200을 받습니다.', move: ['bot_nlb', 'nlb_s2', '-nlb_s2', '-bot_nlb'], set: { nlb: 'on' }, badge: { s2: { text: '200', tone: 'accent' } } },
-          { say: '그동안 팀원이 apache2를 지우고 직접 정리합니다.', move: ['ngx_t'], set: { teams: 'on', ngx: 'pending' }, rename: { ngx: 'nginx' }, badge: { ngx: { text: '정리 중' } } },
+          { say: '그사이 팀원이 들어가 apache2를 지웁니다.', move: ['ngx_t'], set: { teams: 'on', ngx: 'pending' }, rename: { ngx: 'nginx' }, badge: { ngx: { text: '정리 중' } } },
           { say: 'nginx가 돌아오고 헬스체크가 다시 200이 되자, #1은 대상에 다시 들어갑니다.', move: ['nlb_ngx'], set: { ngx: 'ok' }, badge: { ngx: { text: '다시 들어감', tone: 'accent' } } }
         ]
       },
       {
         label: '3차 공격', title: 'nginx가 다시 켜지지 못하게 막았을 때',
-        result: '감시 스크립트가 막힌 것을 풀고 nginx를 다시 띄웠습니다.',
+        result: 'mask까지 걸어도 nginx는 다시 떴고, 채점은 그대로 이어졌습니다.',
         init: { nodes: { ngx: 'ok' } },
         steps: [
           { say: '공격자가 nginx를 멈추고 systemctl mask로 다시 켜지는 길까지 막습니다.', move: ['atk_ngx'], set: { atk: 'on', ngx: 'down' }, badge: { ngx: { text: 'mask' } } },
-          { say: '감시 스크립트가 mask를 풀고(unmask) nginx를 다시 띄웁니다.', move: ['g_ngx'], set: { guard: 'on', ngx: 'ok' }, badge: { ngx: { text: '풀고 다시 띄움', tone: 'accent' } } },
+          { say: '감시 스크립트가 unmask로 막힌 것을 풀고 nginx를 다시 띄웁니다.', move: ['g_ngx'], set: { guard: 'on', ngx: 'ok' }, badge: { ngx: { text: '풀고 다시 띄움', tone: 'accent' } } },
           { say: '채점 봇에는 정상 페이지가 그대로 나갑니다.', move: ['bot_nlb', 'nlb_ngx', '-nlb_ngx', '-bot_nlb'], set: { nlb: 'on' } }
         ]
       }

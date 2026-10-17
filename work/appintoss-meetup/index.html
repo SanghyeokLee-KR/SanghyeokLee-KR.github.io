@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>하모니 · 이상혁</title>
-<meta name="description" content="친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 토스 미니앱. 4인 팀의 팀장으로 출시 전 보안 문제를 풀고 일주일 만에 출시했습니다.">
+<meta name="description" content="친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 토스 미니앱입니다. 4인 팀의 팀장으로 출시 전 보안 문제 해결과 최종 승인을 맡았고, 일주일 만에 출시했습니다.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../../assets/fonts/plex.css">
@@ -54,11 +54,11 @@
   <div class="grid case-row">
     <div class="case-l">
       <h1 class="case-title" id="t">하모니</h1>
-      <p class="case-deck">출시 직전 보안 검토에서 막힌 문제를 풀고, <br>일주일 만에 토스 앱에 출시했습니다.</p>
+      <p class="case-deck">트랙을 한 겹씩 얹어 합주하는 토스 미니앱입니다. <br>2026년 6월 26일 토스 앱에 출시했습니다.</p>
     </div>
     <dl class="case-meta">
-      <div><dt>기간</dt><dd>2026년 6월 19일 – 26일, 7일</dd></div>
-      <div><dt>형태</dt><dd>4인 팀의 팀장입니다. 제품과 정책을 정하고, 출시 전 보안 문제 해결과 최종 승인을 맡았습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다.</dd></div>
+      <div><dt>기간</dt><dd>2026년 6월 19일 – 26일</dd></div>
+      <div><dt>형태</dt><dd>4인 팀 팀장으로 출시 전 보안 문제 해결과 최종 승인을 맡았습니다.</dd></div>
       <div><dt>분야</dt><dd>백엔드 · 보안 · 출시</dd></div>
       <div><dt>기술</dt><dd>Node(node:http · node:sqlite · node:crypto) · nginx · systemd · AWS EC2 · React · TypeScript · 앱인토스</dd></div>
       <div><dt>자료</dt><dd class="lk"><a href="https://github.com/Appintos-Harmony/appintoss-meetup">팀 저장소</a></dd></div>
@@ -69,8 +69,8 @@
       <div class="phones-wrap">
         <div class="phones">
           <figure><img src="../../assets/img/harmony/home.jpg" width="636" height="1048" alt="하모니 홈 화면: 스튜디오와 커뮤니티로 들어가는 두 버튼"><figcaption>홈</figcaption></figure>
-          <figure><img src="../../assets/img/harmony/studio.jpg" width="636" height="1048" alt="스튜디오 화면: C, Am, F, G 코드 패드와 녹음 단추"><figcaption>스튜디오</figcaption></figure>
-          <figure><img src="../../assets/img/harmony/share.jpg" width="636" height="1048" alt="녹음한 트랙과 공유 코드, 레이어 추가와 합주 듣기 단추"><figcaption>공유 코드</figcaption></figure>
+          <figure><img src="../../assets/img/harmony/studio.jpg" width="636" height="1048" alt="스튜디오 화면: C, Am, F, G 코드 패드와 녹음 버튼"><figcaption>스튜디오</figcaption></figure>
+          <figure><img src="../../assets/img/harmony/share.jpg" width="636" height="1048" alt="녹음한 트랙과 공유 코드, 레이어 추가와 합주 듣기 버튼"><figcaption>공유 코드</figcaption></figure>
           <figure><img src="../../assets/img/harmony/community.jpg" width="636" height="1048" alt="커뮤니티 보드: 공개된 곡 목록과 좋아요, 댓글 수"><figcaption>커뮤니티</figcaption></figure>
         </div>
       </div>
@@ -86,7 +86,7 @@
       <li><a href="#ch-jam"><span class="n">02</span>합주 방식</a></li>
       <li><a href="#ch-sec"><span class="n">03</span>보안 검토</a></li>
       <li><a href="#ch-server"><span class="n">04</span>서버 구조</a></li>
-      <li><a href="#ch-launch"><span class="n">05</span>시험과 출시</a></li>
+      <li><a href="#ch-launch"><span class="n">05</span>테스트와 출시</a></li>
     </ol>
     <span class="progress" aria-hidden="true"></span>
   </div>
@@ -98,17 +98,17 @@
 <section class="chap wrap" id="ch-intro" aria-labelledby="h1">
   <div class="grid ch-head">
     <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">같은 시간에 모이지 않아도, 악기가 없어도 합주가 되게 하고 싶었습니다</h2>
+    <h2 class="ch-h" id="h1">녹음 트랙을 겹쳐 합주하는 토스 미니앱</h2>
     <div class="prose">
-      <p>밴드 합주에는 같은 시간과 같은 장소, 그리고 악기를 다룰 줄 아는 사람이 필요합니다. 하모니는 이 세 가지를 없애는 데서 출발했습니다. 코드 패드를 누르면 소리가 나고, 친구가 올린 트랙 위에 내 연주를 얹으면 합주가 됩니다. 회원가입 없이 닉네임만 넣으면 바로 시작합니다.</p>
-      <p>저는 4인 팀의 팀장으로 제품과 정책을 정했고, <em>출시 직전 독립 검토에서 막힌 보안 문제를 해결하고 최종 승인</em>을 맡았습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다. 7일 안에 실제로 배포해 쓸 수 있는 상태까지 만드는 것이 목표였고, 6월 26일 토스 앱에 전체 공개로 출시했습니다.</p>
+      <p>밴드 합주를 하려면 같은 시간에 같은 곳에 모여야 하고, 악기도 다룰 줄 알아야 합니다. 하모니에서는 코드 패드를 눌러 연주하고, 친구가 올린 트랙 위에 내 연주를 얹어 합주합니다. 회원가입 없이 닉네임만 넣으면 바로 시작합니다.</p>
+      <p>팀장인 저는 제품 방향과 정책을 정했고, 출시 직전 검토에서 걸린 보안 문제를 풀고 출시를 최종 승인했습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다. 일주일 안에 실제로 쓸 수 있는 앱을 내는 게 목표였고, 6월 26일 토스 앱에 출시했습니다.</p>
     </div>
   </div>
   <div class="facts mt-l rv">
-    <div class="fact"><p class="n">7<small>일</small></p><p class="l">시작부터 출시까지</p><p class="c">6월 19일에 시작해 6월 26일 전체 공개.</p></div>
-    <div class="fact"><p class="n">3<small>번</small></p><p class="l">출시 전 독립 검토</p><p class="c">출시 불가 → 조건부 통과 → 통과, 6월 23일~24일.</p></div>
-    <div class="fact"><p class="n">7<small>/ 7</small></p><p class="l">보안 블랙박스 시험</p><p class="c">권한 · 소유권 · 요청 제한 · 멱등 · 신고 우회.</p></div>
-    <div class="fact"><p class="n">34<small>/ 34</small></p><p class="l">통합 시험</p><p class="c">API 12 · 보안 7 · 클라이언트 6 · 실기기 9.</p></div>
+    <div class="fact"><p class="n">7<small>일</small></p><p class="l">시작부터 출시까지</p><p class="c">중간에 아이디어를 한 번 바꿨습니다.</p></div>
+    <div class="fact"><p class="n">3<small>번</small></p><p class="l">출시 전 독립 검토</p><p class="c">출시 불가, 조건부 통과, 통과 순으로 판정이 바뀌었습니다.</p></div>
+    <div class="fact"><p class="n">1.8<small>초</small></p><p class="l">친구 트랙이 원작자 화면에 뜨기까지</p><p class="c">통합 테스트에서 잰 값이고, 화면은 1.5초마다 폴링합니다.</p></div>
+    <div class="fact"><p class="n">34<small>/ 34</small></p><p class="l">통합 테스트</p><p class="c">API, 보안, 클라이언트, 실기기 테스트를 모두 통과했습니다.</p></div>
   </div>
   <div class="grid mt-l">
     <div class="who rv">
@@ -118,8 +118,8 @@
         <tbody>
           <tr class="me"><td>제품 · 정책 · 팀장 <span class="tag">저</span></td><td>제품과 정책 결정, 출시 전 보안 문제 해결, 배포와 출시의 최종 승인</td></tr>
           <tr><td>백엔드 · 데이터</td><td>서버 구현, 오디오 엔진과 카메라 손동작 연주</td></tr>
-          <tr><td>UX · 프런트엔드</td><td>화면 설계와 커뮤니티 화면</td></tr>
-          <tr><td>QA · 릴리즈</td><td>품질 시험과 릴리즈</td></tr>
+          <tr><td>UX · 프론트엔드</td><td>화면 설계와 커뮤니티 화면</td></tr>
+          <tr><td>QA · 릴리즈</td><td>테스트와 릴리즈</td></tr>
         </tbody>
       </table>
     </div>
@@ -130,24 +130,24 @@
 <section class="chap wrap" id="ch-jam" aria-labelledby="h2">
   <div class="grid ch-head">
     <p class="ch-no"><b>02</b>합주 방식</p>
-    <h2 class="ch-h" id="h2">실시간으로 맞추지 않고, 트랙을 한 겹씩 얹는 방식을 택했습니다</h2>
+    <h2 class="ch-h" id="h2">트랙을 한 겹씩 얹는 비동기 합주 방식</h2>
     <div class="prose">
-      <p>실시간으로 소리를 주고받으며 합주하면 네트워크 왕복 시간 때문에 박자가 어긋납니다. 그래서 각자 메트로놈에 맞춰 자기 트랙을 녹음하고, 같은 공유 코드의 곡에 얹는 방식으로 정했습니다. 화면은 1.5초마다 서버에서 곡을 다시 받아 와 새 트랙을 합칩니다.</p>
+      <p>실시간으로 소리를 주고받으며 합주하면 네트워크 왕복 시간 때문에 박자가 어긋납니다. 그래서 각자 메트로놈에 맞춰 자기 트랙을 녹음하고, 같은 공유 코드의 곡에 얹는 방식으로 정했습니다.</p>
     </div>
   </div>
   <div class="split mt-l">
     <figure class="a4 rv phone-one">
-      <div class="plate light" style="padding:clamp(10px,1.4vw,18px);background:var(--paper-2);border-color:var(--rule-2)"><img src="../../assets/img/harmony/import.jpg" width="636" height="1048" loading="lazy" alt="친구의 트랙을 복사했다는 안내와 '내 연주에 얹기' 단추"></div>
+      <div class="plate light" style="padding:clamp(10px,1.4vw,18px);background:var(--paper-2);border-color:var(--rule-2)"><img src="../../assets/img/harmony/import.jpg" width="636" height="1048" loading="lazy" alt="친구의 트랙을 복사했다는 안내와 '내 연주에 얹기' 버튼"></div>
       <figcaption><b>가져와 얹기</b> · 친구의 코드로 곡을 불러온 뒤 내 연주를 얹습니다.</figcaption>
     </figure>
     <div class="b8 rv">
       <figure><div class="plate light pan"><img src="../../assets/img/harmony/service-flow.jpg" width="1600" height="1031" loading="lazy" alt="원작자, 서버, 참여자 세 줄로 그린 합주 공유 흐름: 코드 발급, 곡 열기, 트랙 추가, 1.5초 폴링"></div>
         <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-        <figcaption><b>합주 공유 흐름</b> · 혼자 연주한 곡은 기기 안에서 끝나고, 공유하는 순간부터 서버를 거칩니다.</figcaption></figure>
+        <figcaption><b>합주 공유 흐름</b> · 원작자와 서버, 참여자 사이에 오가는 요청입니다.</figcaption></figure>
       <ol class="notes cols mt-l">
-        <li><span class="t">혼자 하는 연주는 서버에 가지 않습니다</span><span class="d">녹음과 편집은 기기 안에서 끝납니다. 공유를 누를 때만 곡이 서버로 갑니다.</span></li>
+        <li><span class="t">혼자 하는 연주는 기기 안에서 처리</span><span class="d">녹음과 편집은 기기 안에서 끝납니다. 공유를 누를 때만 곡이 서버로 갑니다.</span></li>
         <li><span class="t">6자리 공유 코드</span><span class="d">곡을 올리면 서버가 코드를 만들어 돌려줍니다. 친구는 그 코드로 곡을 열고 트랙을 얹습니다.</span></li>
-        <li><span class="t">1.5초마다 다시 받아 옵니다</span><span class="d">다른 사람이 트랙을 추가하자 1.8초 안에 트랙 수가 1에서 2로 바뀌었습니다(통합 시험 IT-CL-06).</span></li>
+        <li><span class="t">새 트랙은 폴링으로</span><span class="d">화면이 1.5초마다 곡을 다시 받아 옵니다. 통합 테스트에서는 친구가 올린 트랙이 1.8초 안에 원작자 화면에 떴습니다.</span></li>
         <li><span class="t">가입 없이 익명 키로</span><span class="d">토스가 주는 익명 키로 사용자를 구분합니다. 로그인과 회원가입은 이번 범위에서 뺐습니다.</span></li>
       </ol>
     </div>
@@ -158,22 +158,21 @@
 <section class="chap wrap" id="ch-sec" aria-labelledby="h3">
   <div class="grid ch-head">
     <p class="ch-no"><b>03</b>출시 전 보안 검토</p>
-    <h2 class="ch-h" id="h3">공개된 코드 하나로 남의 곡을 바꿀 수 있다는 걸, 출시 직전에 알았습니다</h2>
+    <h2 class="ch-h" id="h3">출시 전 보안 검토와 권한 · 신고 · 재시도 문제 수정</h2>
     <div class="prose">
-      <p>계정 없이 코드만으로 들어오는 구조라, 커뮤니티에 곡을 공개하는 기능을 붙이기 전에 독립 검토를 받았습니다. 결함은 Codex 독립 검토가 처음 찾았고, 판정은 <em>출시 불가</em>였습니다. 저는 검토에서 나온 문제를 하나씩 해결하고 다시 검토를 받는 일을 맡았습니다. 아래 그림에서 장면을 고르면, 고친 뒤의 서버가 각 요청을 어떻게 처리하는지 볼 수 있습니다.</p>
+      <p>계정 없이 코드만으로 들어오는 구조라, 커뮤니티에 곡을 공개하는 기능을 붙이기 전에 독립 검토를 받았습니다. Codex 검토에서 결함이 나왔고, 판정은 출시 불가였습니다. 저는 검토에서 나온 문제를 하나씩 풀고 다시 검토받는 일을 맡았습니다.</p>
     </div>
   </div>
 
   <div class="flow mt-l rv" data-flow="harmony" data-title="공유 코드로 들어오는 요청"></div>
-  <p class="note-s">실제 배포 구성을 옮겨 그렸습니다. 결과 숫자는 통합 시험 결과서의 기록입니다.</p>
 
   <div class="split mt-l">
     <div class="a7 rv">
       <p class="subk">검토가 찾은 문제와 고친 방법</p>
       <ol class="fixes">
-        <li><span class="k">권한</span><div><p class="a">공개된 곡 코드만 알면 남의 곡에 트랙을 붙일 수 있었습니다</p><p class="r">공개된 곡은 작성자 키가 같을 때만 붙일 수 있게 하고, 다르면 403을 돌려줍니다. 남의 곡을 쓰려면 원본을 표시한 새 곡(<code>origin_code</code>)을 만들게 했습니다. 비공개 곡은 코드가 곧 열쇠라, <code>crypto.randomInt</code>로 만들어 추측하기 어렵게 했습니다.</p></div></li>
+        <li><span class="k">권한</span><div><p class="a">공개된 곡 코드만 알면 남의 곡에 트랙을 붙일 수 있었습니다</p><p class="r">공개된 곡은 작성자 키가 같을 때만 붙일 수 있게 하고, 다르면 403을 돌려줍니다. 남의 곡을 쓰고 싶으면 <code>origin_code</code>로 원본을 밝힌 새 곡을 만들게 했습니다. 비공개 곡은 코드가 곧 열쇠라, <code>crypto.randomInt</code>로 만들어 추측하기 어렵게 했습니다.</p></div></li>
         <li><span class="k">신고</span><div><p class="a">키만 바꿔 신고하면 남의 댓글을 숨길 수 있었습니다</p><p class="r">신고자와 요청 제한의 기준을 서버가 확인한 IP로 바꿨습니다. nginx가 클라이언트가 보낸 <code>X-Forwarded-For</code>를 실제 접속 주소로 덮어쓰고, 앱은 127.0.0.1에만 열어 두었습니다.</p></div></li>
-        <li><span class="k">재시도</span><div><p class="a">다시 보내면 같은 곡이 여러 번 올라갔습니다</p><p class="r">멱등 토큰을 '요청한 사람의 키 + 토큰'으로 묶고, 첫 트랙 내용의 해시로 같은 곡을 알아봐 이미 있는 코드를 돌려줍니다. 다른 작성자가 같은 토큰을 보내도 원래 작성자의 코드를 받아 가지 못했습니다.</p></div></li>
+        <li><span class="k">재시도</span><div><p class="a">다시 보내면 같은 곡이 여러 번 올라갔습니다</p><p class="r">멱등 토큰을 요청한 사람의 키와 묶고, 첫 트랙 내용의 해시로 같은 곡을 알아봐 이미 있는 코드를 돌려줍니다. 다른 사람이 같은 토큰을 보내도 원래 작성자의 코드는 받아 갈 수 없습니다.</p></div></li>
       </ol>
     </div>
     <div class="b5 rv">
@@ -182,9 +181,9 @@
         <li><time>06-23</time><span>첫 검토에서 출시 불가 판정. 공개 곡 오염, 신고 우회, 요청 제한 우회가 막아야 할 문제로 나왔습니다.</span></li>
         <li><time>06-23</time><span>고친 뒤 두 번째 검토는 조건부 통과. 앱이 8080 포트로 바로 열리지 않는지 확인하라는 조건이 붙었습니다.</span></li>
         <li><time>06-24</time><span>앱을 127.0.0.1에만 열어 둔 것을 확인받고 세 번째 검토에서 통과했습니다.</span></li>
-        <li><time>06-26</time><span>토스 앱에 전체 공개로 출시했습니다.</span></li>
+        <li><time>06-26</time><span>토스 앱에 출시했습니다.</span></li>
       </ol>
-      <p class="quote mt-l">출시 불가 판정을 받은 항목을 모두 고친 뒤 다시 검토를 받아 통과했고, 그다음에 출시를 승인했습니다.</p>
+      <p class="quote mt-l">출시 승인은 세 번째 검토를 통과한 뒤에 했습니다.</p>
     </div>
   </div>
 </section>
@@ -192,16 +191,16 @@
 <!-- 04 서버 구조 -->
 <section class="chap wrap" id="ch-server" aria-labelledby="h4">
   <div class="grid ch-head">
-    <p class="ch-no"><b>04</b>서버 구조 · AWS EC2 한 대</p>
-    <h2 class="ch-h" id="h4">밖에서는 nginx만 보이고, 앱과 DB는 서버 안쪽에만 두었습니다</h2>
+    <p class="ch-no"><b>04</b>서버 구조</p>
+    <h2 class="ch-h" id="h4">EC2 한 대의 nginx · Node · SQLite 구성</h2>
     <div class="prose">
-      <p>서울 리전의 EC2 한 대에서 nginx가 TLS를 처리하고, 요청을 127.0.0.1:8080의 Node 앱으로 넘깁니다. 데이터는 SQLite 파일 하나에 저장합니다. 서버는 Node 내장 모듈만 써서 바깥 패키지에 기대지 않습니다. 배포는 제 승인 아래 진행했습니다.</p>
+      <p>서버 구현은 백엔드 팀원이 이끌었고, 저는 보안 검토에서 걸린 부분을 고쳤습니다. 서울 리전 EC2 한 대에서 nginx가 TLS를 맡고, 요청을 127.0.0.1:8080의 Node 앱으로 넘깁니다. 데이터는 SQLite 파일 하나에 담습니다. 서버는 Node 내장 모듈만으로 짜서 외부 패키지가 없습니다.</p>
     </div>
   </div>
   <div class="two mt-l rv">
-    <figure><div class="plate light pan"><img src="../../assets/img/harmony/dfd.jpg" width="1600" height="842" loading="lazy" alt="인터넷, EC2 공개면, localhost 세 신뢰 경계와 nginx, node API, SQLite 사이의 데이터 흐름"></div>
+    <figure><div class="plate light pan"><img src="../../assets/img/harmony/dfd.jpg" width="1600" height="842" loading="lazy" alt="인터넷, EC2에서 밖으로 열린 부분, localhost 세 신뢰 경계와 nginx, node API, SQLite 사이의 데이터 흐름"></div>
       <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-      <figcaption><b>신뢰 경계</b> · 인터넷, 서버의 공개면, 서버 안쪽(localhost)의 세 구역으로 나눴습니다.</figcaption></figure>
+      <figcaption><b>신뢰 경계</b> · 인터넷, 서버에서 밖으로 열린 부분, 서버 안쪽 localhost의 세 구역으로 나눴습니다.</figcaption></figure>
     <figure><div class="plate light pan"><img src="../../assets/img/harmony/aws.jpg" width="1600" height="945" loading="lazy" alt="AWS 서울 리전 VPC 안의 EC2 한 대: nginx 443, node 127.0.0.1:8080, SQLite 파일, 예비 터널과 SSH 관리 경로"></div>
       <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
       <figcaption><b>AWS 배포</b> · 주 경로는 HTTPS 443 → nginx → node → SQLite입니다.</figcaption></figure>
@@ -210,13 +209,12 @@
     <div class="a5 rv">
       <ol class="notes">
         <li><span class="t">전용 계정과 좁은 쓰기 권한</span><span class="d">앱은 systemd에서 전용 계정 <code>harmony</code>로 돌고, 권한 상승을 막고 시스템 경로를 읽기 전용으로 둡니다. 쓸 수 있는 곳은 <code>data</code> 디렉터리 하나입니다.</span></li>
-        <li><span class="t">헤더는 nginx가 다시 씁니다</span><span class="d">클라이언트가 보낸 <code>X-Forwarded-For</code>를 이어 붙이지 않고 실제 접속 주소로 덮어씁니다. 앱은 <code>TRUST_PROXY=1</code>일 때만 그 값을 믿습니다.</span></li>
         <li><span class="t">여러 번 돌려도 안전한 테이블 변경</span><span class="d">컬럼 추가는 try로 감싼 <code>ALTER TABLE</code>이라, 이미 있는 DB에 다시 실행해도 문제가 없습니다.</span></li>
-        <li><span class="t">중복 게시는 한 번의 트랜잭션 안에서</span><span class="d">찾기부터 저장까지 사이에 <code>await</code>가 없고, <code>node:sqlite</code>의 동기 API에 BEGIN과 COMMIT을 써서 경쟁 상태를 막았습니다.</span></li>
+        <li><span class="t">중복 게시는 한 번의 트랜잭션 안에서</span><span class="d">찾기와 저장 사이에 <code>await</code>가 끼지 않게 <code>node:sqlite</code>의 동기 API로 BEGIN과 COMMIT을 걸어, 경쟁 상태를 막았습니다.</span></li>
       </ol>
     </div>
     <div class="b7 rv">
-      <p class="subk">systemd 서비스 파일과 nginx 설정(줄여서 옮김)</p>
+      <p class="subk">systemd 서비스 파일과 nginx 설정 일부</p>
       <pre class="code"><i># /etc/systemd/system/harmony-api.service</i>
 <b>[Service]</b>
 Environment=PORT=8080
@@ -239,18 +237,18 @@ location /sessions {
   </div>
 </section>
 
-<!-- 05 시험과 출시 -->
+<!-- 05 테스트와 출시 -->
 <section class="chap wrap" id="ch-launch" aria-labelledby="h5">
   <div class="grid ch-head">
-    <p class="ch-no"><b>05</b>시험과 출시</p>
-    <h2 class="ch-h" id="h5">고친 것을 시험으로 확인한 뒤, 출시를 승인했습니다</h2>
+    <p class="ch-no"><b>05</b>테스트와 출시</p>
+    <h2 class="ch-h" id="h5">수정 후 재테스트와 출시 일정</h2>
     <div class="prose">
-      <p>7일 동안 네 명이 같은 저장소를 고치는 일정이라, 사람 눈에만 기대지 않도록 작업 지시와 독립 검토, 결정 요청을 모두 저장소 문서로 남겼습니다. 검토는 의견이 아니라 테스트와 보안 검사, 헬스체크가 모두 통과했는지로 판정했습니다.</p>
+      <p>일주일 동안 네 명이 한 저장소를 함께 고쳤습니다. 작업 지시와 독립 검토 결과, 결정 요청은 모두 저장소에 문서로 남겼습니다.</p>
     </div>
   </div>
   <div class="split mt-l">
     <div class="a6 rv">
-      <p class="subk">보안 문제를 고친 뒤의 시험 · 통합 시험 결과서</p>
+      <p class="subk">보안 문제를 고친 뒤 다시 돌린 테스트</p>
       <table class="tbl">
         <thead><tr><th>무엇을 해 봤나</th><th class="num">결과</th></tr></thead>
         <tbody>
@@ -258,28 +256,26 @@ location /sessions {
           <tr><td>소유자 키로 트랙 추가</td><td class="num"><span class="st ok">201</span></td></tr>
           <tr><td>숨긴 곡을 코드로 바로 열기</td><td class="num"><span class="st">404</span></td></tr>
           <tr><td>같은 IP에서 키만 바꿔 세 번 신고</td><td class="num">숨겨지지 않음</td></tr>
-          <tr><td>XFF를 바꿔 가며 13번 게시</td><td class="num">12번 201 · 13번째 429</td></tr>
+          <tr><td>XFF를 바꿔 가며 13번 게시</td><td class="num">12번째까지 201 · 13번째 429</td></tr>
           <tr><td>다른 작성자가 같은 멱등 토큰을 보냄</td><td class="num">원래 곡을 받지 못함</td></tr>
         </tbody>
       </table>
-      <p class="note-s">게시 한도는 IP당 분당 12건입니다. 아이폰 13과 갤럭시 S23 Ultra 두 기기로 공유, 받기, 얹은 뒤 반영까지 직접 확인했습니다.</p>
+      <p class="note-s">게시 한도는 IP당 분당 12건입니다. 실기기는 아이폰 13과 갤럭시 S23 Ultra로, 공유부터 트랙 반영까지 직접 확인했습니다.</p>
     </div>
     <div class="b6 rv">
-      <p class="subk">7일의 순서</p>
+      <p class="subk">출시까지</p>
       <ol class="timeline">
-        <li><time>06-19</time><span>4인 팀으로 시작했습니다.</span></li>
+        <li><time>06-19</time><span>시작했습니다.</span></li>
         <li><time>06-21</time><span>첫 아이디어를 접고 악기 합주로 방향을 바꿨습니다.</span></li>
-        <li><time>06-22</time><span>제 승인 아래 백엔드를 AWS에 배포했습니다.</span></li>
-        <li><time>06-23</time><span>커뮤니티 공유 기능의 독립 검토에서 출시 불가 판정을 받고, 고친 뒤 이튿날 세 번째 검토에서 통과했습니다.</span></li>
+        <li><time>06-22</time><span>백엔드 AWS 배포를 승인했습니다.</span></li>
         <li><time>06-25</time><span>앱인토스에 앱을 등록하고 심사를 제출했습니다.</span></li>
-        <li><time>06-26</time><span>13시 50분 테스트 출시에 이어, 같은 날 토스 앱에 전체 공개로 출시했습니다.</span></li>
+        <li><time>06-26</time><span>테스트 출시를 거쳐, 같은 날 토스 앱에 출시했습니다.</span></li>
       </ol>
     </div>
   </div>
   <div class="grid mt-l">
     <ol class="notes cols inset rv">
-      <li><span class="t">검증은 실행 결과로 정했습니다</span><span class="d">구현한 쪽이 아닌 독립 검토자가 재현하고, 테스트와 보안 검사가 통과해야 병합했습니다. 그 덕분에 보안 우회를 출시 전에 잡았습니다.</span></li>
-      <li><span class="t">마지막 책임은 사람이 집니다</span><span class="d">자동 판정은 관문일 뿐입니다. 배포와 출시의 최종 승인은 팀장인 제가 맡았습니다.</span></li>
+      <li><span class="t">구현하지 않은 사람이 검토</span><span class="d">독립 검토자가 직접 재현하고, 테스트와 보안 검사, 헬스체크를 통과한 것만 병합했습니다. 03장의 보안 문제도 이 독립 검토에서 나왔습니다.</span></li>
     </ol>
   </div>
 </section>
@@ -290,7 +286,7 @@ location /sessions {
   <a href="../devhub/">
     <span class="k">다음 작업 <span class="mono">09</span></span>
     <span class="t">DevHub <span class="arrow" aria-hidden="true">→</span></span>
-    <span class="d">끝난 뒤 다시 열어 고친 개발자 커뮤니티</span>
+    <span class="d">개발자 커뮤니티, 종료 후 Security 재적용과 테스트 추가</span>
   </a>
 </section>
 

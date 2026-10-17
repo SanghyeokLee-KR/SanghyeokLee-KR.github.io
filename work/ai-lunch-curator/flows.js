@@ -11,7 +11,7 @@
       user: { label: '사용자', kind: 'actor' },
       dev: { label: '개발자', kind: 'actor' },
       gha: { label: 'GitHub Actions', sub: '스케줄 · 테스트 · 배포' },
-      nginx: { label: 'Nginx', sub: '밖으로는 80번만 엽니다' },
+      nginx: { label: 'Nginx', sub: '웹 요청은 80번으로만 받습니다' },
       app: { label: 'FastAPI 앱', sub: '127.0.0.1:8000 · 토큰 확인' },
       db: { label: 'Oracle XE', sub: '메뉴 · 그림 캐시 · 통계' },
       src: { label: '학교 식단표', sub: '이번 주 메뉴' },
@@ -80,7 +80,7 @@
     scenarios: [
       {
         label: '월요일 수집', title: '매주 월요일 아침, 식단표를 모으는 길',
-        result: '수집 주소는 곧바로 답하고, 무거운 일은 앱이 뒤에서 이어 갑니다. 같은 메뉴 구성이면 이미 만든 그림을 다시 써서 AI 호출을 줄입니다.',
+        result: 'GitHub Actions는 202만 받고 바로 끝납니다. 수집부터 저장까지는 앱이 뒤에서 마칩니다.',
         steps: [
           { say: '월요일 08:30, GitHub Actions가 토큰을 붙여 수집 주소를 부릅니다. 요청은 Nginx를 지나 앱으로 갑니다.', move: ['g_n'], move2: ['n_a'], set: { gha: 'on', nginx: 'on', app: 'on' } },
           { say: '앱은 토큰을 확인하고 바로 202로 답한 뒤, 무거운 일은 백그라운드에서 이어 갑니다.', badge: { app: { text: '202', tone: 'accent' } } },
@@ -91,7 +91,7 @@
       },
       {
         label: '평일 아침 발송', title: '평일 아침, 오늘의 점심이 Teams로 가는 길',
-        result: '평일 아침마다 그날 점심이 Teams 카드로 옵니다. 오늘 날짜는 서버 시간대와 상관없이 한국 시간으로 계산합니다.',
+        result: 'Teams 채널에 그날 점심이 카드 한 장으로 올라옵니다.',
         steps: [
           { say: '평일 09:00, GitHub Actions가 토큰을 붙여 발송 주소를 부릅니다.', move: ['g_n'], move2: ['n_a'], set: { gha: 'on', nginx: 'on', app: 'on' } },
           { say: '앱은 오늘 날짜를 한국 시간으로 계산해, Oracle에서 오늘 메뉴를 꺼냅니다.', move: ['a_d', '-a_d'], set: { db: 'ok' } },
@@ -100,11 +100,11 @@
       },
       {
         label: '코드를 올리면', title: 'main 브랜치에 코드를 올렸을 때',
-        result: '테스트를 통과하지 못하면 배포는 거기서 멈춥니다. 깨진 코드가 서버에 올라가지 않습니다.',
+        result: 'pytest에서 실패하면 배포는 시작하지 않습니다.',
         steps: [
           { say: '개발자가 main 브랜치에 코드를 올립니다.', move: ['d_g'], set: { dev: 'on', gha: 'on' } },
-          { say: '먼저 pytest가 돕니다. OpenAI와 Teams 호출은 모두 목킹해서, 시험 중에는 실제로 한 번도 부르지 않습니다.', set: { gha: 'pending' }, badge: { gha: { text: 'pytest' } } },
-          { say: '테스트를 통과해야만 배포가 이어집니다. SSH로 EC2에 들어가 GitHub Secrets로 .env를 만들고 docker compose로 다시 띄웁니다.', move: ['g_a'], set: { gha: 'ok', app: 'ok' }, badge: { gha: { text: '통과', tone: 'accent' }, app: { text: '배포', tone: 'accent' } } }
+          { say: '먼저 pytest가 돕니다. OpenAI와 Teams 호출은 모두 모킹해서, 테스트 중에는 한 번도 부르지 않습니다.', set: { gha: 'pending' }, badge: { gha: { text: 'pytest' } } },
+          { say: '통과하면 배포가 이어집니다. SSH로 EC2에 들어가 GitHub Secrets의 값으로 .env를 만들고 docker compose로 다시 띄웁니다.', move: ['g_a'], set: { gha: 'ok', app: 'ok' }, badge: { gha: { text: '통과', tone: 'accent' }, app: { text: '배포', tone: 'accent' } } }
         ]
       },
       {
@@ -113,7 +113,7 @@
         steps: [
           { say: '토큰 없이 수집 주소로 POST를 보냅니다.', move: ['u_n'], move2: ['n_a'], set: { user: 'on', nginx: 'on' }, rename: { user: '외부 호출' } },
           { say: '앱은 토큰이 없는 요청을 401로 돌려보냅니다.', set: { app: 'block' }, badge: { app: { text: '401' } } },
-          { say: 'OpenAI를 부르는 비싼 작업은 시작되지 않습니다.', move: ['-n_a'], move2: ['-u_n'], ghost: ['a_ai'] }
+          { say: 'OpenAI 호출까지는 가지 않습니다.', move: ['-n_a'], move2: ['-u_n'], ghost: ['a_ai'] }
         ]
       }
     ]
