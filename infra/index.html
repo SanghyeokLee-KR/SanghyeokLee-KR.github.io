@@ -119,7 +119,7 @@
       <div class="step"><div class="thumb"><img src="../assets/img/failstop/aws-map.jpg" alt=""></div><div class="k">4단계</div><div class="t">AWS 배포</div><div class="d">두 가용 영역에 나눠 배포하고, DB 장애와 서버 증설을 시험했습니다.</div></div>
     </div>
     <div class="metrics mt">
-      <div class="metric"><div class="n">179<small>회</small></div><div class="l">일부러 낸 장애</div><div class="c">제 PC의 Docker에서, 모두 30초 안에 복구</div></div>
+      <div class="metric"><div class="n">179<small>회</small></div><div class="l">일부러 낸 장애</div><div class="c">제 PC의 Docker에서, 이어받기와 DB 승격은 30초 이내</div></div>
       <div class="metric"><div class="n">23.0<small>초</small></div><div class="l">주 DB가 꺼지고 예비 DB가 넘겨받기까지</div><div class="c">AWS 서울 리전, 대조한 주문 196건 중 유실 0건</div></div>
       <div class="metric"><div class="n">4<small>분</small> 44<small>초</small></div><div class="l">CPU 경보부터 조회 서버 합류까지</div><div class="c">AI 제안을 승인하고 67초 뒤 합류</div></div>
       <div class="metric"><div class="n">36.7<small>만 원</small></div><div class="l">한 달 예상 운영비</div><div class="c">세금 포함, 예산 40만 원 이내</div></div>
@@ -177,7 +177,7 @@
         <p class="sub-k mt">시험 중 찾아서 고친 문제</p>
         <ol class="notes">
           <li><span class="t">DB 연결이 끊기면 리더 없이 멈췄습니다</span><span class="d">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 <em>13.9초</em> 만에 이어받았습니다.</span></li>
-          <li><span class="t">호가 집계가 주문 처리를 막았습니다</span><span class="d">집계 결과를 1초 동안 캐시하자, 놓치지 않고 접수한 주문이 <em>초당 40건에서 80건 이상</em>으로 늘었습니다.</span></li>
+          <li><span class="t">호가 집계가 주문 처리를 막았습니다</span><span class="d">집계 결과를 1초 동안 캐시하자, 놓치지 않고 접수한 주문이 <em>초당 40건에서 80건</em>으로 늘었습니다.</span></li>
         </ol>
       </div>
     </div>
@@ -278,10 +278,10 @@
         <table class="tbl">
           <thead><tr><th>시험</th><th>환경</th><th class="num">결과</th></tr></thead>
           <tbody>
-            <tr><td>일부러 낸 장애</td><td>제 PC의 Docker</td><td class="num">179회, 모두 30초 안에 복구</td></tr>
+            <tr><td>일부러 낸 장애</td><td>제 PC의 Docker</td><td class="num">179회, 이어받기·DB 승격 30초 이내</td></tr>
             <tr><td>주 DB 전원 차단</td><td>AWS</td><td class="num">23.0초 만에 전환, 주문 유실 0건</td></tr>
             <tr><td>부하 시 조회 서버 증설</td><td>AWS</td><td class="num">경보부터 합류까지 4분 44초</td></tr>
-            <tr><td>호가 집계 캐시</td><td>제 PC의 Docker</td><td class="num">접수 주문 초당 40 → 80건 이상</td></tr>
+            <tr><td>호가 집계 캐시</td><td>제 PC의 Docker</td><td class="num">접수 주문 초당 40 → 80건</td></tr>
             <tr><td>OS 삭제 후 복구</td><td>가상 머신</td><td class="num">15분 22초</td></tr>
           </tbody>
         </table>
@@ -312,7 +312,7 @@
         <p class="kicker">3인 팀 조장 · 2026년 5월 · 공격/방어 CTF</p>
         <h2 class="h">공격자를 차단할 수 없는 CTF에서, 사흘간 채점 기준 다운 0회를 기록했습니다</h2>
         <p class="lede">교수님이 root 권한으로 들어와 nginx를 끄고 포트를 빼앗는 경기였습니다. 규칙상 공격자를 차단할 수 없어서, nginx가 꺼지면 바로 다시 띄우고 그래도 안 되면 그 서버를 로드밸런서에서 빼는 구조로 방어했습니다.</p>
-        <p class="role mt"><span><b>제가 한 일</b> 복구 · 감시 · 페일오버 방어 구조 전체를 설계하고 만들었습니다. 경기 중 관제는 셋이 돌아가며 맡았습니다.</span></p>
+        <p class="role mt"><span><b>제가 한 일</b> 복구 · 감시 · 페일오버 방어 구조 전체를 설계하고 만들었습니다. 경기 기간 새벽에는 세 명이 Discord로 교대해 불침번을 섰습니다.</span></p>
         <div class="metrics m3 mt-a">
           <div class="metric"><div class="n">0<small>회</small></div><div class="l">채점 기준 서비스 다운</div><div class="c">5월 29일 ~ 31일 채점 기록 기준</div></div>
           <div class="metric"><div class="n">2<small>초</small></div><div class="l">다운에서 복구까지</div><div class="c">Teams 알림 기록 기준</div></div>

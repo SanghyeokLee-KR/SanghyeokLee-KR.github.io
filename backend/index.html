@@ -379,7 +379,7 @@ SELECT ...
     <p class="lede">서울시 상권 1,650곳의 매출, 유동인구, 점포 수를 지도에서 비교하는 서비스입니다. 저는 상권분석 조회 API와 지도, 팀 공통 기반(응답 · 예외 · 배치 · 요청 제한 · 보안), 배포를 맡았습니다.</p>
     <div class="g mt">
       <figure class="fig c7"><div class="frame light"><img src="../assets/img/sangkwon/load.jpg" alt="관리자 데이터 적재 화면: 데이터셋 14종, 총 2,349,530건, 데이터셋별 적재 상태와 재적재 버튼"></div>
-        <figcaption>관리자 화면에서 데이터셋별 적재 상태를 보고 다시 적재합니다. 점포 통계 하나만 160만 행입니다.</figcaption></figure>
+        <figcaption>관리자 화면에서 데이터셋별 적재 상태를 보고 다시 적재합니다. 화면의 14종 2,349,530건 가운데 서울시 데이터 7종이 약 220만 행이고, 점포 통계 하나만 160만 행입니다.</figcaption></figure>
       <div class="c5 compact">
         <ol class="notes">
           <li><span class="t">지우고 넣기를 한 트랜잭션으로</span><span class="d">DELETE와 INSERT를 한 트랜잭션에 묶어, 커밋 전까지 화면은 이전 데이터를 그대로 봅니다.</span></li>
