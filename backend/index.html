@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>이상혁 · 백엔드 포트폴리오</title>
+<meta name="description" content="운영까지 생각하면서 서비스를 만드는 백엔드 개발자 이상혁의 포트폴리오입니다.">
+<link rel="stylesheet" href="../assets/css/site.css">
+<style>
+  /* 대피소 추천 그림 */
+  .sv .map { fill: var(--wash); }
+  .sv .street { stroke: var(--line); stroke-width: 6; fill: none; }
+  .sv .zone { fill: rgba(207, 34, 46, .07); stroke: #CF222E; stroke-width: 1.5; stroke-dasharray: 5 5; }
+  .sv .zl { fill: #CF222E; font-size: 14px; font-weight: 600; }
+  .sv .bad { stroke: #CF222E; stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+  .sv .good { stroke: var(--be); stroke-width: 3.5; fill: none; stroke-linecap: round; }
+  .sv .perp { stroke: var(--ink-3); stroke-width: 1.2; fill: none; }
+  .sv .me { fill: var(--ink); }
+  .sv .shel { fill: var(--paper); stroke: var(--ink-3); stroke-width: 1.5; }
+  .sv .shel.ok { stroke: var(--be); stroke-width: 2.5; }
+  .sv .sl { fill: var(--ink); font-size: 14px; font-weight: 600; text-anchor: middle; }
+  .sv .lb { fill: var(--ink-2); font-size: 14px; }
+  .sv .lb.ok { fill: var(--be); font-weight: 600; }
+  .sv .lb.no { fill: var(--ink-3); }
+  .sv .mk { fill: var(--ink-3); font-size: 13px; font-family: var(--mono); }
+</style>
+</head>
+<body class="backend">
+<header class="topbar">
+  <div class="in">
+    <a class="who" href="../">이상혁<span>Backend Developer</span></a>
+    <nav>
+      <a href="../infra/">인프라</a>
+      <a href="./" aria-current="page">백엔드</a>
+      <a class="pdf" href="../backend.pdf">PDF 받기</a>
+    </nav>
+  </div>
+</header>
+
+<main class="deck">
+
+<!-- 01 표지 -->
+<section class="sheet" id="cover"><div class="in">
+  <div class="run"><span><b>포트폴리오</b> · 백엔드</span><span class="pg">01 / 15</span></div>
+  <div class="body">
+    <div class="g" style="flex:1">
+      <div class="c7" style="display:flex;flex-direction:column">
+        <div class="cover-id">
+          <figure class="portrait"><img src="../assets/img/profile/photo.jpg" alt="이상혁 증명사진"></figure>
+          <div>
+            <p class="kicker">Backend Developer</p>
+            <h1 class="cover-name">이상혁</h1>
+            <p class="cover-en">Lee Sang Hyeok</p>
+          </div>
+        </div>
+        <p class="cover-line">운영까지 생각하면서<br>서비스를 만듭니다.</p>
+        <dl class="contact mt-a">
+          <div><dt>Email</dt><dd>kljl6773@gmail.com</dd></div>
+          <div><dt>GitHub</dt><dd><a href="https://github.com/SanghyeokLee-KR">github.com/SanghyeokLee-KR</a></dd></div>
+          <div><dt>Web</dt><dd><a href="https://sanghyeoklee-kr.github.io/">sanghyeoklee-kr.github.io</a></dd></div>
+        </dl>
+      </div>
+      <div class="c5" style="display:flex;flex-direction:column">
+        <ol class="toc">
+          <li><span class="no">01</span><span class="nm">failstop<em>주문이 두 번 들어가거나 사라지지 않는 거래소</em></span><span class="p">03</span></li>
+          <li><span class="no">02</span><span class="nm">SafetyNevi<em>재난문자를 지도 위 위험 구역으로</em></span><span class="p">07</span></li>
+          <li><span class="no">03</span><span class="nm">sangkwon-platform-poly<em>220만 행을 안전하게 다시 넣는 상권 서비스</em></span><span class="p">10</span></li>
+          <li><span class="no">04</span><span class="nm">DeliveryPro<em>묶음배달 방문 순서를 서버가 계산</em></span><span class="p">12</span></li>
+          <li><span class="no">05</span><span class="nm">appintoss-meetup<em>출시 전 보안 문제를 풀고 낸 토스 미니앱</em></span><span class="p">14</span></li>
+          <li><span class="no">06</span><span class="nm">DevHub · polytalk<em>다시 열어 고친 코드, 서버에 평문이 남지 않는 채팅</em></span><span class="p">15</span></li>
+        </ol>
+        <div class="journey mt-a" aria-hidden="true">
+          <span class="dot be"></span><span class="dot be"></span><span class="dot be"></span><span class="dot be"></span><span class="dot be"></span><span class="dot infra"></span><span class="dot infra"></span><span class="dot infra"></span><span class="ring"></span>
+          <span class="lab l1">Backend</span><span class="lab l2">Infra</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 02 소개 -->
+<section class="sheet" id="about"><div class="in">
+  <div class="run"><span><b>소개</b></span><span class="pg">02 / 15</span></div>
+  <div class="body">
+    <h2 class="h">기능을 만들고 나면, 그 기능이 언제 틀어지는지가 궁금해집니다</h2>
+    <p class="lede">주문 버튼을 두 번 누르면 어떻게 될까, 서버가 두 대가 되면 이 카운터는 그대로 맞을까, 응답이 느린 진짜 이유는 쿼리일까. 이런 질문을 붙잡고 코드를 고쳐 왔습니다. 그래서 기능을 만들 때 테스트와 측정 기록을 함께 남기는 편입니다.</p>
+    <div class="g mt">
+      <div class="c4 cap">
+        <p class="cap-k">01</p>
+        <p class="cap-t">데이터가 어긋나지 않게</p>
+        <p class="cap-d">같은 주문이 두 번 들어와도 한 번만 처리되게 하고, 대량 적재가 중간에 끊기면 통째로 되돌리게 했습니다. 원장이 맞는지는 SQL로 직접 확인합니다.</p>
+      </div>
+      <div class="c4 cap">
+        <p class="cap-k">02</p>
+        <p class="cap-t">서버가 여러 대여도 같은 규칙으로</p>
+        <p class="cap-d">리더 권한은 리스와 epoch로 확인하고, 요청 제한과 배치 중복 실행 방지는 DB에서 함께 쓰게 했습니다. 서버를 늘려도 규칙이 느슨해지지 않게 하려는 것이었습니다.</p>
+      </div>
+      <div class="c4 cap">
+        <p class="cap-k">03</p>
+        <p class="cap-t">느리면 먼저 재 봅니다</p>
+        <p class="cap-d">부하 시험으로 병목이 쿼리가 아니라 응답 크기라는 걸 찾아 줄였고, 가상 스레드가 묶여 서버가 멈추는 원인을 찾아 락을 바꿨습니다.</p>
+      </div>
+    </div>
+    <div class="g mt-a">
+      <div class="c7">
+        <p class="sub-k">지금까지 해 온 프로젝트</p>
+        <div class="years">
+          <div class="yr"><b>2024</b><span><i class="dot be"></i>BookRidge</span><span><i class="dot be"></i>DevHub</span></div>
+          <div class="yr"><b>2025</b><span><i class="dot be"></i>DeliveryPro</span><span><i class="dot be"></i>SafetyNevi</span></div>
+          <div class="yr wide"><b>2026</b><span><i class="dot be"></i>polytalk</span><span><i class="dot be"></i>kopo-ecommerce</span><span><i class="dot infra"></i>keep-nginx-alive</span><span><i class="dot infra"></i>ai-lunch-curator</span><span><i class="dot infra"></i>image-pipeline</span><span><i class="dot be"></i>하모니</span><span><i class="dot be"></i>sangkwon</span><span><i class="dot infra"></i><b>failstop</b></span></div>
+        </div>
+      </div>
+      <div class="c5">
+        <p class="sub-k">주로 쓰는 기술</p>
+        <dl class="stack">
+          <div><dt>언어</dt><dd>Java · Python · TypeScript · SQL</dd></div>
+          <div><dt>서버</dt><dd>Spring Boot · Spring Security · JPA · FastAPI</dd></div>
+          <div><dt>데이터</dt><dd>PostgreSQL · Oracle · Redis · H2</dd></div>
+          <div><dt>실시간·연동</dt><dd>WebSocket(STOMP) · REST · OAuth 로그인</dd></div>
+          <div><dt>시험·배포</dt><dd>JUnit 5 · Testcontainers · k6 · GitHub Actions</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 03 failstop 개요 -->
+<section class="sheet" id="failstop"><div class="in">
+  <div class="run"><span><b>01 failstop</b> · 모의 거래소 백엔드</span><span class="pg">03 / 15</span></div>
+  <div class="body">
+    <p class="kicker">혼자 진행한 프로젝트 · 2026년 7월 ~ 10월</p>
+    <h2 class="h">주문이 두 번 들어가거나, 들어갔는지 모르게 되는 일이 없게 만들었습니다</h2>
+    <p class="lede">실제 돈은 다루지 않지만 거래소처럼 동작하는 모의 거래소입니다. 사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. 서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데 가장 공을 들였습니다. Claude·Codex와 함께 만들었고, 설계의 결정은 제가 확정했습니다.</p>
+    <div class="chain mt-a">
+      <div class="node"><p class="nk">POST /orders</p><p class="nt">주문 API</p><p class="nd">클라이언트가 만든 주문 키로 같은 주문을 알아보고, 내용이 다르면 거절합니다.</p></div>
+      <div class="node"><p class="nk">command_journal</p><p class="nt">명령 저널</p><p class="nd">엔진보다 먼저 DB에 커밋합니다. 리더 권한이 확인돼야 한 줄이 들어갑니다.</p></div>
+      <div class="node"><p class="nk">engine</p><p class="nt">매칭 엔진</p><p class="nd">Spring도 I/O도 시계도 쓰지 않는 순수 Java라, 같은 명령이면 늘 같은 체결이 나옵니다.</p></div>
+      <div class="node"><p class="nk">ledger</p><p class="nt">원장과 잔고</p><p class="nd">금액은 BigDecimal과 NUMERIC(40,18)로만 다루고, 자산마다 원장 합계는 0이어야 합니다.</p></div>
+    </div>
+    <div class="metrics m3 mt-a">
+      <div class="metric"><div class="n">4<small>건</small></div><div class="l">장애 시험으로 찾아 고친 버그</div><div class="c">리더 리스, DB 연결, 응답 코드에서</div></div>
+      <div class="metric"><div class="n">0<small>건</small></div><div class="l">확인받은 뒤 사라진 주문</div><div class="c">엄격 동기 복제로 바꾼 뒤, 내 PC의 장애 시험에서</div></div>
+      <div class="metric"><div class="n">30% → 100%</div><div class="l">같은 부하에서 접수된 주문 비율</div><div class="c">가상 스레드가 묶이는 문제를 고친 뒤</div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 04 주문 멱등성 -->
+<section class="sheet"><div class="in">
+  <div class="run"><span><b>01 failstop</b> · 주문 접수와 멱등성</span><span class="pg">04 / 15</span></div>
+  <div class="body">
+    <p class="kicker">주문 API</p>
+    <h2 class="h">같은 주문을 몇 번 다시 보내도, 결과는 하나로 모이게 했습니다</h2>
+    <div class="g mt" style="flex:1">
+      <div class="c5" style="display:flex;flex-direction:column">
+        <ol class="notes">
+          <li><span class="t">주문 키는 클라이언트가 만듭니다</span><span class="d"><code>client_order_id</code>가 없으면 받지 않습니다. 서버가 키를 대신 만들면, 응답을 못 받고 다시 보낼 때마다 새 주문이 생길 수 있기 때문입니다.</span></li>
+          <li><span class="t">같은 키면 내용을 비교합니다</span><span class="d">요청 본문을 JCS(RFC 8785)로 정규화한 뒤 SHA-256으로 비교합니다. 필드 순서나 공백이 달라도 같은 주문이면 같은 값이 나옵니다.</span></li>
+          <li><span class="t">엔진보다 저널에 먼저 기록합니다</span><span class="d">명령을 <code>command_journal</code>에 커밋한 다음에야 엔진에 넘깁니다. 엔진이 받은 명령은 모두 DB에 먼저 남아 있습니다.</span></li>
+          <li><span class="t">커밋됐는지 모를 때는 DB에 다시 묻습니다</span><span class="d">기록하는 순간 연결이 끊기면, DB 함수로 저널에 실제로 들어갔는지 확인합니다. 그래도 답을 못 받으면 503을 돌려주되 주문 키는 지우지 않습니다.</span></li>
+        </ol>
+      </div>
+      <div class="c7" style="display:flex;flex-direction:column">
+        <p class="sub-k">같은 키로 다시 보냈을 때 돌아가는 응답</p>
+        <table class="tbl">
+          <thead><tr><th>상황</th><th>응답</th></tr></thead>
+          <tbody>
+            <tr><td>같은 키, 같은 내용</td><td class="resp"><span class="st ok">200</span>처음 만든 주문을 그대로 돌려줍니다</td></tr>
+            <tr><td>같은 키, 다른 내용</td><td class="resp"><span class="st warn">409</span><code>duplicate_client_order_id</code></td></tr>
+            <tr><td>앞선 요청이 아직 처리 중</td><td class="resp"><span class="st warn">409</span><code>order_in_progress</code> · Retry-After</td></tr>
+            <tr><td>DB에 닿지 못함</td><td class="resp"><span class="st err">503</span>Retry-After: 1 · 주문 키는 남겨 둠</td></tr>
+          </tbody>
+        </table>
+        <pre class="code mt"><b>POST</b> /api/v1/orders
+{"client_order_id":"c-0721-0001","market":"KRW-BTC","side":"bid", ...}
+<b>← 201 Created</b>
+<span class="k">응답이 오지 않아 같은 요청을 다시 보내면</span>
+<b>← 200 OK</b>   X-Idempotent-Replay: true</pre>
+        <p class="quote mt-a">어떤 경우든 같은 키로 다시 보내면 결과는 하나로 모입니다. 사용자가 '주문이 들어갔는지 모르는' 상태로 남지 않게 하는 것이 목표였습니다.</p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 05 리더 리스와 epoch -->
+<section class="sheet"><div class="in">
+  <div class="run"><span><b>01 failstop</b> · 단일 리더와 옛 리더 차단</span><span class="pg">05 / 15</span></div>
+  <div class="body">
+    <p class="kicker">앱 서버 두 대, 주문장을 바꾸는 서버는 하나</p>
+    <h2 class="h">잠깐 멈췄다 돌아온 옛 리더가, 주문장을 건드리지 못하게 했습니다</h2>
+    <div class="g mt">
+      <div class="c6" style="display:flex;flex-direction:column">
+        <p class="p">리더만 기한이 있는 리스를 쥐고, 리더가 바뀔 때마다 epoch를 1씩 올립니다. 까다로운 건 잠깐 멈췄던 옛 리더가 자기가 아직 리더라고 믿고 쓰기를 이어 가는 경우였습니다. 그래서 권한을 확인하는 일과 쓰는 일을 나누지 않고, SQL 한 문장 안에 넣었습니다.</p>
+        <pre class="code mt-s"><i>-- 저널 기록(줄여서 옮김)</i>
+INSERT INTO command_journal (...)
+SELECT ...
+  FROM leader_lease
+ WHERE <b>holder = :me</b>
+   AND <b>epoch = :epoch</b>
+   AND <b>lease_until &gt; clock_timestamp()</b>
+   FOR KEY SHARE;</pre>
+        <p class="p mt-s">세 조건 중 하나라도 틀리면 0행이 들어가고, 옛 리더의 쓰기는 거기서 끝납니다. 확인과 기록 사이에 틈이 없어서, 그 사이에 리더가 바뀌는 일도 생기지 않습니다.</p>
+      </div>
+      <div class="c6" style="display:flex;flex-direction:column">
+        <p class="sub-k">장애를 일부러 내 보다가 찾아 고친 문제</p>
+        <ol class="attack">
+          <li><span class="k">DB 지연</span><span class="a">DB를 느리게만 했는데 리더가 바뀌었습니다</span><span class="r">정산 트랜잭션의 <code>FOR SHARE</code>가 리스 갱신을 막고 있었습니다. <code>FOR KEY SHARE</code>와 유일 인덱스로 바꾼 뒤, 같은 시험 세 번 모두 리더가 그대로였습니다.</span></li>
+          <li><span class="k">연결 끊김</span><span class="a">연결이 끊기면 리더 없이 멈췄습니다</span><span class="r">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 13.9초 만에 이어받았습니다.</span></li>
+          <li><span class="k">리더 교대</span><span class="a">새 리더가 이미 끝난 리스를 받았습니다</span><span class="r">만료 시각을 잠금을 기다리기 전부터 세고 있었습니다. 잠금을 얻은 뒤부터 세도록 고치자 이어받기가 10초 안팎으로 고르게 나왔습니다.</span></li>
+          <li><span class="k">옛 리더</span><span class="a">물러난 리더가 500을 돌려줬습니다</span><span class="r">리더가 아닌 서버의 응답을 503으로 바꿔, 다시 돌린 모든 시험에서 주문 500이 한 건도 없었습니다.</span></li>
+        </ol>
+      </div>
+    </div>
+    <div class="steps on-last mt-a">
+      <div class="step"><div class="k">epoch 7</div><div class="t">서버 A가 리더</div><div class="d">리스를 쥐고 주문을 저널에 씁니다.</div></div>
+      <div class="step"><div class="k">리스 만료</div><div class="t">서버 A가 잠깐 멈춤</div><div class="d">리스를 갱신하지 못해 기한이 지납니다.</div></div>
+      <div class="step"><div class="k">epoch 8</div><div class="t">서버 B가 이어받음</div><div class="d">리스를 가져가며 epoch를 하나 올립니다.</div></div>
+      <div class="step"><div class="k">0행</div><div class="t">돌아온 서버 A의 쓰기</div><div class="d">epoch 7로는 조건이 맞지 않아 한 줄도 들어가지 않습니다.</div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 06 원장 검증과 성능 -->
+<section class="sheet"><div class="in">
+  <div class="run"><span><b>01 failstop</b> · 원장 검증과 성능</span><span class="pg">06 / 15</span></div>
+  <div class="body">
+    <p class="kicker">장애 시험과 부하 시험</p>
+    <h2 class="h">'복구됐다'는 로그 대신, 원장이 맞는지 SQL로 확인했습니다</h2>
+    <div class="g mt">
+      <div class="c5">
+        <p class="p">장애를 넣은 뒤에는 SQL 불변식으로 판정합니다. 어긋난 행이 하나라도 나오면 실패입니다.</p>
+        <ul class="ops">
+          <li>자산마다 원장 합계가 0인가</li>
+          <li>잔고가 원장을 다시 계산한 값과 같은가</li>
+          <li>명령 저널에 빈 번호가 없는가</li>
+        </ul>
+      </div>
+      <div class="c7">
+        <p class="p">이렇게 확인하다가, 비동기 복제에서는 확인받은 주문도 사라질 수 있다는 걸 직접 봤습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+        <div class="vs mt-s">
+          <div class="vc"><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p><p class="vd">예비 DB를 8초 멈춘 뒤 주 DB를 끄자, 확인받은 주문 122건 중 36건이 사라졌습니다.</p></div>
+          <div class="vc on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험에서 사라진 주문이 없었습니다.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-a">
+        <p class="sub-k">느린 곳은 재서 찾고 고쳤습니다</p>
+        <table class="tbl">
+          <thead><tr><th>무엇이 막혔나</th><th>어떻게 고쳤나</th><th class="num">전 → 후</th></tr></thead>
+          <tbody>
+            <tr><td>가상 스레드가 묶여 서버가 멈춤</td><td>DB 왕복을 감싼 <code>synchronized</code>를 <code>ReentrantLock</code>으로</td><td class="num">접수 30% → 100%<br>p95 60.0초 → 1.2초</td></tr>
+            <tr><td>호가 집계가 주문 처리를 막음</td><td>집계 결과를 1초 동안 캐시</td><td class="num">초당 40 → 80건</td></tr>
+            <tr><td>모든 주문이 한 줄로 기다림</td><td>마켓마다 접수 락을 따로</td><td class="num">초당 112 → 152건</td></tr>
+          </tbody>
+        </table>
+        <div class="mt-s cap-row">
+          <p class="note">모두 내 PC의 Docker에서 같은 회차 안에서 전후를 비교한 값입니다. 가상 스레드 시험은 CPU를 2개로 묶어서 쟀습니다.</p>
+          <p class="links"><a href="https://github.com/SanghyeokLee-KR/failstop">GitHub 저장소</a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/docs/portfolio/failstop-presentation.pdf">발표 자료</a><a href="https://sanghyeoklee-kr.github.io/infra/#failstop">인프라 판에서 보기</a></p>
+        </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 07 SafetyNevi 개요 -->
+<section class="sheet" id="safetynevi"><div class="in">
+  <div class="run"><span><b>02 SafetyNevi</b> · 재난 대피 안내</span><span class="pg">07 / 15</span></div>
+  <div class="body">
+    <div class="g" style="flex:1">
+      <div class="c7" style="display:flex;flex-direction:column">
+        <p class="kicker">4인 팀 Tech Lead · PM · 2025년 9월 ~ 12월 · 졸업작품</p>
+        <h2 class="h">재난문자를 지도 위 위험 구역으로 바꾸고, 가까운 대피소로 안내했습니다</h2>
+        <p class="lede">재난문자는 글자뿐이라 내 주변이 위험한지 바로 알기 어렵습니다. 그래서 행안부 재난문자를 받아 지도에 위험 구역으로 그리고, 지금 운영 중인 가까운 대피소까지 길을 안내하는 서비스를 만들었습니다. 평가 기간에는 실제 도메인에서 일주일 동안 운영했습니다.</p>
+        <p class="role mt-s"><span><b>제가 한 일</b> 지도 핵심(위험 구역 · 경로)과 WebSocket, Python AI 서버, Oracle 스키마와 관리자, 배포. 게시판 API와 처음 수집기, 화면 퍼블리싱은 팀원이 맡았습니다.</span></p>
+        <ol class="notes mt-a">
+          <li><span class="t">공식 단계가 있으면 그대로, 없을 때만 AI에게</span><span class="d">공식 API의 긴급단계가 '위급'이나 '긴급'이면 바로 60분짜리 위험 구역을 만듭니다. 단계가 비어 있을 때만 따로 띄운 Python 서버의 분류 모델에게 묻습니다.</span></li>
+          <li><span class="t">DB 커밋이 끝난 뒤에만 알립니다</span><span class="d">롤백됐는데 알림이 먼저 나가면 없는 재난을 알리게 됩니다. 그래서 <code>afterCommit</code>에서만 WebSocket으로 보냅니다.</span></li>
+          <li><span class="t">서버를 늘려도 모두가 받도록</span><span class="d">운영 구성에서는 Kafka를 거치게 하고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙은 사용자든 같은 알림을 받게 짰습니다.</span></li>
+        </ol>
+      </div>
+      <figure class="fig c5 grow"><div class="frame light contain"><img src="../assets/img/safetynevi/flow.jpg" alt="행안부 재난문자 API, 수집 스케줄러, 긴급단계 판단과 AI 보조, 위험 구역 생성, Kafka, 서버별 컨슈머 그룹, WebSocket으로 이어지는 흐름도"></div>
+        <figcaption>재난문자가 들어와 사용자 화면에 위험 구역으로 뜨기까지의 흐름입니다.</figcaption></figure>
+    </div>
+  </div>
+</div></section>
+
+<!-- 08 대피소 추천 -->
+<section class="sheet"><div class="in">
+  <div class="run"><span><b>02 SafetyNevi</b> · 대피소 추천</span><span class="pg">08 / 15</span></div>
+  <div class="body">
+    <p class="kicker">경로 탐색</p>
+    <h2 class="h">가장 가까운 곳이 아니라, 가는 길이 안전한 대피소를 고르게 했습니다</h2>
+    <div class="g mt" style="flex:1">
+      <figure class="fig c6" style="display:flex;flex-direction:column">
+        <div class="frame light">
+          <svg class="sv" viewBox="0 0 640 400" role="img" aria-label="출발지에서 대피소 세 곳을 고르는 그림. A는 위험 구역 안이라 제외, B는 가는 길이 구역을 지나 제외, C는 안전해 추천">
+            <rect class="map" x="0" y="0" width="640" height="400"/>
+            <path class="street" d="M0 120 H640 M0 320 H640 M150 0 V400 M480 0 V400"/>
+            <circle class="zone" cx="340" cy="190" r="92"/>
+            <text class="zl" x="340" y="84" text-anchor="middle">위험 구역</text>
+            <line class="perp" x1="340" y1="190" x2="341" y2="255"/>
+            <circle cx="340" cy="190" r="3" fill="#CF222E"/>
+            <text class="mk" x="350" y="230">d &lt; r</text>
+            <line class="bad" x1="100" y1="260" x2="590" y2="250"/>
+            <path class="good" d="M100 260 L150 320 L205 372"/>
+            <circle class="me" cx="100" cy="260" r="8"/>
+            <text class="lb" x="58" y="236">출발</text>
+            <rect class="shel" x="340" y="134" width="28" height="28" rx="5"/><text class="sl" x="354" y="153">A</text>
+            <text class="lb no" x="376" y="153">구역 안 · 제외</text>
+            <rect class="shel" x="578" y="236" width="28" height="28" rx="5"/><text class="sl" x="592" y="255">B</text>
+            <text class="lb no" x="628" y="292" text-anchor="end">가는 길이 구역을 지남 · 제외</text>
+            <rect class="shel ok" x="205" y="358" width="28" height="28" rx="5"/><text class="sl" x="219" y="377">C</text>
+            <text class="lb ok" x="244" y="377">길이 안전함 · 추천</text>
+          </svg>
+        </div>
+        <figcaption>관리자가 발령한 원형 위험 구역을 기준으로 거릅니다. 출발지와 대피소를 잇는 선분이 구역 중심에서 반지름(r)보다 가까이 지나면(d &lt; r) 후보에서 뺍니다.</figcaption>
+      </figure>
+      <div class="c6 compact" style="display:flex;flex-direction:column">
+        <ol class="notes">
+          <li><span class="t">반경을 넓혀 가며 찾습니다</span><span class="d">위경도 사각형 범위로 5km, 20km, 100km 순으로 넓혀, 후보가 3곳 이상 나올 때까지 찾습니다.</span></li>
+          <li><span class="t">구역 안의 대피소는 뺍니다</span><span class="d">위험 원 안에 있는 대피소는 거리와 상관없이 후보에서 제외합니다.</span></li>
+          <li><span class="t">가는 길이 구역을 지나도 뺍니다</span><span class="d">점과 선분 사이의 최단거리를 계산해, 출발지에서 대피소로 가는 길이 위험 원을 가로지르는지 봅니다.</span></li>
+          <li><span class="t">세 가지 기준으로 보여 줍니다</span><span class="d">운영 중인 가장 가까운 곳, 가장 가까운 곳, 수용 인원이 가장 큰 곳을 하나씩 고릅니다. 실제 도로 경로는 Kakao Mobility로 받고, 그 경로가 위험 원을 지나면 화면에서 경고합니다.</span></li>
+        </ol>
+        <p class="quote mt-a">처음에는 추천이 자꾸 빗나갔습니다. 운영 여부를 '정상·영업·운영'이라는 값으로 보고 있었는데, 실제 데이터에는 '사용중'이라고 적혀 있었습니다. 데이터부터 열어 보는 습관이 여기서 생겼습니다.</p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 09 부하 시험과 AI 평가 -->
+<section class="sheet"><div class="in">
+  <div class="run"><span><b>02 SafetyNevi</b> · 부하 시험과 AI 모델 평가</span><span class="pg">09 / 15</span></div>
+  <div class="body">
+    <p class="kicker">졸업 뒤 다시 열어 손본 작업 · 2026년</p>
+    <h2 class="h">느린 이유는 쿼리가 아니라 응답 크기였습니다</h2>
+    <div class="g mt">
+      <div class="c6">
+        <p class="p">k6로 동시 사용자 60명까지 부하를 걸어 보니, 시설 조회 한 번이 1,500건, 387KB를 내려보내고 있었습니다. 응답을 필드별로 나눠 보니 주소가 25.2%였는데, 지도 마커에는 주소가 필요 없었습니다. 그래서 목록 전용 DTO를 따로 만들어 주소를 빼고 응답 압축을 켰습니다.</p>
+        <p class="p">재다 보니 k6가 <code>Accept-Encoding</code>을 보내지 않아 압축 효과가 잡히지 않는다는 것도 알게 돼서, 시나리오부터 고쳤습니다.</p>
+        <table class="tbl mt">
+          <thead><tr><th>시설 조회</th><th class="num">전</th><th class="num">후</th></tr></thead>
+          <tbody>
+            <tr><td>응답 크기</td><td class="num">387KB</td><td class="num">55KB</td></tr>
+            <tr><td>p95 응답 시간</td><td class="num">569ms</td><td class="num">216ms</td></tr>
+            <tr><td>처리량</td><td class="num">초당 347건</td><td class="num">초당 579건</td></tr>
+          </tbody>
+        </table>
+        <p class="note mt-s">로컬 H2 단일 서버에서 같은 시나리오로 잰 전후 비교입니다.</p>
+      </div>
+      <div class="c6 split">
+        <p class="sub-k">AI 분류 모델은 점수부터 의심했습니다</p>
+        <p class="p">재난문자의 위험도를 가르는 모델을 처음 돌렸을 때 정확도가 99%가 나왔습니다. 너무 높아서 확인해 보니, 데이터를 부풀린(업샘플) 뒤에 학습용과 평가용을 나눠 같은 문장이 양쪽에 들어가 있었습니다. 먼저 나누고, 불균형은 클래스 가중치로 다루도록 고쳤습니다.</p>
+        <div class="metrics m3 mt">
+          <div class="metric"><div class="n">78<small>%</small></div><div class="l">재난 종류 분류 정확도</div><div class="c">누수를 고친 뒤</div></div>
+          <div class="metric"><div class="n">1.00</div><div class="l">위험 문자 재현율</div><div class="c">평가 1,202건 기준</div></div>
+          <div class="metric"><div class="n">18,399<small>건</small></div><div class="l">학습한 재난문자</div><div class="c">위험은 0.8%뿐</div></div>
+        </div>
+        <p class="p mt-s">위험한 문자를 놓치지 않는 쪽을 먼저 택했고, 그 대가로 정밀도는 0.57입니다. 그래서 AI는 공식 단계가 비어 있을 때만 보조로 씁니다.</p>
+      </div>
+    </div>
+    <div class="mt-a">
+      <div class="cap-row"><p class="sub-k">그 밖에 손본 보안</p><p class="links"><a href="https://github.com/SanghyeokLee-KR/SafetyNevi">GitHub 저장소</a></p></div>
+      <div class="g layers">
+        <div class="c3"><p class="ly">웹푸시 주소 검사</p><p class="ld">https만 받고 localhost와 IP 주소는 거절해, 서버가 내부망으로 요청을 보내게 하는 공격(SSRF)을 막았습니다.</p></div>
+        <div class="c3"><p class="ly">IP별 요청 제한</p><p class="ld">API는 분당 300건, 푸시 등록은 30건까지 받습니다. X-Forwarded-For는 설정을 켰을 때만 믿습니다.</p></div>
+        <div class="c3"><p class="ly">로그인 잠금</p><p class="ld">5번 틀리면 잠그고, 대소문자만 바꾼 아이디도 같은 계정으로 셉니다.</p></div>
+        <div class="c3"><p class="ly">가입 여부 숨기기</p><p class="ld">비밀번호 찾기에서 없는 계정에도 가짜 질문을 보여 줘, 가입했는지가 드러나지 않습니다.</p></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 10 sangkwon 재적재 -->
+<section class="sheet" id="sangkwon"><div class="in">
+  <div class="run"><span><b>03 sangkwon-platform-poly</b> · 공공데이터 재적재</span><span class="pg">10 / 15</span></div>
+  <div class="body">
+    <p class="kicker">4인 팀 팀장 · 2026년 7월</p>
+    <h2 class="h">220만 행을 다시 넣는 동안에도, 잘린 데이터가 보이지 않게 했습니다</h2>
+    <p class="lede">서울시 상권 1,650곳의 매출, 유동인구, 점포 수를 지도에서 비교하는 서비스입니다. 저는 상권분석 조회 API와 지도, 팀 공통 기반(응답 · 예외 · 배치 · 요청 제한 · 보안), 배포를 맡았습니다.</p>
+    <div class="g mt">
+      <figure class="fig c7"><div class="frame light"><img src="../assets/img/sangkwon/load.jpg" alt="관리자 데이터 적재 화면: 데이터셋 14종, 총 2,349,530건, 데이터셋별 적재 상태와 재적재 버튼"></div>
+        <figcaption>관리자 화면에서 데이터셋별 적재 상태를 보고 다시 적재합니다. 점포 통계 하나만 160만 행입니다.</figcaption></figure>
+      <div class="c5 compact">
+        <ol class="notes">
+          <li><span class="t">지우고 넣기를 한 트랜잭션으로</span><span class="d">DELETE와 INSERT를 한 트랜잭션에 묶어, 커밋 전까지 화면은 이전 데이터를 그대로 봅니다.</span></li>
+          <li><span class="t">덜 받았으면 통째로 되돌립니다</span><span class="d">API가 알려 준 전체 건수보다 적게 받았거나 건너뛴 행이 하나라도 있으면 전부 롤백합니다. 5,000행씩 넣다 실패하면 그 묶음만 한 줄씩 다시 넣습니다.</span></li>
+          <li><span class="t">같은 적재가 두 번 돌지 않게</span><span class="d">서버가 두 대라 같은 데이터셋을 동시에 적재할 수 있습니다. 함수 기반 유니크 인덱스로 '실행 중' 기록을 데이터셋마다 하나로 묶어, 겹치면 나중 것이 건너뜁니다.</span></li>
+          <li><span class="t">멈춘 작업은 하트비트로 판단합니다</span><span class="d">실행 중에는 5분마다 하트비트를 남기고, 서버가 켜질 때 15분 넘게 소식이 없는 작업만 실패로 정리합니다. 시작 시각으로 판단하면 롤링 배포 중에 다른 서버의 정상 작업까지 덮을 수 있었습니다.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 11 sangkwon 요청 제한과 조회 API -->
+<section class="sheet"><div class="in">
+  <div class="run"><span><b>03 sangkwon-platform-poly</b> · 요청 제한과 조회 API</span><span class="pg">11 / 15</span></div>
+  <div class="body">
+    <p class="kicker">서버 두 대, DB 하나</p>
+    <h2 class="h">서버가 두 대여도 요청 제한이 느슨해지지 않게 했습니다</h2>
+    <div class="g mt" style="flex:1">
+      <div class="c6" style="display:flex;flex-direction:column">
+        <div class="vs">
+          <div class="vc"><p class="vk">서버마다 따로 세면</p><p class="vn">10<small>회</small></p><p class="vd">로그인 한도가 10분에 5회여도, 서버 두 대가 따로 세면 10회까지 통과합니다.</p></div>
+          <div class="vc on"><p class="vk">DB에서 함께 세면</p><p class="vn">5<small>회</small></p><p class="vd">어느 서버로 들어와도 같은 줄을 세서, 한도가 그대로 지켜집니다.</p></div>
+        </div>
+        <p class="p mt">그래서 공유 테이블에 먼저 1을 더하고, 그다음 한도를 확인하게 했습니다. 같은 새 키가 동시에 처음 들어와 기본 키가 부딪히면 UPDATE로 다시 시도해, 한 번도 빠지지 않게 했습니다.</p>
+        <pre class="code mt-s">MERGE INTO RATE_LIMIT_BUCKET b
+USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
+   ON (b.RATE_KEY = s.RATE_KEY)
+ WHEN MATCHED THEN UPDATE SET
+      b.HIT_COUNT = CASE WHEN b.WINDOW_STARTED_AT &lt; s.CUTOFF_AT
+                         <b>THEN 1 ELSE b.HIT_COUNT + 1</b> END, ...
+ WHEN NOT MATCHED THEN INSERT ... <b>HIT_COUNT = 1</b></pre>
+        <p class="p mt-a">관리자 로그인(30분에 10회)과 아이디 중복 확인(1분에 30회)에도 같은 방식을 썼습니다.</p>
+      </div>
+      <div class="c6 split compact" style="display:flex;flex-direction:column">
+        <p class="sub-k">지도 · 상권 요약 조회</p>
+        <ol class="notes">
+          <li><span class="t">무거운 경계와 숫자를 나눴습니다</span><span class="d">상권 경계(GeoJSON)는 <code>/geo</code>로, 매출 같은 숫자는 <code>/summary</code>로 따로 받아 화면이 필요한 것만 다시 부르게 했습니다.</span></li>
+          <li><span class="t">적재 시점이 달라도 빈 값이 나오지 않게</span><span class="d">매출 · 점포 · 유동인구 · 변화지표를 쿼리 하나로 모으되, 각 데이터는 매출의 최신 분기를 넘지 않는 자기 최신 분기를 씁니다.</span></li>
+          <li><span class="t">결과에 상한을 두었습니다</span><span class="d">요약은 2만 행까지, 매출 목록은 필터를 꼭 받고 5,000행까지만 돌려주며, 잘렸는지를 응답에 표시합니다.</span></li>
+          <li><span class="t">응답과 예외는 한 가지 모양으로</span><span class="d">모든 API가 같은 응답 봉투를 쓰고, 제약 위반과 낙관적 락 충돌은 409, 처리하지 못한 예외는 내부 메시지를 숨긴 500으로 돌려줍니다.</span></li>
+        </ol>
+        <p class="links mt-a"><a href="https://github.com/sangkwon-poly/sangkwon-platform-poly">GitHub 저장소</a><a href="https://sanghyeoklee-kr.github.io/infra/#sangkwon">무중단 배포는 인프라 판에</a></p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 12 DeliveryPro 경로 계산 -->
+<section class="sheet" id="deliverypro"><div class="in">
+  <div class="run"><span><b>04 DeliveryPro</b> · 묶음배달 경로 계산</span><span class="pg">12 / 15</span></div>
+  <div class="body">
+    <p class="kicker">5인 팀 조장 · 2025년 1월 ~ 2월</p>
+    <h2 class="h">라이더가 어느 집부터 들러야 할지, 서버가 계산하게 했습니다</h2>
+    <div class="g mt" style="flex:1">
+      <figure class="fig c7 grow"><div class="frame light contain"><img src="../assets/img/delivery/route.jpg" alt="배달지 5곳을 서버가 계산한 순서와 구간 경로로 그린 라이더 화면"></div>
+        <figcaption>배달지 5곳을 서버가 계산한 순서대로 그린 라이더 화면입니다. 총 14.58km, 약 38분이고, 방문 순서는 정확한 답입니다.</figcaption></figure>
+      <div class="c5 compact" style="display:flex;flex-direction:column">
+        <ol class="notes">
+          <li><span class="t">도로망을 방향이 있는 그래프로</span><span class="d">일방통행과 건널 수 없는 길을 담으려고, 데모용 격자 도로망(25×21)을 방향 그래프(CSR)로 만들었습니다. 간선 값은 도로 종류별 속도로 구한 소요 시간입니다.</span></li>
+          <li><span class="t">배달지를 가까운 교차로에 붙입니다</span><span class="d">400m 격자 색인으로 찾고, 1,500m 넘게 떨어지면 구역 밖으로 봅니다.</span></li>
+          <li><span class="t">정차지마다 다익스트라 한 번</span><span class="d">목적지를 다 찾으면 바로 멈추고, 정차지끼리의 소요 시간표를 만듭니다.</span></li>
+          <li><span class="t">방문 순서는 Held-Karp로</span><span class="d">12곳까지는 정확한 답을 구하고, 그보다 많으면 최근접 이웃과 2-opt 근사로 내려가며 정확한 답인지 함께 표시합니다.</span></li>
+          <li><span class="t">순서와 경로를 한 응답으로</span><span class="d">계산한 순서는 DB에 저장하고 구간 좌표와 함께 돌려줘, 화면의 경로와 저장된 순서가 어긋나지 않게 했습니다.</span></li>
+        </ol>
+        <p class="quote mt-a">직선으로 208m인 두 집이 도로로는 1,876m였고, 갈 때 247.7초, 올 때 97.6초가 걸렸습니다. 일방통행이 그대로 반영된다는 걸 이 값으로 테스트에 고정해 두었습니다.</p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 13 DeliveryPro 공통 규약 -->
+<section class="sheet"><div class="in">
+  <div class="run"><span><b>04 DeliveryPro</b> · 서버 공통 규약과 로그인</span><span class="pg">13 / 15</span></div>
+  <div class="body">
+    <p class="kicker">조장으로 맡은 서버 공통 부분</p>
+    <h2 class="h">다섯 명이 만든 API가 같은 모양으로 응답하게 맞췄습니다</h2>
+    <div class="g mt">
+      <div class="c3 cap">
+        <p class="cap-k">01</p>
+        <p class="cap-t">응답과 예외 규약</p>
+        <p class="cap-d">API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 응답 봉투 하나와 오류 코드 8종, 업무 예외로 통일하고, 예전 핸들러와 부딪히지 않게 적용 범위를 좁혔습니다.</p>
+      </div>
+      <div class="c3 cap">
+        <p class="cap-k">02</p>
+        <p class="cap-t">트랜잭션은 서비스에서</p>
+        <p class="cap-d">트랜잭션 경계를 서비스 계층으로 옮기고 조회에는 readOnly를 붙였습니다. open-in-view를 꺼서 지연 로딩이 화면까지 새어 나가지 않게 했습니다.</p>
+      </div>
+      <div class="c3 cap">
+        <p class="cap-k">03</p>
+        <p class="cap-t">소셜 로그인 3사</p>
+        <p class="cap-d">네이버 · 구글 · 카카오의 인가 코드 교환과 프로필 조회를 Apache HttpClient로 직접 호출했습니다. 카카오는 응답 구조가 달라 따로 읽었고, 비밀번호는 BCrypt로 저장합니다.</p>
+      </div>
+      <div class="c3 cap">
+        <p class="cap-k">04</p>
+        <p class="cap-t">받아서 바로 실행되게</p>
+        <p class="cap-d">h2 프로파일에서 Oracle 호환 모드로 띄우고 데모 데이터를 넣습니다. 지도 키가 없으면 서버가 계산한 경로를 SVG로 그려, 누구나 받아서 바로 돌려 볼 수 있습니다.</p>
+      </div>
+    </div>
+    <div class="shots mt-a">
+      <figure class="fig"><div class="frame light crop"><img src="../assets/img/delivery/store-list.jpg" alt="가게 목록 화면"></div><figcaption><b>주문</b> · 카테고리별 가게 목록</figcaption></figure>
+      <figure class="fig"><div class="frame light crop"><img src="../assets/img/delivery/rider.jpg" alt="라이더 배차 화면"></div><figcaption><b>라이더</b> · 묶음배달 배차와 진행 상황</figcaption></figure>
+      <figure class="fig"><div class="frame light crop"><img src="../assets/img/delivery/admin.jpg" alt="관리자 가게 관리 화면"></div><figcaption><b>관리자</b> · 가게 승인과 관리</figcaption></figure>
+    </div>
+    <p class="links mt-s"><a href="https://github.com/SanghyeokLee-KR/DeliveryPro">GitHub 저장소</a></p>
+  </div>
+</div></section>
+
+<!-- 14 하모니 -->
+<section class="sheet" id="harmony"><div class="in">
+  <div class="run"><span><b>05 appintoss-meetup</b> · 하모니, 토스 미니앱</span><span class="pg">14 / 15</span></div>
+  <div class="body">
+    <p class="kicker">4인 팀 팀장 · 2026년 6월 · 토스 앱에 정식 출시</p>
+    <h2 class="h">출시 직전 보안 검토에서 막힌 문제를 풀고, 일주일 만에 출시했습니다</h2>
+    <p class="lede">토스 앱 안에서, 친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 미니앱입니다. 저는 팀장으로 제품과 정책을 정하고, 출시 전 보안 문제 해결과 최종 승인을 맡았습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다.</p>
+    <div class="g mt" style="flex:1">
+      <div class="c7" style="display:flex;flex-direction:column">
+        <ol class="attack">
+          <li><span class="k">권한</span><span class="a">공개된 곡 코드만 알면 남의 곡에 트랙을 붙일 수 있었습니다</span><span class="r">공개된 곡은 작성자 키가 같을 때만 붙일 수 있게 하고, 남의 곡을 쓰려면 원본을 표시한 새 곡을 만들게 했습니다. 비공개 곡 코드는 <code>crypto.randomInt</code>로 만들어 추측하기 어렵게 했습니다.</span></li>
+          <li><span class="k">신고</span><span class="a">키만 바꿔 신고하면 남의 댓글을 숨길 수 있었습니다</span><span class="r">신고자와 요청 제한의 기준을 서버가 확인한 IP로 바꿨습니다. nginx가 클라이언트가 보낸 <code>X-Forwarded-For</code>를 실제 접속 주소로 덮어쓰고, 앱은 127.0.0.1에만 열어 두었습니다.</span></li>
+          <li><span class="k">재시도</span><span class="a">다시 보내면 같은 곡이 여러 번 올라갔습니다</span><span class="r">멱등 토큰을 '요청한 사람의 키 + 토큰'으로 묶고, 첫 트랙 내용의 해시로 같은 곡을 알아봐 이미 있는 코드를 돌려줍니다.</span></li>
+        </ol>
+        <p class="quote mt-a">독립 검토에서 출시 불가 판정을 받았던 항목을 고친 뒤 다시 검토를 받아 통과했고, 6월 26일 토스 앱에 전체 공개로 출시했습니다.</p>
+      </div>
+      <div class="c5" style="display:flex;flex-direction:column">
+        <figure class="fig"><div class="frame light"><img src="../assets/img/harmony/dfd.jpg" alt="인터넷, EC2 공개면, localhost 세 신뢰 경계와 nginx, node API, SQLite 사이의 데이터 흐름"></div>
+          <figcaption>신뢰 경계 그림 · 밖에서는 nginx만 보이고, 앱과 DB는 서버 안쪽에만 있습니다.</figcaption></figure>
+        <table class="tbl mt-a">
+          <thead><tr><th>고친 뒤 시험</th><th class="num">결과</th></tr></thead>
+          <tbody>
+            <tr><td>다른 키로 공개 곡에 트랙 추가</td><td class="num">403</td></tr>
+            <tr><td>같은 IP에서 키만 바꿔 세 번 신고</td><td class="num">숨겨지지 않음</td></tr>
+            <tr><td>XFF를 바꿔 가며 13번 게시</td><td class="num">13번째 429</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 15 DevHub · polytalk -->
+<section class="sheet" id="more"><div class="in">
+  <div class="run"><span><b>06 DevHub · polytalk</b> · 그 밖의 백엔드 작업</span><span class="pg">15 / 15</span></div>
+  <div class="body">
+    <div class="g" style="flex:1">
+      <div class="c6 compact" style="display:flex;flex-direction:column">
+        <p class="kicker">4인 팀 PM · 2024년 6월 ~ 7월</p>
+        <h3 class="h3">DevHub<small>개발자 커뮤니티</small></h3>
+        <p class="p mt-s">인증과 보안, 카카오페이 결제창 연동, 실시간 채팅, 챗봇을 맡았습니다. 프로젝트가 끝나고 다시 열어 보니 고칠 곳이 보여서, 하나씩 고치고 테스트로 묶었습니다.</p>
+        <ol class="notes mt">
+          <li><span class="t">Security를 켜면 모든 요청이 막혔습니다</span><span class="d">세션 로그인 정보를 요청마다 SecurityContext에 올려 주는 필터를 넣고, 회원 수정 · 글쓰기 · 결제 · 출석 같은 경로만 로그인을 요구하게 했습니다.</span></li>
+          <li><span class="t">음수를 빼면 포인트가 오히려 늘었습니다</span><span class="d">0 이하 차감을 거부하고 잔액이 충분할 때만 빼도록 고쳤고, 트랜잭션은 서비스 계층에 두었습니다.</span></li>
+          <li><span class="t">챗봇 키 하나 때문에 앱이 뜨지 않았습니다</span><span class="d">키 파일이 있을 때만 챗봇 클라이언트를 만들게 해, 키가 없어도 앱은 뜨고 챗봇은 안내 문구를 돌려줍니다.</span></li>
+        </ol>
+        <figure class="fig mt-a"><div class="frame light fixed"><img src="../assets/img/devhub/architecture.jpg" alt="브라우저, Spring Security, Controller, Service, Repository, Oracle과 H2, 외부 API로 이어지는 계층 구조"></div></figure>
+        <p class="links mt-s"><a href="https://github.com/SanghyeokLee-KR/DevHub">DevHub 저장소</a></p>
+      </div>
+      <div class="c6 split compact" style="display:flex;flex-direction:column">
+        <p class="kicker">자바 심화 과제 · 2026년 5월</p>
+        <h3 class="h3">polytalk<small>종단 간 암호화 채팅</small></h3>
+        <p class="p mt-s">Java TCP 소켓으로 만든 1:1 채팅입니다. 서버는 회원 인증과 방 관리, 암호문 저장과 전달만 하고, 메시지 평문은 서버에 남지 않습니다.</p>
+        <ol class="notes mt">
+          <li><span class="t">키는 두 사람만 계산합니다</span><span class="d">개인키는 각자의 기기에만 두고 서버에는 공개키만 보냅니다. 방에 들어가면 서버가 공개키를 서로에게 전해 주고, 두 클라이언트가 ECDH로 같은 키를 계산합니다.</span></li>
+          <li><span class="t">메시지마다 새 IV로 AES-GCM</span><span class="d">서버는 받은 암호문을 풀지 않고 그대로 저장해 상대에게 넘깁니다.</span></li>
+          <li><span class="t">접속을 동시에 받는 구조</span><span class="d">연결을 받는 스레드와 스레드 풀을 나누고, 클라이언트도 입력과 수신 스레드를 나눴습니다.</span></li>
+        </ol>
+        <figure class="fig mt-a"><div class="frame light fixed"><img src="../assets/img/polytalk/e2ee.jpg" alt="방 입장, 공개키 중계, 양쪽 ECDH, 암호문 전송과 저장으로 이어지는 시퀀스 그림"></div></figure>
+        <p class="links mt-s"><a href="https://github.com/SanghyeokLee-KR/polytalk">polytalk 저장소</a></p>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+</main>
+</body>
+</html>

@@ -25,14 +25,23 @@
   .pdfs a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line-2); }
   .foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line-2); display: flex; flex-wrap: wrap; gap: 10px 28px; font-size: 14.5px; color: var(--ink-3); }
   .foot a { color: var(--ink); text-decoration: none; }
-  @media (max-width: 720px) { .pick { grid-template-columns: 1fr; } .home { padding-top: 48px; } }
+  .home .cover-id { gap: 32px; }
+  .home .portrait { width: 132px; }
+  .home .en { line-height: 1; margin-top: 18px; }
+  @media (max-width: 720px) { .pick { grid-template-columns: 1fr; } .home { padding-top: 48px; } .home .cover-id { gap: 18px; } .home .portrait { width: 96px; } }
+  @media (max-width: 359px) { .home .cover-id { gap: 14px; } .home .portrait { width: 72px; } }
 </style>
 </head>
 <body>
 <main class="home">
-  <p class="k">System · Infra Engineer</p>
-  <h1>이상혁</h1>
-  <p class="en">Lee Sang Hyeok</p>
+  <div class="cover-id">
+    <figure class="portrait"><img src="assets/img/profile/photo.jpg" alt="이상혁 증명사진"></figure>
+    <div>
+      <p class="k">System · Infra Engineer</p>
+      <h1>이상혁</h1>
+      <p class="en">Lee Sang Hyeok</p>
+    </div>
+  </div>
   <p class="line">서버를 직접 세워 보고, 일부러 장애를 내 보면서 배웁니다.</p>
 
   <div class="pick">
@@ -42,14 +51,14 @@
       <p>고가용성 거래소 인프라와 AI 관제(failstop), 공격 속에서 서버를 지킨 CTF 방어, 작은 서버의 병목 찾기와 배포 자동화를 담았습니다.</p>
       <div class="go"><span>15쪽</span><b>보기 →</b></div>
     </a>
-    <div class="card be" aria-disabled="true">
+    <a class="card be" href="backend/">
       <p class="t">백엔드 포트폴리오</p>
-      <h2>운영까지 생각하며 서비스를 만든 기록</h2>
-      <p>거래 엔진과 주문 처리, 재난 대피 안내, 상권분석 플랫폼, 배달 경로 계산처럼 직접 만든 서비스의 핵심 로직을 담았습니다.</p>
-      <div class="go"><span>곧 공개합니다</span><b>준비 중</b></div>
-    </div>
+      <h2>주문이 두 번 들어가지 않고, 데이터가 어긋나지 않게 만든 기록</h2>
+      <p>거래소의 주문 멱등성과 리더 차단(failstop), 재난 대피소 추천, 공공데이터 재적재와 공유 요청 제한, 묶음배달 경로 계산을 담았습니다.</p>
+      <div class="go"><span>15쪽</span><b>보기 →</b></div>
+    </a>
   </div>
-  <p class="pdfs">PDF로 받기 · <a href="infra.pdf">인프라 포트폴리오</a></p>
+  <p class="pdfs">PDF로 받기 · <a href="infra.pdf">인프라 포트폴리오</a><a href="backend.pdf">백엔드 포트폴리오</a></p>
 
   <div class="foot">
     <span>kljl6773@gmail.com</span>
