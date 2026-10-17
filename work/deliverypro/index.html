@@ -81,7 +81,7 @@
 <section class="chap wrap" id="ch-intro" aria-labelledby="h1">
   <div class="grid ch-head">
     <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">손님 · 사장님 · 라이더 · 관리자용 배달 플랫폼</h2>
+    <h2 class="ch-h" id="h1">손님 · 사장님 · 라이더 · 관리자를 잇는 배달 플랫폼</h2>
     <div class="prose">
       <p>손님은 가게를 골라 주문하고, 사장님은 주문을 받아 메뉴를 관리합니다. 라이더는 배달을 맡고, 관리자는 회원과 가게, 라이더를 관리합니다. 이 네 역할을 한 서비스로 잇는 배달 플랫폼을 다섯 명이 만들었습니다.</p>
       <p>조장인 저는 라이더 한 명이 여러 집을 어떤 순서로 돌지 서버가 계산하게 만들었고, 다섯 명이 짠 API가 같은 모양으로 응답하도록 공통 규약을 정했습니다. 소셜 로그인과 화면도 맡았습니다.</p>
@@ -97,7 +97,7 @@
 <section class="chap wrap" id="ch-route" aria-labelledby="h2">
   <div class="grid ch-head">
     <p class="ch-no"><b>02</b>묶음배달 경로 계산</p>
-    <h2 class="ch-h" id="h2">방향 그래프 기반 방문 순서 계산</h2>
+    <h2 class="ch-h" id="h2">라이더가 어느 집부터 들러야 할지, 서버가 계산하게 했습니다</h2>
     <div class="prose">
       <p>직선거리로 순서를 정하면 일방통행도, 건널 수 없는 길도 알 수 없습니다. 그래서 도로망을 방향 그래프로 만들고, 그 위에서 정차지끼리 걸리는 시간을 구한 뒤 순서를 정했습니다. 도로망은 실제 지도가 아니라, 일방통행과 건널 수 없는 길을 넣은 25×21 데모용 격자입니다.</p>
     </div>
@@ -125,7 +125,7 @@
 <section class="chap wrap" id="ch-proof" aria-labelledby="h3">
   <div class="grid ch-head">
     <p class="ch-no"><b>03</b>테스트로 고정</p>
-    <h2 class="ch-h" id="h3">일방통행 반영 여부 테스트</h2>
+    <h2 class="ch-h" id="h3">일방통행이 반영되는지 확인한 테스트</h2>
     <div class="prose">
       <p>그래프 계산은 우회해야 하는 두 집으로 확인했습니다. 건널 수 없는 길 양쪽에 있어서, 직선으로는 가깝지만 도로로는 한참 돌아가야 하는 곳입니다. 같은 두 집이라도 가는 방향에 따라 시간이 달라야 일방통행이 비용에 들어갔다고 할 수 있습니다.</p>
     </div>
@@ -134,7 +134,7 @@
     <div class="a7 rv">
       <div class="vs">
         <div><p class="vk">직선으로 재면</p><p class="vn">208<small>m</small></p><p class="vd">두 집을 곧게 이은 거리입니다.</p></div>
-        <div><p class="vk">도로를 따라가면</p><p class="vn">1,876<small>m</small></p><p class="vd">건널 수 없는 길을 피해 돌아가는, 하나뿐인 우회로입니다.</p></div>
+        <div><p class="vk">도로를 따라가면</p><p class="vn">1,876<small>m</small></p><p class="vd">건널 수 없는 길을 피해 돌아가는 우회로입니다.</p></div>
       </div>
       <div class="vs mt-m">
         <div><p class="vk">갈 때</p><p class="vn">247.7<small>초</small></p><p class="vd">한쪽 방향으로 갈 때 걸리는 시간입니다.</p></div>
@@ -152,7 +152,7 @@
 <section class="chap wrap" id="ch-common" aria-labelledby="h4">
   <div class="grid ch-head">
     <p class="ch-no"><b>04</b>서버 공통 규약</p>
-    <h2 class="ch-h" id="h4">ApiResponse 응답 형식과 오류 코드 통일</h2>
+    <h2 class="ch-h" id="h4">다섯 명이 만든 API가 같은 모양으로 응답하게 맞췄습니다</h2>
     <div class="prose">
       <p>처음에는 API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 그래서 응답은 ApiResponse 하나로 감싸고, 실패는 오류 코드 여덟 개와 BusinessException 하나로 알리게 정리했습니다.</p>
     </div>
@@ -192,7 +192,7 @@ public class GlobalExceptionHandler {
 <section class="chap wrap" id="ch-login" aria-labelledby="h5">
   <div class="grid ch-head">
     <p class="ch-no"><b>05</b>로그인과 실행</p>
-    <h2 class="ch-h" id="h5">소셜 로그인 구현과 로컬 실행 환경</h2>
+    <h2 class="ch-h" id="h5">소셜 로그인 3사 연동과 로컬 실행</h2>
   </div>
   <div class="panels mt-l rv">
     <div class="panel">

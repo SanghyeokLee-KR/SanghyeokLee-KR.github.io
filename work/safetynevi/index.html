@@ -129,7 +129,7 @@
 <section class="chap wrap" id="ch-intro" aria-labelledby="h1">
   <div class="grid ch-head">
     <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">재난문자 위험 구역 표시와 대피소 안내</h2>
+    <h2 class="ch-h" id="h1">재난문자를 지도 위 위험 구역으로 바꾸고, 가까운 대피소로 안내했습니다</h2>
     <div class="prose">
       <p>재난문자는 글자뿐이라 내 주변이 위험한지, 어디로 가야 하는지 바로 알기 어렵습니다. 그래서 행정안전부 재난문자를 받아 지도에 위험 구역으로 그리고, 지금 운영 중인 가까운 대피소까지 길을 안내하는 서비스를 만들었습니다. 메인 서버는 Spring Boot이고, 재난문자를 분류하는 AI 서버는 Python FastAPI로 따로 띄웠습니다.</p>
       <p>저는 위험 구역과 경로 탐색, 실시간 알림, AI 서버, 배포를 만들었습니다.</p>
@@ -162,7 +162,7 @@
         <li><span class="t">위급 · 긴급이면 바로 구역으로</span><span class="d">긴급단계가 위급이나 긴급이면 60분짜리 위험 구역을 바로 만듭니다. 단계가 없는 문자만 따로 띄운 Python 서버의 분류 모델에 묻습니다.</span></li>
         <li><span class="t">구역 표시는 브라우저에서</span><span class="d">서버는 재난문자의 수신 지역 이름으로 구역을 만들고, 브라우저가 이 이름을 시군구 경계 GeoJSON에 맞춰 칠합니다.</span></li>
         <li><span class="t">DB 커밋이 끝난 뒤에만 알립니다</span><span class="d">알림을 먼저 보내고 저장이 롤백되면 DB에 없는 재난을 알리게 됩니다. 그래서 WebSocket과 웹푸시는 커밋 뒤에 보냅니다.</span></li>
-        <li><span class="t">서버가 여러 대일 때의 알림 전달</span><span class="d">알림을 Kafka로 흘리고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙어 있든 같은 알림을 받게 했습니다. Kafka와 Redis는 운영 프로파일에서 켜지게 해 두었고, 평가 기간에는 서버 한 대로 돌렸습니다.</span></li>
+        <li><span class="t">서버가 여러 대일 때의 알림 전달</span><span class="d">알림을 Kafka로 보내고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙어 있든 같은 알림을 받게 했습니다. Kafka와 Redis는 운영 프로파일에서 켜지게 해 두었고, 평가 기간에는 서버 한 대로 돌렸습니다.</span></li>
       </ol>
       <pre class="code mt-l rv">DisasterZone saved = disasterZoneRepository.save(zone);
 DisasterZoneResponse response = DisasterZoneResponse.from(saved);
@@ -178,7 +178,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <section class="chap wrap" id="ch-route" aria-labelledby="h3">
   <div class="grid ch-head">
     <p class="ch-no"><b>03</b>대피소 추천</p>
-    <h2 class="ch-h" id="h3">위험 구역을 피하는 대피소 추천</h2>
+    <h2 class="ch-h" id="h3">위험 구역 안에 있거나 가는 길이 구역을 지나는 대피소는 추천에서 뺐습니다</h2>
     <div class="prose">
       <p>거리만 보고 고르면 위험 구역 한가운데로 안내할 수도 있습니다. 그래서 관리자가 발령한 원형 위험 구역을 기준으로, 대피소가 구역 안에 있는지와 가는 길이 구역을 지나는지를 같이 봅니다.</p>
     </div>
@@ -207,7 +207,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <section class="chap wrap" id="ch-load" aria-labelledby="h4">
   <div class="grid ch-head">
     <p class="ch-no"><b>04</b>졸업 뒤 다시 본 부하 테스트</p>
-    <h2 class="ch-h" id="h4">k6 부하 테스트와 시설 조회 응답 크기 축소</h2>
+    <h2 class="ch-h" id="h4">시설 조회 응답을 387KB에서 55KB로 줄였습니다</h2>
     <div class="prose">
       <p>졸업하고 2026년에 다시 열어 k6로 동시 사용자 60명까지 부하를 걸어 봤더니, 시설 조회 한 번에 1,500건, 387KB가 내려가고 있었습니다. 필드별로 나눠 보니 응답의 4분의 1이 주소였는데, 지도 마커에는 주소가 필요 없습니다. 그래서 목록 전용 DTO를 만들어 주소를 빼고 응답 압축을 켰습니다.</p>
     </div>
@@ -238,7 +238,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <section class="chap wrap" id="ch-ai" aria-labelledby="h5">
   <div class="grid ch-head">
     <p class="ch-no"><b>05</b>AI 분류 모델</p>
-    <h2 class="ch-h" id="h5">재난문자 분류 모델과 데이터 누수 수정</h2>
+    <h2 class="ch-h" id="h5">재난문자 분류 모델의 데이터 누수 수정</h2>
     <div class="prose">
       <p>재난문자의 위험도를 가르는 모델을 처음 돌렸더니 정확도가 99%였습니다. 값이 지나치게 높아 확인해 보니, 업샘플링을 먼저 하고 학습용과 평가용을 나눈 탓에 같은 문장이 양쪽에 들어가 있었습니다. 순서를 바꿔 데이터를 먼저 나누고, 불균형은 클래스 가중치로 다뤘습니다.</p>
     </div>
@@ -274,7 +274,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <section class="chap wrap" id="ch-sec" aria-labelledby="h6">
   <div class="grid ch-head">
     <p class="ch-no"><b>06</b>보안</p>
-    <h2 class="ch-h" id="h6">로그인과 웹푸시 구독 API 보안 처리</h2>
+    <h2 class="ch-h" id="h6">로그인과 웹푸시 구독 API의 보안 보강</h2>
   </div>
   <ol class="chain mt-l rv">
     <li><p class="nk">SSRF</p><p class="nt">웹푸시 주소 검사</p><p class="nd">https만 받고 localhost와 IP 주소는 거절해, 서버가 내부망으로 요청을 보내지 않게 했습니다.</p></li>
@@ -312,7 +312,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 <section class="chap wrap" id="ch-team" aria-labelledby="h8">
   <div class="grid ch-head">
     <p class="ch-no"><b>08</b>팀과 역할</p>
-    <h2 class="ch-h" id="h8">팀 구성과 담당 범위</h2>
+    <h2 class="ch-h" id="h8">지도 · AI 서버 · 배포는 제가, 게시판과 화면은 팀원이 맡았습니다</h2>
   </div>
   <div class="grid mt-l">
     <div class="inset role-cols rv">

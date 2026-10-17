@@ -56,7 +56,7 @@
   <div class="grid case-row">
     <div class="case-l">
       <h1 class="case-title long" id="t">high-throughput-image-pipeline</h1>
-      <p class="case-deck">t3.micro 한 대에서의 이미지 수집 처리량 최적화,<br>CPU 병목 측정과 코루틴 구성</p>
+      <p class="case-deck">t3.micro 한 대에서 이미지 수집 처리량을 측정하고,<br>CPU 병목을 확인했습니다</p>
     </div>
     <dl class="case-meta">
       <div><dt>기간</dt><dd>2026년 6월 10일 – 13일</dd></div>
@@ -92,7 +92,7 @@
 <section class="chap wrap" id="ch-intro" aria-labelledby="h1">
   <div class="grid ch-head">
     <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">vCPU 2개, 메모리 1GB 서버에서 수집 속도 비교</h2>
+    <h2 class="ch-h" id="h1">vCPU 2개, 메모리 1GB 서버 한 대로 누가 더 빨리 모으는지 겨뤘습니다</h2>
     <div class="prose">
       <p>처음에는 네트워크가 병목일 거라고 예상했습니다. 요청 하나의 지연을 재고 동시성을 올려 보니 차단은 한 번도 없었고 <em>CPU가 먼저 100%에 닿았습니다.</em> 프로세스를 늘리는 대신 코루틴으로 동시성을 높였고, CPU는 100%까지 쓰면서 메모리는 최대 47%였습니다.</p>
     </div>
@@ -128,7 +128,7 @@
 <section class="chap wrap" id="ch-flow" aria-labelledby="h3">
   <div class="grid ch-head">
     <p class="ch-no"><b>03</b>파이프라인 구조</p>
-    <h2 class="ch-h" id="h3">생산자 1개, Redis 큐, 소비자 2프로세스 × 코루틴 128개</h2>
+    <h2 class="ch-h" id="h3">Redis 큐를 사이에 둔 생산자·소비자 구조</h2>
     <div class="prose">
       <p>CPU가 2개라 소비자 프로세스를 2개 띄우고, 프로세스마다 자기 이벤트 루프에서 코루틴 128개를 돌렸습니다. 동시에 나가는 요청은 모두 256개입니다.</p>
     </div>
@@ -151,7 +151,7 @@
 <section class="chap wrap" id="ch-neck" aria-labelledby="h4">
   <div class="grid ch-head">
     <p class="ch-no"><b>04</b>병목 측정</p>
-    <h2 class="ch-h" id="h4">요청 지연 측정과 CPU 병목 확인</h2>
+    <h2 class="ch-h" id="h4">요청 지연을 재고 동시성을 올려 보니, CPU가 먼저 100%에 닿았습니다</h2>
     <div class="prose">
       <p>병목이 네트워크인지 CPU인지 확인하려고 요청 하나의 지연을 재고, 동시성을 올리면서 처리 속도가 더 늘지 않는 지점을 찾았습니다.</p>
     </div>
@@ -165,7 +165,7 @@
     <div class="b5 rv">
       <ol class="notes">
         <li><span class="t">요청 하나에 약 85ms</span><span class="d">코루틴 하나로는 1초에 12페이지쯤 처리하는 셈입니다.</span></li>
-        <li><span class="t">동시성에 비례해 증가</span><span class="d">처리 속도는 동시성을 지연으로 나눈 만큼, 거의 그대로 늘어납니다.</span></li>
+        <li><span class="t">처리 속도는 동시성에 비례</span><span class="d">처리 속도는 동시성을 지연으로 나눈 만큼, 거의 그대로 늘어납니다.</span></li>
         <li><span class="t">초당 약 320페이지에서 포화</span><span class="d">TLS와 파싱, 이미지 처리가 CPU 2개를 채우면서 막힙니다. 계산으로는 프로세스 32개면 초당 376페이지지만, 그 전에 CPU가 100%에 닿습니다.</span></li>
       </ol>
     </div>
@@ -222,7 +222,7 @@
 <section class="chap wrap" id="ch-learn" aria-labelledby="h6">
   <div class="grid ch-head">
     <p class="ch-no"><b>06</b>결과</p>
-    <h2 class="ch-h" id="h6">구현 선택과 측정 조건</h2>
+    <h2 class="ch-h" id="h6">측정 결과를 보고 코루틴 구성을 골랐습니다</h2>
   </div>
   <div class="split mt-l">
     <div class="a6 rv">

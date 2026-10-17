@@ -75,9 +75,9 @@
 <section class="chap wrap" id="ch-intro" aria-labelledby="h1">
   <div class="grid ch-head">
     <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">프로젝트 개요</h2>
+    <h2 class="ch-h" id="h1">운영 대상은 직접 만든 모의 거래소입니다</h2>
     <div class="prose">
-      <p>직접 만든 모의 거래소를 운영하기 위한 인프라입니다. 제 PC의 Docker에서 장애 시험을 먼저 하고, 가상 머신으로 서버를 다시 구성한 다음 AWS로 옮겼습니다.</p>
+      <p>이 거래소를 운영 대상 서비스로 두고 인프라를 구성했습니다. 제 PC의 Docker에서 장애 시험을 먼저 하고, Packet Tracer로 망을 설계하고, 가상 머신으로 서버를 다시 구성한 다음 AWS로 옮겼습니다.</p>
       <p>사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. <em>서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데</em> 가장 공을 들였습니다.</p>
     </div>
   </div>
@@ -93,11 +93,11 @@
 <section class="chap wrap" id="ch-path" aria-labelledby="h2">
   <div class="grid ch-head">
     <p class="ch-no"><b>02</b>진행 단계</p>
-    <h2 class="ch-h" id="h2">로컬 Docker에서 AWS까지 진행 단계</h2>
+    <h2 class="ch-h" id="h2">로컬 Docker에서 AWS까지, 네 단계</h2>
   </div>
   <ol class="stages mt-l rv">
     <li class="stage"><a href="#ch-chaos"><div class="th"><img src="../../assets/img/failstop/docker-result.jpg" alt="" loading="lazy"></div><p class="k"><span>1단계</span><span>Docker</span></p><p class="t">로컬 Docker 시험</p><p class="d">Docker로 거래소를 띄우고 장애와 부하를 넣어 봤습니다.</p></a></li>
-    <li class="stage"><a href="#ch-net"><div class="th"><img src="../../assets/img/failstop/network-map.jpg" alt="" loading="lazy"></div><p class="k"><span>2단계</span><span>Packet Tracer</span></p><p class="t">네트워크 설계</p><p class="d">필요한 통신만 허용하도록 망을 설계했습니다.</p></a></li>
+    <li class="stage"><a href="#ch-net"><div class="th"><img src="../../assets/img/failstop/network-map.jpg" alt="" loading="lazy"></div><p class="k"><span>2단계</span><span>Packet Tracer</span></p><p class="t">네트워크 설계</p><p class="d">Packet Tracer로 필요한 통신만 허용하도록 망을 설계했습니다.</p></a></li>
     <li class="stage"><a href="#ch-data"><div class="th"><img src="../../assets/img/failstop/vmfw-map.jpg" alt="" loading="lazy"></div><p class="k"><span>3단계</span><span>가상 머신</span></p><p class="t">가상 머신 구성</p><p class="d">가상 머신에 서버 여섯 대를 올려 방화벽과 백업을 구성했습니다.</p></a></li>
     <li class="stage"><a href="#ch-aws"><div class="th"><img src="../../assets/img/failstop/aws-map.jpg" alt="" loading="lazy"></div><p class="k"><span>4단계</span><span>AWS</span></p><p class="t">AWS 배포</p><p class="d">두 가용 영역에 나눠 배포하고, DB 장애와 서버 증설을 시험했습니다.</p></a></li>
   </ol>
@@ -107,7 +107,7 @@
 <section class="chap wrap" id="ch-aws" aria-labelledby="h3">
   <div class="grid ch-head">
     <p class="ch-no"><b>03</b>AWS 구성 · 서울 리전</p>
-    <h2 class="ch-h" id="h3">두 가용 영역에 나눈 AWS 운영 구성</h2>
+    <h2 class="ch-h" id="h3">거래 서버와 DB를 두 가용 영역에 나눠 배치했습니다</h2>
     <div class="prose">
       <p>2026년 10월에 운영한 구성입니다. 장면을 고르면 주문 처리, DB 장애, 서버 증설 때의 흐름을 볼 수 있습니다. 발표 후에는 비용이 나가지 않게 자원을 모두 정리했습니다.</p>
     </div>
@@ -117,7 +117,7 @@
   <p class="note-s">AI 서버와 Teams는 AWS 바깥에 있습니다. <a href="../../assets/img/failstop/aws-map.jpg">처음 그린 구성도 보기</a></p>
 
   <ol class="notes cols mt-l rv">
-    <li><span class="t">거래 서버와 DB는 두 데이터센터에</span><span class="d">가용 영역 두 곳에 한 대씩 나눠 두었습니다. 한쪽 서버가 멈추면 다른 쪽이 거래를 이어받는 구조입니다.</span></li>
+    <li><span class="t">거래 서버와 DB는 두 데이터센터에</span><span class="d">가용 영역 두 곳에 한 대씩 나눠 두었습니다. 한쪽 서버가 멈추면 다른 쪽이 거래를 이어받습니다.</span></li>
     <li><span class="t">조회 서버는 평소에 꺼 둡니다</span><span class="d">부하가 올라갈 때만 켜지게 해서 상시 운영 비용을 줄였습니다.</span></li>
     <li><span class="t">DB는 Patroni 엄격 동기 복제</span><span class="d">주 DB가 멈추면 같은 내용을 가진 예비 DB만 새 주 DB가 됩니다. 커밋을 확인해 준 주문은 예비 DB에도 남아 있습니다.</span></li>
     <li><span class="t">서버 접속은 SSM으로</span><span class="d">SSH 대신 SSM으로 접속했고, 배포 파일은 S3에 올려 두었습니다.</span></li>
@@ -131,7 +131,7 @@
 <section class="chap wrap" id="ch-chaos" aria-labelledby="h4">
   <div class="grid ch-head">
     <p class="ch-no"><b>04</b>장애 시험 · 제 PC의 Docker</p>
-    <h2 class="ch-h" id="h4">로컬 Docker 장애 시험 179회</h2>
+    <h2 class="ch-h" id="h4">AWS에 올리기 전에, 로컬 Docker에서 장애 시험을 179회 진행했습니다</h2>
   </div>
   <div class="split mt-l">
     <figure class="a7 rv">
@@ -158,7 +158,7 @@
 <section class="chap wrap" id="ch-net" aria-labelledby="h5">
   <div class="grid ch-head">
     <p class="ch-no"><b>05</b>망과 방화벽 · Packet Tracer와 가상 머신</p>
-    <h2 class="ch-h" id="h5">망 분리와 방화벽 계층 구성</h2>
+    <h2 class="ch-h" id="h5">망을 구간별로 나누고, 계층마다 방화벽을 두었습니다</h2>
     <div class="prose">
       <p>Packet Tracer로 먼저 망을 설계했습니다. 외부 웹 요청은 DMZ에서 받고 거래 서버와 DB는 내부망에 두었으며, 관리자도 점프 서버를 거쳐야 서버에 접속할 수 있게 했습니다. 가상 머신 실습망에서는 서버 설정을 바꾸지 않고 서버 앞에 투명 방화벽(pfSense 브리지)을 넣었습니다.</p>
     </div>
@@ -180,19 +180,19 @@
 <section class="chap wrap" id="ch-ai" aria-labelledby="h6">
   <div class="grid ch-head">
     <p class="ch-no"><b>06</b>AI 관제 · 온프레미스 AI 서버와 Teams</p>
-    <h2 class="ch-h" id="h6">AI 경보 분석과 승인 기반 서버 증설</h2>
+    <h2 class="ch-h" id="h6">경보가 울리면 AI가 원인을 정리하고 조치를 제안합니다</h2>
   </div>
   <div class="split mt-l">
     <figure class="a7 rv">
       <div class="plate"><img src="../../assets/img/failstop/ai-story.gif" width="1100" height="470" loading="lazy" alt="경보, AI 제안, 코드 검사, 운영자 승인, 조회 서버 합류와 보고 순서"></div>
-      <figcaption>2026년 10월 10일 AWS 부하 시험 때의 순서입니다.</figcaption>
+      <figcaption>2026년 10월 10일 AWS 부하 시험 때의 순서를 장면으로 다시 그렸습니다.</figcaption>
     </figure>
     <div class="b5 rv">
       <ol class="timeline">
         <li><time>03:02:12</time><span>CPU 경보가 울리고 Teams로 알림이 갑니다.</span></li>
         <li><time>03:03:57</time><span>AI가 지표와 서버 수, 최근 조치를 살펴보고 조회 서버를 한 대 늘리자고 합니다.</span></li>
         <li><time>03:05:49</time><span>AI가 제시한 근거를 확인하고 승인합니다.</span></li>
-        <li><time>03:06:56</time><span>조회 서버가 합류합니다.</span></li>
+        <li><time>03:06:56</time><span>승인하고 67초 뒤 조회 서버가 합류합니다.</span></li>
         <li><time>03:07</time><span>경보가 풀리고, 장애 보고서가 Teams에 올라옵니다.</span></li>
       </ol>
     </div>
@@ -209,7 +209,7 @@
 <section class="chap wrap" id="ch-data" aria-labelledby="h7">
   <div class="grid ch-head">
     <p class="ch-no"><b>07</b>데이터 보존과 리눅스 운영</p>
-    <h2 class="ch-h" id="h7">데이터 보존 시험과 Linux 운영 설정</h2>
+    <h2 class="ch-h" id="h7">DB 장애와 OS 삭제 뒤에도 데이터가 남는지 확인했습니다</h2>
   </div>
   <div class="panels mt-l rv">
     <div class="panel">
@@ -245,7 +245,7 @@
 <section class="chap wrap" id="ch-order" aria-labelledby="h8">
   <div class="grid ch-head">
     <p class="ch-no"><b>08</b>주문 처리 · 백엔드</p>
-    <h2 class="ch-h" id="h8">주문 API의 멱등성 처리</h2>
+    <h2 class="ch-h" id="h8">같은 주문을 여러 번 다시 보내도 주문은 하나만 생기게 했습니다</h2>
     <div class="prose">
       <p>응답을 받지 못한 사용자는 같은 주문을 다시 보냅니다. 그때마다 새 주문이 생기면 안 되고, 들어갔는지 모르는 상태로 남아서도 안 됩니다. 그래서 주문 처리 경로를 네 단계로 나눴습니다.</p>
     </div>
@@ -290,9 +290,9 @@
 <section class="chap wrap" id="ch-leader" aria-labelledby="h9">
   <div class="grid ch-head">
     <p class="ch-no"><b>09</b>리더와 원장 · 앱 서버 두 대 중 주문장 쓰기는 리더 한 대</p>
-    <h2 class="ch-h" id="h9">리더 리스와 epoch로 옛 리더의 쓰기 차단</h2>
+    <h2 class="ch-h" id="h9">잠깐 멈췄다 돌아온 옛 리더의 쓰기를 리스와 epoch로 막았습니다</h2>
     <div class="prose">
-      <p>리더만 기한이 있는 리스를 갖고, 리더가 바뀔 때마다 epoch를 1씩 올립니다. 문제가 되는 건 잠깐 멈췄던 옛 리더가 자신이 아직 리더라고 보고 쓰기를 계속하는 경우입니다. 그래서 권한 확인과 쓰기를 <em>SQL 한 문장 안에서</em> 처리했습니다.</p>
+      <p>리더만 기한이 있는 리스를 쥐고, 리더가 바뀔 때마다 epoch를 1씩 올립니다. 까다로운 건 잠깐 멈췄던 옛 리더가 자기가 아직 리더라고 믿고 쓰기를 이어 가는 경우였습니다. 그래서 권한을 확인하는 일과 쓰는 일을 나누지 않고, <em>SQL 한 문장 안에</em> 넣었습니다.</p>
     </div>
   </div>
   <div class="split mt-l">
@@ -331,7 +331,7 @@ SELECT ...
 
   <div class="grid ch-head mt-l sub-chap">
     <p class="ch-no"><b>09-2</b>원장 검증</p>
-    <h3 class="ch-h">장애 후 원장 정합성 SQL 검사</h3>
+    <h3 class="ch-h">장애 시험 뒤에는 원장이 맞는지 SQL로 확인했습니다</h3>
   </div>
   <div class="split mt-l">
     <div class="a5 rv">
@@ -343,7 +343,7 @@ SELECT ...
       </ul>
     </div>
     <div class="b7 rv">
-      <p class="lede-s">이 검사로 비동기 복제에서는 확인해 준 주문도 사라질 수 있다는 것을 확인했습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+      <p class="lede-s">이 검사를 돌리다가, 비동기 복제에서는 클라이언트에 확인해 준 주문도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
       <div class="vs mt-m">
         <div><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p>
           <div class="cells" data-total="122" data-lost="36" data-cols="31" role="img" aria-label="확인해 준 주문 122건 가운데 36건이 사라졌습니다"></div>
@@ -372,12 +372,12 @@ SELECT ...
 <!-- 10 배운 점 -->
 <section class="chap wrap" id="ch-learn" aria-labelledby="h10">
   <div class="grid ch-head">
-    <p class="ch-no"><b>10</b>관제 화면과 시험 기록</p>
+    <p class="ch-no"><b>10</b>관제 화면</p>
     <h2 class="ch-h" id="h10">관제 화면과 시험 기록</h2>
   </div>
   <div class="split mt-l">
     <ol class="a6 notes rv">
-      <li><span class="t">측정 환경 구분</span><span class="d">측정값마다 제 PC의 Docker, 가상 머신, AWS 중 어디서 쟀는지 구분해 적었습니다. 시험마다 실행한 명령과 화면도 함께 남겼습니다.</span></li>
+      <li><span class="t">측정 환경과 결과를 함께 기록했습니다</span><span class="d">측정값마다 제 PC의 Docker, 가상 머신, AWS 중 어디서 쟀는지 구분해 적었습니다. 시험마다 실행한 명령과 화면도 함께 남겼습니다.</span></li>
     </ol>
     <div class="b6 rv">
       <p class="links-row mt-m"><a href="https://github.com/SanghyeokLee-KR/failstop">GitHub 저장소 <span class="arrow" aria-hidden="true">→</span></a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/docs/portfolio/failstop-presentation.pdf">발표 자료 <span class="arrow" aria-hidden="true">→</span></a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/%EB%B0%9C%ED%91%9C%EB%8D%B1/assets/video/failstop-aws-demo-v9.mp4">시연 영상 7분 <span class="arrow" aria-hidden="true">→</span></a></p>

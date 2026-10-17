@@ -14,7 +14,7 @@
       cf: { label: 'CloudFront', sub: '웹·API 진입점' },
       lb: { label: '로드밸런서', sub: '3개 AZ 연결' },
       app1: { label: '거래 서버 1', sub: '주문 체결·조회' },
-      q: { label: '조회 서버', sub: '사람이 몰릴 때만 켜짐' },
+      q: { label: '조회 서버', sub: '부하가 오를 때만 켜짐' },
       app2: { label: '거래 서버 2', sub: '주문 체결·조회' },
       hap: { label: 'HAProxy', kind: 'small' },
       db1: { label: '주 DB', sub: 'PostgreSQL 17 · Patroni' },
@@ -81,7 +81,7 @@
           cf: { x: 80, y: 72, w: 200, h: 56 },
           lb: { x: 80, y: 188, w: 200, h: 56 },
           app1: { x: 16, y: 290, w: 104, h: 62, sub: 'AZ-a' },
-          q: { x: 128, y: 290, w: 104, h: 62, sub: '몰릴 때만' },
+          q: { x: 128, y: 290, w: 104, h: 62, sub: '부하 시에만' },
           app2: { x: 240, y: 290, w: 104, h: 62, sub: 'AZ-c' },
           hap: { x: 130, y: 392, w: 100, h: 34, center: true },
           db1: { x: 16, y: 466, w: 132, h: 62, sub: 'AZ-a · Patroni' },
@@ -132,7 +132,7 @@
         ]
       },
       {
-        label: '사람이 몰리면', title: '부하가 올라갈 때 조회 서버를 늘리는 순서',
+        label: '부하가 오르면', title: '부하가 올라갈 때 조회 서버를 늘리는 순서',
         result: '경보부터 조회 서버 합류까지 4분 44초가 걸렸습니다.',
         steps: [
           { time: '03:02:12', say: '부하가 올라가 CPU 경보가 울리고, Teams로 알림이 갑니다.', burst: 3, move: ['u_cf', 'cf_lb', 'lb_a1'], move2: ['mon_t', 't_op'], set: { cf: 'on', lb: 'on', app1: 'on', mon: 'on', teams: 'on', op: 'on' }, badge: { mon: { text: 'CPU 경보' } } },
@@ -216,7 +216,7 @@
     scenarios: [
       {
         label: '평소 요청', title: '정상 요청의 경로',
-        result: 'L7 입구, L3·L4 포트 정책, IDS, 서버별 nftables로 차단과 탐지를 나눴습니다.',
+        result: '입구의 HAProxy(L7), 포트 정책(L3·L4), Suricata(IDS), 서버마다 둔 nftables가 차단과 탐지를 나눠 맡습니다.',
         steps: [
           { say: '요청이 경계 방화벽을 지나 투명 방화벽의 HAProxy 입구에 닿습니다.', move: ['n_f', 'f_h'], set: { fw: 'on' } },
           { say: 'HAProxy가 암호화를 풀어 내용을 보고, 웹 진입 서버로 넘깁니다.', move: ['h_w'], set: { haproxy: 'ok', web: 'on' } },
