@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>failstop · 이상혁</title>
+<meta name="description" content="사람이 몰려도, DB가 멈춰도 거래가 이어지는 모의 거래소의 인프라와 백엔드. 이상혁의 대표 작업입니다.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+<style>
+  /* 이 페이지에만 필요한 규칙. 공통 css/site.css는 바꾸지 않는다 */
+  .vs .cells { max-width: 100%; }
+</style>
+</head>
+<body>
+<a class="skip" href="#ch-intro">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a class="hide-m" href="https://github.com/SanghyeokLee-KR/failstop">GitHub</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- 여는 부분 -->
+<section class="case-open wrap" aria-labelledby="t">
+  <p class="crumb"><span class="bar" aria-hidden="true"></span><span>작업 <span class="mono">01 / 10</span></span><span>대표 작업</span><span class="mono">2026</span></p>
+  <div class="grid case-row">
+    <div class="case-l">
+      <h1 class="case-title" id="t">failstop</h1>
+      <p class="case-deck">사람이 몰려도, DB가 멈춰도<br>거래가 이어지는 서버를 만들고 싶었습니다.</p>
+    </div>
+    <dl class="case-meta">
+      <div><dt>기간</dt><dd>2026년 7월 – 10월</dd></div>
+      <div><dt>형태</dt><dd>혼자 진행한 프로젝트입니다. Claude·Codex와 함께 만들었고, 설계의 결정은 제가 확정했습니다.</dd></div>
+      <div><dt>분야</dt><dd>인프라 · 백엔드</dd></div>
+      <div><dt>기술</dt><dd>AWS · Linux · PostgreSQL · Patroni · HAProxy · pfSense · Prometheus · Grafana · Java · Spring Boot</dd></div>
+      <div><dt>자료</dt><dd class="lk"><a href="https://github.com/SanghyeokLee-KR/failstop">GitHub 저장소</a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/docs/portfolio/failstop-presentation.pdf">발표 자료</a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/%EB%B0%9C%ED%91%9C%EB%8D%B1/assets/video/failstop-aws-demo-v9.mp4">시연 영상 7분</a></dd></div>
+    </dl>
+  </div>
+  <figure class="hero-shot">
+    <div class="plate"><img src="../../assets/img/failstop/exchange.jpg" width="1280" height="720" alt="페일스톱 거래소 화면: 비트코인 차트, 호가, 체결 내역, 주문 입력"></div>
+    <figcaption><b>거래소</b> · 시장 봇이 실제로 주문을 주고받는 화면입니다. 실제 돈은 다루지 않지만 거래소처럼 동작하는 모의 거래소입니다.</figcaption>
+  </figure>
+</section>
+
+<nav class="chapters" aria-label="장 목록">
+  <div class="wrap">
+    <ol>
+      <li><a href="#ch-intro"><span class="n">01</span>개요</a></li>
+      <li><a href="#ch-path"><span class="n">02</span>네 단계</a></li>
+      <li><a href="#ch-aws"><span class="n">03</span>AWS 구성</a></li>
+      <li><a href="#ch-chaos"><span class="n">04</span>장애 시험</a></li>
+      <li><a href="#ch-net"><span class="n">05</span>망과 방화벽</a></li>
+      <li><a href="#ch-ai"><span class="n">06</span>AI 관제</a></li>
+      <li><a href="#ch-data"><span class="n">07</span>데이터 보존</a></li>
+      <li><a href="#ch-order"><span class="n">08</span>주문 처리</a></li>
+      <li><a href="#ch-leader"><span class="n">09</span>리더와 원장</a></li>
+      <li><a href="#ch-learn"><span class="n">10</span>배운 점</a></li>
+    </ol>
+    <span class="progress" aria-hidden="true"></span>
+  </div>
+</nav>
+
+<div class="case-body">
+
+<!-- 01 개요 -->
+<section class="chap wrap" id="ch-intro" aria-labelledby="h1">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>01</b>개요</p>
+    <h2 class="ch-h" id="h1">'실제로 운영해야 하는 서비스'라고 생각하고 처음부터 세웠습니다</h2>
+    <div class="prose">
+      <p>직접 만든 모의 거래소를 운영 대상으로 삼아 인프라를 처음부터 세웠습니다. 바로 클라우드로 가지 않고, 내 PC에서 먼저 망가뜨려 보고, 망을 그려 보고, 가상 머신으로 서버를 세워 본 다음 AWS로 옮겼습니다.</p>
+      <p>사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. <em>서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데</em> 가장 공을 들였습니다.</p>
+    </div>
+  </div>
+  <div class="facts mt-l rv">
+    <div class="fact"><p class="n">179<small>회</small></p><p class="l">일부러 낸 장애</p><p class="c">내 PC에서, 모두 30초 안에 이어받았습니다.</p></div>
+    <div class="fact"><p class="n">23.0<small>초</small></p><p class="l">주 DB가 꺼진 뒤 이어받기까지</p><p class="c">AWS에서, 확인한 주문 196건 중 사라진 것 0건.</p></div>
+    <div class="fact"><p class="n">4<small>분</small> 44<small>초</small></p><p class="l">경보부터 서버가 늘어나기까지</p><p class="c">AI가 제안하고 제가 승인한 뒤 67초 만에 합류.</p></div>
+    <div class="fact"><p class="n">36.7<small>만 원</small></p><p class="l">한 달 예상 운영비</p><p class="c">예산 40만 원 안, 세금 포함.</p></div>
+  </div>
+</section>
+
+<!-- 02 네 단계 -->
+<section class="chap wrap" id="ch-path" aria-labelledby="h2">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>02</b>네 단계</p>
+    <h2 class="ch-h" id="h2">내 PC에서 AWS까지, 한 단계씩 옮겨 갔습니다</h2>
+  </div>
+  <ol class="stages mt-l rv">
+    <li class="stage"><a href="#ch-chaos"><div class="th"><img src="../../assets/img/failstop/docker-result.jpg" alt="" loading="lazy"></div><p class="k"><span>1단계</span><span>Docker</span></p><p class="t">먼저 내 PC에서</p><p class="d">Docker로 거래소를 띄우고 장애와 부하를 넣어 봤습니다.</p></a></li>
+    <li class="stage"><a href="#ch-net"><div class="th"><img src="../../assets/img/failstop/network-map.jpg" alt="" loading="lazy"></div><p class="k"><span>2단계</span><span>Packet Tracer</span></p><p class="t">망을 그려 보고</p><p class="d">꼭 필요한 통신만 열리게 설계했습니다.</p></a></li>
+    <li class="stage"><a href="#ch-data"><div class="th"><img src="../../assets/img/failstop/vmfw-map.jpg" alt="" loading="lazy"></div><p class="k"><span>3단계</span><span>가상 머신</span></p><p class="t">서버를 직접 세우고</p><p class="d">가상 머신에 서버 여섯 대를 올려 방화벽과 백업을 구성했습니다.</p></a></li>
+    <li class="stage"><a href="#ch-aws"><div class="th"><img src="../../assets/img/failstop/aws-map.jpg" alt="" loading="lazy"></div><p class="k"><span>4단계</span><span>AWS</span></p><p class="t">AWS로 옮겼습니다</p><p class="d">두 데이터센터에 나눠 올리고, 장애가 나도 이어지는지 확인했습니다.</p></a></li>
+  </ol>
+</section>
+
+<!-- 03 AWS -->
+<section class="chap wrap" id="ch-aws" aria-labelledby="h3">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>03</b>AWS 구성 · 서울 리전</p>
+    <h2 class="ch-h" id="h3">한쪽이 멈춰도 버티도록, 서버를 두 곳에 나눠 두었습니다</h2>
+    <div class="prose">
+      <p>2026년 10월 실제로 운영하던 구성입니다. 아래 그림에서 장면을 고르면, 주문 한 건과 장애와 증설이 실제로 어떤 길을 지나는지 순서대로 볼 수 있습니다. 발표가 끝난 뒤에는 비용이 나가지 않도록 모두 정리했습니다.</p>
+    </div>
+  </div>
+
+  <div class="flow mt-l rv" data-flow="aws" data-title="AWS 운영 환경"></div>
+  <p class="note-s">실제 구성도를 옮겨 그렸습니다. 온프레미스 AI 서버와 Teams는 AWS 바깥에 있습니다. <a href="../../assets/img/failstop/aws-map.jpg">원본 구성도 보기</a></p>
+
+  <ol class="notes cols mt-l rv">
+    <li><span class="t">거래 서버와 DB는 두 데이터센터에</span><span class="d">서로 다른 가용 영역에 한 대씩 두었습니다. 한쪽에 문제가 생겨도 다른 쪽이 거래를 이어 갑니다.</span></li>
+    <li><span class="t">조회 서버는 평소에 꺼 둡니다</span><span class="d">사람이 몰릴 때만 켜지게 해서, 늘 켜 두는 비용을 아꼈습니다.</span></li>
+    <li><span class="t">확인받은 주문은 잃지 않는 DB</span><span class="d">Patroni 엄격 동기 복제를 써서, 주 DB가 멈추면 같은 내용을 가진 예비 DB만 새 주 DB가 됩니다.</span></li>
+    <li><span class="t">서버 접속은 SSM으로</span><span class="d">SSH 대신 AWS SSM으로 접속해 관리했고, 배포 파일은 S3에 두었습니다.</span></li>
+    <li><span class="t">한 달 40만 원 안에서</span><span class="d">평소 사용량으로 계산하면 세금을 포함해 <em>약 36.7만 원</em>이 듭니다.</span></li>
+  </ol>
+</section>
+
+<!-- 04~07: 어두운 그림이 이어지는 장은 남색 띠로 묶는다 -->
+<div class="dark">
+
+<!-- 04 장애 시험 -->
+<section class="chap wrap" id="ch-chaos" aria-labelledby="h4">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>04</b>장애 시험 · 내 PC의 Docker</p>
+    <h2 class="ch-h" id="h4">클라우드에 올리기 전에, 내 PC에서 179번 먼저 망가뜨려 봤습니다</h2>
+  </div>
+  <div class="split mt-l">
+    <figure class="a7 rv">
+      <div class="plate"><img src="../../assets/img/failstop/docker-failover.gif" width="1100" height="470" loading="lazy" alt="주 DB를 강제 종료하자 예비 DB가 약 23초 만에 새 주 DB로 승격하는 장면"></div>
+      <figcaption>주 DB를 강제로 끄자 약 23초 뒤 예비 DB가 새 주 DB가 되고, 거래 서버의 연결도 따라 옮겨 갑니다. 확인받은 주문은 사라지지 않았습니다.</figcaption>
+    </figure>
+    <div class="b5 rv">
+      <table class="tbl">
+        <thead><tr><th>어떤 장애를</th><th class="num">몇 번</th><th class="num">가장 오래 걸린 이어받기</th></tr></thead>
+        <tbody>
+          <tr><td>DB 연결 끊기</td><td class="num">28</td><td class="num">13.5초</td></tr>
+          <tr><td>거래 서버 강제 종료</td><td class="num">48</td><td class="num">12.9초</td></tr>
+          <tr><td>거래 서버 멈춤</td><td class="num">28</td><td class="num">13.4초</td></tr>
+          <tr><td>네트워크 끊기</td><td class="num">17</td><td class="num">11.1초</td></tr>
+          <tr><td>주 DB 강제 종료</td><td class="num">15</td><td class="num">27.0초</td></tr>
+          <tr><td>DB 지연 등 그 밖의 시험</td><td class="num">43</td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="grid mt-l">
+    <div class="inset rv">
+      <p class="subk">시험하다 찾은 문제도 고쳤습니다</p>
+      <ol class="notes cols">
+        <li><span class="t">연결이 끊기면 거래가 멈춰 버렸습니다</span><span class="d">DB 쪽에 연결 시간 제한을 걸어 고쳤고, 바로 다음 시험에서 <em>13.9초</em> 만에 이어받았습니다.</span></li>
+        <li><span class="t">호가를 모으는 부분이 느렸습니다</span><span class="d">1초짜리 캐시를 두었더니, 놓치지 않고 받는 주문이 <em>초당 40건에서 80건 이상</em>으로 늘었습니다.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 05 망과 방화벽 -->
+<section class="chap wrap" id="ch-net" aria-labelledby="h5">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>05</b>망과 방화벽 · Packet Tracer와 가상 머신</p>
+    <h2 class="ch-h" id="h5">꼭 필요한 길만 열어 두고, 막는 일은 층마다 나눠 맡겼습니다</h2>
+    <div class="prose">
+      <p>먼저 Packet Tracer로 망을 그렸습니다. 밖에서 들어오는 웹은 DMZ에, 거래 서버와 DB는 안쪽 망에 따로 두었고, 관리자도 점프 서버를 거쳐야만 서버에 들어갈 수 있게 했습니다. 그다음 가상 머신 실습망에서 서버 설정은 그대로 두고 그 앞에 투명 방화벽을 끼웠습니다. 요청 종류를 골라 어느 층에서 무엇이 걸리는지 따라가 보세요.</p>
+    </div>
+  </div>
+
+  <div class="flow mt-l rv" data-flow="fw" data-title="가상 머신 실습망의 방화벽 층"></div>
+
+  <div class="two mt-l rv">
+    <figure><div class="plate pan"><img src="../../assets/img/failstop/network-map.jpg" width="1600" height="689" loading="lazy" alt="DMZ, 내부망, 관리망과 역할별 VLAN으로 나눈 네트워크 구성도"></div>
+      <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
+      <figcaption><b>망 설계</b> · 밖에서 들어오는 웹은 DMZ에, 거래 서버와 DB는 안쪽 망에 따로 두었습니다.</figcaption></figure>
+    <figure><div class="plate pan"><div class="crop" style="--ct:1.25%;--ar:1600/600"><img src="../../assets/img/failstop/vmfw-map.jpg" width="1600" height="700" loading="lazy" alt="가상 머신 실습망: 경계 방화벽과 투명 방화벽, 서버마다 nftables"></div></div>
+      <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
+      <figcaption><b>가상 머신 실습망</b> · 서버 앞의 투명 방화벽과, 서버마다 한 번 더 막는 nftables.</figcaption></figure>
+  </div>
+</section>
+
+<!-- 06 AI 관제 -->
+<section class="chap wrap" id="ch-ai" aria-labelledby="h6">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>06</b>AI 관제 · 온프레미스 AI 서버와 Teams</p>
+    <h2 class="ch-h" id="h6">새벽에 경보가 울려도, AI가 먼저 원인을 정리해 둡니다</h2>
+  </div>
+  <div class="split mt-l">
+    <figure class="a7 rv">
+      <div class="plate"><img src="../../assets/img/failstop/ai-story.gif" width="1100" height="470" loading="lazy" alt="경보, AI 제안, 코드 검사, 운영자 승인, 조회 서버 합류와 보고 순서"></div>
+      <figcaption>2026년 10월 10일 AWS에서 실제로 부하를 걸었을 때의 순서를 장면으로 다시 그렸습니다.</figcaption>
+    </figure>
+    <div class="b5 rv">
+      <ol class="timeline">
+        <li><time>03:02:12</time><span>CPU 경보가 울리고, Teams로 바로 알림이 갑니다.</span></li>
+        <li><time>03:03:57</time><span>AI가 지표와 서버 수, 최근 조치를 모아 조회 서버를 한 대 늘리자고 제안합니다.</span></li>
+        <li><time>03:05:49</time><span>저는 근거를 확인하고 승인합니다.</span></li>
+        <li><time>03:06:56</time><span>승인하고 67초 뒤 조회 서버가 합류합니다.</span></li>
+        <li><time>03:07</time><span>경보가 풀리고, 장애 보고서가 Teams로 옵니다.</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="grid mt-l">
+    <ol class="notes cols inset rv">
+      <li><span class="t">AI는 제안만 합니다</span><span class="d">서버를 바꾸는 일은 제가 승인해야 실행됩니다. 허용해 둔 조치 다섯 가지 밖의 제안은 코드가 먼저 걸러 냅니다.</span></li>
+      <li><span class="t">DB 전환은 AI에게 맡기지 않았습니다</span><span class="d">되돌리기 어려운 일이라, 충분히 검증된 Patroni 규칙이 맡게 했습니다.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 07 데이터 보존 -->
+<section class="chap wrap" id="ch-data" aria-labelledby="h7">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>07</b>데이터 보존과 리눅스 운영</p>
+    <h2 class="ch-h" id="h7">무엇보다 데이터를 잃지 않는 것이 중요했습니다</h2>
+  </div>
+  <div class="panels mt-l rv">
+    <div class="panel">
+      <p class="k">DB가 갑자기 꺼졌을 때<span>AWS</span></p>
+      <p class="n">23.0<small>초</small></p>
+      <p class="d">주 DB의 전원을 갑자기 끊자 예비 DB가 스스로 주 DB가 됐습니다. 끊기기 직전에 들어온 주문 196건을 하나씩 대조했고, <em>사라진 주문은 없었습니다.</em></p>
+    </div>
+    <div class="panel">
+      <p class="k">OS를 통째로 지웠을 때<span>가상 머신</span></p>
+      <p class="n">15<small>분</small>22<small>초</small></p>
+      <p class="d">DB 서버의 OS와 데이터 디스크를 지운 뒤, 다시 설치하고 백업으로 되살리기까지 걸린 시간입니다. 따로 받아 둔 DB 백업도 원본과 표 109개가 모두 일치했습니다.</p>
+    </div>
+    <div class="panel">
+      <p class="k">평소에 해 두는 일<span>Linux</span></p>
+      <ul class="ops">
+        <li>앱은 로그인할 수 없는 전용 계정으로 돌립니다.</li>
+        <li>로그는 재부팅 뒤에도 남도록 디스크에 보관합니다.</li>
+        <li>방화벽 규칙을 잘못 넣으면 90초 뒤 저절로 되돌아갑니다.</li>
+        <li>디스크 여유가 15% 아래로 떨어지면 경보가 옵니다.</li>
+        <li>디스크 하나가 고장 나도 RAID1로 버팁니다.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="two mt-l rv">
+    <figure><div class="plate"><div class="crop" style="--ct:1.5%;--ar:1600/671"><img src="../../assets/img/failstop/backup.jpg" width="1600" height="695" loading="lazy" alt="DB 백업 복원과 OS 복구 기록 표"></div></div><figcaption><b>백업과 복구 기록</b> · 복원한 DB 대조와 OS 재설치 뒤 복구 화면</figcaption></figure>
+    <figure><div class="plate"><div class="crop" style="--ct:1.125%;--ar:1600/671"><img src="../../assets/img/failstop/server.jpg" width="1600" height="689" loading="lazy" alt="RAID1 디스크 교체, LVM 증설, NIC 본딩 전환 실습"></div></div><figcaption><b>서버 안쪽 이중화</b> · RAID1 교체, LVM 증설, NIC 본딩 전환</figcaption></figure>
+  </div>
+</section>
+
+</div>
+
+<!-- 08 주문 처리 -->
+<section class="chap wrap" id="ch-order" aria-labelledby="h8">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>08</b>주문 처리 · 백엔드</p>
+    <h2 class="ch-h" id="h8">같은 주문을 몇 번 다시 보내도, 결과는 하나로 모이게 했습니다</h2>
+    <div class="prose">
+      <p>응답을 받지 못한 사용자는 같은 주문을 다시 보냅니다. 그때마다 새 주문이 생기면 안 되고, 들어갔는지 모르는 상태로 남아서도 안 됩니다. 그래서 주문이 지나가는 네 단계를 이렇게 나눴습니다.</p>
+    </div>
+  </div>
+  <ol class="chain mt-l rv">
+    <li><p class="nk">POST /orders</p><p class="nt">주문 API</p><p class="nd">클라이언트가 만든 주문 키로 같은 주문을 알아보고, 내용이 다르면 거절합니다.</p></li>
+    <li><p class="nk">command_journal</p><p class="nt">명령 저널</p><p class="nd">엔진보다 먼저 DB에 커밋합니다. 리더 권한이 확인돼야 한 줄이 들어갑니다.</p></li>
+    <li><p class="nk">engine</p><p class="nt">매칭 엔진</p><p class="nd">Spring도 I/O도 시계도 쓰지 않는 순수 Java라, 같은 명령이면 늘 같은 체결이 나옵니다.</p></li>
+    <li><p class="nk">ledger</p><p class="nt">원장과 잔고</p><p class="nd">금액은 BigDecimal과 NUMERIC(40,18)로만 다루고, 자산마다 원장 합계는 0이어야 합니다.</p></li>
+  </ol>
+  <div class="split mt-l">
+    <div class="a5 rv">
+      <ol class="notes">
+        <li><span class="t">주문 키는 클라이언트가 만듭니다</span><span class="d"><code>client_order_id</code>가 없으면 받지 않습니다. 서버가 키를 대신 만들면, 응답을 못 받고 다시 보낼 때마다 새 주문이 생길 수 있기 때문입니다.</span></li>
+        <li><span class="t">같은 키면 내용을 비교합니다</span><span class="d">요청 본문을 JCS(RFC 8785)로 정규화한 뒤 SHA-256으로 비교합니다. 필드 순서나 공백이 달라도 같은 주문이면 같은 값이 나옵니다.</span></li>
+        <li><span class="t">엔진보다 저널에 먼저 기록합니다</span><span class="d">명령을 <code>command_journal</code>에 커밋한 다음에야 엔진에 넘깁니다. 엔진이 받은 명령은 모두 DB에 먼저 남아 있습니다.</span></li>
+        <li><span class="t">커밋됐는지 모를 때는 DB에 다시 묻습니다</span><span class="d">기록하는 순간 연결이 끊기면, DB 함수로 저널에 실제로 들어갔는지 확인합니다. 그래도 답을 못 받으면 503을 돌려주되 주문 키는 지우지 않습니다.</span></li>
+      </ol>
+    </div>
+    <div class="b7 rv">
+      <p class="subk">같은 키로 다시 보냈을 때 돌아가는 응답</p>
+      <table class="tbl">
+        <thead><tr><th>상황</th><th>응답</th></tr></thead>
+        <tbody>
+          <tr><td>같은 키, 같은 내용</td><td><span class="st ok">200</span>처음 만든 주문을 그대로 돌려줍니다</td></tr>
+          <tr><td>같은 키, 다른 내용</td><td><span class="st">409</span><code>duplicate_client_order_id</code></td></tr>
+          <tr><td>앞선 요청이 아직 처리 중</td><td><span class="st">409</span><code>order_in_progress</code> · Retry-After</td></tr>
+          <tr><td>DB에 닿지 못함</td><td><span class="st">503</span>Retry-After: 1 · 주문 키는 남겨 둠</td></tr>
+        </tbody>
+      </table>
+      <pre class="code mt-m"><b>POST</b> /api/v1/orders
+{"client_order_id":"c-0721-0001","market":"KRW-BTC","side":"bid", ...}
+<b>← 201 Created</b>
+<i class="ko">응답이 오지 않아 같은 요청을 다시 보내면</i>
+<b class="g">← 200 OK</b>   X-Idempotent-Replay: true</pre>
+      <p class="quote mt-l">어떤 경우든 같은 키로 다시 보내면 결과는 하나로 모입니다. 사용자가 '주문이 들어갔는지 모르는' 상태로 남지 않게 하는 것이 목표였습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 09 리더와 원장 -->
+<section class="chap wrap" id="ch-leader" aria-labelledby="h9">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>09</b>리더와 원장 · 앱 서버 두 대, 주문장을 바꾸는 서버는 하나</p>
+    <h2 class="ch-h" id="h9">잠깐 멈췄다 돌아온 옛 리더가, 주문장을 건드리지 못하게 했습니다</h2>
+    <div class="prose">
+      <p>리더만 기한이 있는 리스를 쥐고, 리더가 바뀔 때마다 epoch를 1씩 올립니다. 까다로운 건 잠깐 멈췄던 옛 리더가 자기가 아직 리더라고 믿고 쓰기를 이어 가는 경우였습니다. 그래서 권한을 확인하는 일과 쓰는 일을 나누지 않고, <em>SQL 한 문장 안에 넣었습니다.</em></p>
+    </div>
+  </div>
+  <div class="split mt-l">
+    <div class="a6 rv">
+      <pre class="code"><i>-- </i><i class="ko">저널 기록(줄여서 옮김)</i>
+INSERT INTO command_journal (...)
+SELECT ...
+  FROM leader_lease
+ WHERE <b>holder = :me</b>
+   AND <b>epoch = :epoch</b>
+   AND <b>lease_until &gt; clock_timestamp()</b>
+   FOR KEY SHARE;</pre>
+      <p class="note-s">세 조건 중 하나라도 틀리면 0행이 들어가고, 옛 리더의 쓰기는 거기서 끝납니다. 확인과 기록 사이에 틈이 없어서, 그 사이에 리더가 바뀌는 일도 생기지 않습니다.</p>
+    </div>
+    <ol class="epoch b6 rv">
+      <li><p class="k">epoch 7</p><p class="t">서버 A가 리더</p><p class="d">리스를 쥐고 주문을 저널에 씁니다.</p></li>
+      <li><p class="k">리스 만료</p><p class="t">서버 A가 잠깐 멈춤</p><p class="d">리스를 갱신하지 못해 기한이 지납니다.</p></li>
+      <li><p class="k">epoch 8</p><p class="t">서버 B가 이어받음</p><p class="d">리스를 가져가며 epoch를 하나 올립니다.</p></li>
+      <li><p class="k">0행</p><p class="t">돌아온 서버 A의 쓰기</p><p class="d">epoch 7로는 조건이 맞지 않아 한 줄도 들어가지 않습니다.</p></li>
+    </ol>
+  </div>
+
+  <div class="grid mt-l">
+    <div class="inset rv">
+      <details class="more">
+        <summary><span class="t">장애를 일부러 내 보다가 찾아 고친 문제</span><span class="n"><span class="mono">4</span>건 펼쳐 보기</span></summary>
+      <ol class="fixes">
+        <li><span class="k">DB 지연</span><div><p class="a">DB를 느리게만 했는데 리더가 바뀌었습니다</p><p class="r">정산 트랜잭션의 <code>FOR SHARE</code>가 리스 갱신을 막고 있었습니다. <code>FOR KEY SHARE</code>와 유일 인덱스로 바꾼 뒤, 같은 시험 세 번 모두 리더가 그대로였습니다.</p></div></li>
+        <li><span class="k">연결 끊김</span><div><p class="a">연결이 끊기면 리더 없이 멈췄습니다</p><p class="r">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 13.9초 만에 이어받았습니다.</p></div></li>
+        <li><span class="k">리더 교대</span><div><p class="a">새 리더가 이미 끝난 리스를 받았습니다</p><p class="r">만료 시각을 잠금을 기다리기 전부터 세고 있었습니다. 잠금을 얻은 뒤부터 세도록 고치자 이어받기가 10초 안팎으로 고르게 나왔습니다.</p></div></li>
+        <li><span class="k">옛 리더</span><div><p class="a">물러난 리더가 500을 돌려줬습니다</p><p class="r">리더가 아닌 서버의 응답을 503으로 바꿔, 다시 돌린 모든 시험에서 주문 500이 한 건도 없었습니다.</p></div></li>
+      </ol>
+      </details>
+    </div>
+  </div>
+
+  <div class="grid ch-head mt-l sub-chap">
+    <p class="ch-no"><b>09-2</b>원장 검증</p>
+    <h3 class="ch-h">'복구됐다'는 로그 대신, 원장이 맞는지 SQL로 확인했습니다</h3>
+  </div>
+  <div class="split mt-l">
+    <div class="a5 rv">
+      <p class="subk">장애를 넣은 뒤의 판정 · 어긋난 행이 하나라도 나오면 실패</p>
+      <ul class="inv">
+        <li>자산마다 원장 합계가 0인가</li>
+        <li>잔고가 원장을 다시 계산한 값과 같은가</li>
+        <li>명령 저널에 빈 번호가 없는가</li>
+      </ul>
+    </div>
+    <div class="b7 rv">
+      <p class="lede-s">이렇게 확인하다가, 비동기 복제에서는 확인받은 주문도 사라질 수 있다는 걸 직접 봤습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+      <div class="vs mt-m">
+        <div><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p>
+          <div class="cells" data-total="122" data-lost="36" data-cols="31" role="img" aria-label="확인받은 주문 122건 가운데 36건이 사라졌습니다"></div>
+          <p class="cells-key" aria-hidden="true"><i>남은 주문</i><i class="lost">사라진 주문</i></p>
+          <p class="vd">예비 DB를 8초 멈춘 뒤 주 DB를 끄자, 확인받은 주문 122건 중 36건이 사라졌습니다.</p></div>
+        <div class="on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험에서 사라진 주문이 없었습니다. 두 시험 모두 내 PC의 장애 시험입니다.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid mt-l">
+    <div class="inset rv">
+      <p class="subk">느린 곳은 재서 찾고 고쳤습니다</p>
+      <table class="tbl">
+        <thead><tr><th>무엇이 막혔나</th><th>어떻게 고쳤나</th><th class="num">전 → 후</th></tr></thead>
+        <tbody>
+          <tr><td>가상 스레드가 묶여 서버가 멈춤</td><td>DB 왕복을 감싼 <code>synchronized</code>를 <code>ReentrantLock</code>으로</td><td class="num">접수 30% → 100%<br>p95 60.0초 → 1.2초</td></tr>
+          <tr><td>호가 집계가 주문 처리를 막음</td><td>집계 결과를 1초 동안 캐시</td><td class="num">초당 40 → 80건</td></tr>
+          <tr><td>모든 주문이 한 줄로 기다림</td><td>마켓마다 접수 락을 따로</td><td class="num">초당 112 → 152건</td></tr>
+        </tbody>
+      </table>
+      <p class="note-s">모두 내 PC의 Docker에서 같은 회차 안에서 전후를 비교한 값입니다. 가상 스레드 시험은 CPU를 2개로 묶어서 쟀습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 배운 점 -->
+<section class="chap wrap" id="ch-learn" aria-labelledby="h10">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>10</b>결과와 배운 점</p>
+    <h2 class="ch-h" id="h10">해 보면서 배운 것들</h2>
+  </div>
+  <div class="split mt-l">
+    <ol class="a6 notes rv">
+      <li><span class="t">장애는 '나는지'보다 '알아채고 되돌리는지'가 중요했습니다</span><span class="d">처음에는 이중화만 해 두면 된다고 생각했습니다. 해 보니 경보와 보고, 복구 절차까지 함께 있어야 실제로 운영이 됐습니다.</span></li>
+      <li><span class="t">자동화에도 선이 필요합니다</span><span class="d">DB 전환은 검증된 규칙에, 서버 증설은 AI 제안과 사람의 승인에 맡겼습니다. 누가 책임지는지 흐려지지 않게 하려는 선택이었습니다.</span></li>
+      <li><span class="t">숫자는 조건과 함께 남겨야 믿을 수 있습니다</span><span class="d">모든 시험의 환경과 회차, 실제 명령과 화면을 기록해 두어 나중에 다시 확인할 수 있게 했습니다.</span></li>
+    </ol>
+    <div class="b6 rv">
+      <table class="tbl">
+        <thead><tr><th>무엇을 했나</th><th>어디서</th><th class="num">결과</th></tr></thead>
+        <tbody>
+          <tr><td>일부러 낸 장애</td><td>내 PC</td><td class="num">179회, 모두 30초 안에 이어받음</td></tr>
+          <tr><td>주 DB 전원 차단</td><td>AWS</td><td class="num">23.0초 만에 전환<br>확인한 주문 196건 중 유실 0건</td></tr>
+          <tr><td>사람이 몰릴 때 서버 늘리기</td><td>AWS</td><td class="num">경보부터 합류까지 4분 44초</td></tr>
+          <tr><td>느린 부분 고치기</td><td>내 PC</td><td class="num">받는 주문 초당 40 → 80건 이상</td></tr>
+          <tr><td>OS를 지운 뒤 되살리기</td><td>가상 머신</td><td class="num">15분 22초</td></tr>
+        </tbody>
+      </table>
+      <p class="links-row mt-m"><a href="https://github.com/SanghyeokLee-KR/failstop">GitHub 저장소 <span class="arrow" aria-hidden="true">→</span></a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/docs/portfolio/failstop-presentation.pdf">발표 자료 <span class="arrow" aria-hidden="true">→</span></a><a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/%EB%B0%9C%ED%91%9C%EB%8D%B1/assets/video/failstop-aws-demo-v9.mp4">시연 영상 7분 <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </div>
+  <div class="two mt-l rv">
+    <figure><div class="plate"><img src="../../assets/img/failstop/control.jpg" width="1280" height="720" loading="lazy" alt="관제센터 화면: 서버와 DB 상태, AI 운영 모드"></div><figcaption><b>관제센터</b> · 서버와 DB 상태, AI 운영 모드</figcaption></figure>
+    <figure><div class="plate"><img src="../../assets/img/failstop/grafana-service.jpg" width="1280" height="720" loading="lazy" alt="Grafana 서비스 관제 화면"></div><figcaption><b>Grafana</b> · 요청, 오류, 응답 시간</figcaption></figure>
+  </div>
+</section>
+
+</div>
+
+<section class="wrap next" aria-label="다음 작업">
+  <a href="../keep-nginx-alive/">
+    <span class="k">다음 작업 <span class="mono">02</span></span>
+    <span class="t">keep-nginx-alive <span class="arrow" aria-hidden="true">→</span></span>
+    <span class="d">공격을 막을 수 없는 경기에서, 서버를 한 번도 내리지 않았습니다.</span>
+  </a>
+</section>
+
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">전체 작업</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="../../infra.pdf" download>인프라 PDF</a><a href="../../backend.pdf" download>백엔드 PDF</a></span>
+  </div>
+</footer>
+
+<script src="../../js/flow.js"></script>
+<script src="flows.js"></script>
+<script src="../../js/case.js"></script>
+</body>
+</html>

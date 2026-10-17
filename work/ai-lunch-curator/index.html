@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ai-lunch-curator · 이상혁</title>
+<meta name="description" content="식단표 수집, AI 메뉴 정리, Teams 알림, 테스트를 통과해야만 이어지는 배포까지 알아서 굴러가게 만든 점심 알림 서비스. 3인 팀 조장 이상혁의 작업입니다.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+<style>
+  /* 이 페이지에만 필요한 규칙. 공통 css/site.css는 바꾸지 않는다 */
+  .hero-pair { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: var(--gap); align-items: stretch; }
+  .hero-pair .plate { height: 100%; display: flex; align-items: center; justify-content: center; }
+  .hero-pair .plate > * { width: 100%; }
+  .hero-pair .card { padding: clamp(14px, 2vw, 28px); background: var(--white); border: 1px solid var(--rule); }
+  .hero-pair .card img { max-width: 420px; margin: 0 auto; }
+  .roles { border-top: 1px solid var(--ink); }
+  .roles li { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 15px 0; border-bottom: 1px solid var(--rule); }
+  .roles .k { font-size: 13px; color: var(--ink-3); padding-top: 3px; }
+  .roles .v { font-size: 16px; line-height: 1.65; color: var(--ink-2); }
+  .roles li.me .k { color: var(--accent); }
+  .roles li.me .v { color: var(--ink); }
+  .sec td:first-child { font-weight: 600; width: 34%; }
+  @media (max-width: 760px) {
+    .hero-pair { grid-template-columns: minmax(0, 1fr); }
+    .hero-pair .card img { max-width: 300px; }
+    .roles li { grid-template-columns: 1fr; gap: 4px; }
+    .sec td:first-child { width: auto; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#ch-intro">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a class="hide-m" href="https://github.com/SanghyeokLee-KR/ai-lunch-curator">GitHub</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- 여는 부분 -->
+<section class="case-open wrap" aria-labelledby="t">
+  <p class="crumb"><span class="bar" aria-hidden="true"></span><span>작업 <span class="mono">04 / 10</span></span><span>인프라 · 자동화</span><span class="mono">2026</span></p>
+  <div class="grid case-row">
+    <div class="case-l">
+      <h1 class="case-title long" id="t">ai-lunch-curator</h1>
+      <p class="case-deck">식단표 수집부터 Teams 알림, 배포까지<br>알아서 굴러가게 만들었습니다.</p>
+    </div>
+    <dl class="case-meta">
+      <div><dt>기간</dt><dd>2026년 6월 8일 – 9일, 수업 과제 기간 동안 실제로 운영</dd></div>
+      <div><dt>형태</dt><dd>3인 팀의 조장입니다. 전체 구조와 웹·DB, Docker·EC2·Nginx 배포와 CI/CD를 맡았습니다.</dd></div>
+      <div><dt>분야</dt><dd>인프라 · 배포 자동화</dd></div>
+      <div><dt>기술</dt><dd>Python · FastAPI · Oracle XE · Docker Compose · AWS EC2 · Nginx · GitHub Actions · OpenAI · Teams</dd></div>
+      <div><dt>자료</dt><dd class="lk"><a href="https://github.com/SanghyeokLee-KR/ai-lunch-curator">GitHub 저장소</a><a href="../../infra.pdf" download>인프라 PDF</a></dd></div>
+    </dl>
+  </div>
+  <figure class="hero-shot">
+    <div class="hero-pair">
+      <div class="plate light"><div class="crop" style="--ct:0%;--ar:1200/740"><img src="../../assets/img/lunch/web.jpg" width="1200" height="1206" alt="웹의 오늘의 점심 화면: 2026년 6월 8일 월요일 점심 식판을 그린 대표 그림"></div></div>
+      <div class="plate light card"><img src="../../assets/img/lunch/teams.jpg" width="854" height="883" alt="Teams로 온 오늘의 점심 카드: 메뉴 여섯 가지, 한줄평, 예상 칼로리, 태그, 추천, 상세보기 단추"></div>
+    </div>
+    <figcaption><b>오늘의 점심</b> · 웹의 오늘 화면과, 같은 날 Teams로 온 알림 카드입니다. 그림과 한줄평, 칼로리, 태그는 AI가 만들었습니다.</figcaption>
+  </figure>
+</section>
+
+<nav class="chapters" aria-label="장 목록">
+  <div class="wrap">
+    <ol>
+      <li><a href="#ch-intro"><span class="n">01</span>개요</a></li>
+      <li><a href="#ch-flow"><span class="n">02</span>자동으로 도는 흐름</a></li>
+      <li><a href="#ch-deploy"><span class="n">03</span>배포</a></li>
+      <li><a href="#ch-cicd"><span class="n">04</span>CI/CD</a></li>
+      <li><a href="#ch-guard"><span class="n">05</span>비용과 보안</a></li>
+      <li><a href="#ch-screens"><span class="n">06</span>화면</a></li>
+      <li><a href="#ch-learn"><span class="n">07</span>배운 점</a></li>
+    </ol>
+    <span class="progress" aria-hidden="true"></span>
+  </div>
+</nav>
+
+<div class="case-body">
+
+<!-- 01 개요 -->
+<section class="chap wrap" id="ch-intro" aria-labelledby="h1">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>01</b>개요</p>
+    <h2 class="ch-h" id="h1">사람이 손대지 않아도, 매주 메뉴가 모이고 매일 아침 점심이 도착합니다</h2>
+    <div class="prose">
+      <p>매주 월요일 GitHub Actions가 학교 식단표를 모으고, AI가 메뉴를 정리해 DB에 쌓습니다. 평일 아침에는 그날 점심이 Teams로 옵니다. 웹에서는 오늘의 점심과 지난 점심, 자주 나온 메뉴를 볼 수 있습니다.</p>
+      <p>과제의 출발은 세 가지 질문이었습니다. GitHub Actions로 일정에 맞춰 작업을 돌릴 수 있는가, Python으로 식단표를 긁어 올 수 있는가, 오늘 메뉴를 웹훅으로 보내는 봇을 만들 수 있는가. 셋을 모두 만들고, 그 위에 AI 분석과 웹·DB, 그리고 <em>테스트를 통과해야만 이어지는 배포</em>를 더했습니다.</p>
+    </div>
+  </div>
+  <div class="facts mt-l rv">
+    <div class="fact"><p class="n">08:30</p><p class="l">매주 월요일 식단표 수집</p><p class="c">GitHub Actions 스케줄, 운영 기간의 한국 시간.</p></div>
+    <div class="fact"><p class="n">09:00</p><p class="l">평일 아침 Teams 알림</p><p class="c">그날 점심을 카드 한 장으로 보냅니다.</p></div>
+    <div class="fact"><p class="n">23<small>개</small></p><p class="l">테스트 모두 통과</p><p class="c">내 PC에서 돌린 pytest. OpenAI와 Teams 호출은 모두 목킹했습니다.</p></div>
+    <div class="fact"><p class="n">401</p><p class="l">토큰 없이 부르면</p><p class="c">AI를 부르는 수집 주소를 아무나 호출하지 못하게 막았습니다.</p></div>
+  </div>
+  <div class="grid mt-l">
+    <ol class="roles inset rv">
+      <li class="me"><span class="k">제가 맡은 일</span><span class="v">전체 구조 설계, FastAPI 웹과 Oracle DB, 대표 그림 생성, Docker·EC2·Nginx 배포, GitHub Actions CI/CD, 통합과 문서</span></li>
+      <li><span class="k">팀원이 맡은 일</span><span class="v">메뉴를 받아 OpenAI로 한줄평·칼로리·태그·추천을 만드는 프롬프트, 식단표 크롤링과 Teams 웹훅 발송</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 02 흐름 -->
+<section class="chap wrap" id="ch-flow" aria-labelledby="h2">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>02</b>자동으로 도는 흐름</p>
+    <h2 class="ch-h" id="h2">수집도, 발송도, 배포도 GitHub Actions가 문을 두드리면 시작됩니다</h2>
+    <div class="prose">
+      <p>앱은 스스로 시계를 보지 않습니다. GitHub Actions가 정해진 시각에 토큰을 붙여 수집 주소와 발송 주소를 부르고, 코드가 올라오면 시험을 거쳐 배포합니다. 아래에서 장면을 고르면 각각이 어떤 길을 지나는지 볼 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="flow mt-l rv" data-flow="lunch" data-title="수집 · 발송 · 배포"></div>
+  <p class="note-s">저장소의 배포 구조도와 시퀀스 다이어그램을 옮겨 그렸습니다. 운영 기간이 끝난 뒤에는 EC2를 내렸고, 지금은 스케줄을 꺼 두었습니다. <a href="../../assets/img/lunch/architecture.jpg">원본 구조도 보기</a></p>
+</section>
+
+<!-- 03 배포 -->
+<section class="chap wrap" id="ch-deploy" aria-labelledby="h3">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>03</b>배포 · EC2 한 대와 Nginx</p>
+    <h2 class="ch-h" id="h3">밖에서 닿는 곳은 Nginx의 80번 하나로 좁혔습니다</h2>
+    <div class="prose">
+      <p>EC2(Ubuntu, t3.small) 위에 docker compose로 앱과 Oracle XE를 올렸습니다. 앱의 8000번은 127.0.0.1에만 묶어 밖에서 직접 닿지 않게 하고, 앞에 둔 Nginx가 80번으로 받아 넘깁니다. 보안 그룹은 22번과 80번만 열어, 8000번이나 DB 포트 같은 안쪽 포트는 밖에서 보이지 않습니다.</p>
+    </div>
+  </div>
+  <figure class="mt-l rv">
+    <div class="plate light pan"><img src="../../assets/img/lunch/architecture.jpg" width="1600" height="1016" loading="lazy" alt="AWS 서울 리전 VPC 안의 EC2에 Nginx, Docker Compose로 띄운 FastAPI와 Oracle XE가 있고, 사용자와 GitHub Actions가 들어오며, 앱이 학교 식단표, OpenAI, Teams와 통신하는 배포 구조도"></div>
+    <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
+    <figcaption><b>배포 구조</b> · GitHub Actions가 EC2의 컨테이너를 부르고, 앱은 학교 식단표·OpenAI·Teams 세 곳하고만 밖으로 통신합니다.</figcaption>
+  </figure>
+  <ol class="notes cols mt-l rv">
+    <li><span class="t">통계를 위해 메뉴를 나눠 저장했습니다</span><span class="d">메뉴를 한 칸에 묶어 두지 않고 요리 하나씩 <code>MENU_ITEM</code>에 나눠 담아, 자주 나온 메뉴를 <code>GROUP BY</code>로 바로 셀 수 있게 했습니다.</span></li>
+    <li><span class="t">다시 돌려도 겹치지 않습니다</span><span class="d">날짜 기준 MERGE로 저장해, 같은 날을 다시 수집해도 중복 없이 갱신됩니다.</span></li>
+  </ol>
+
+  <div class="grid ch-head mt-l sub-chap">
+    <p class="ch-no"><b>03-2</b>배포하며 풀어 낸 문제</p>
+    <h3 class="ch-h">서버에 올리는 길에서 막힌 곳을 하나씩 풀었습니다</h3>
+  </div>
+  <div class="grid mt-l">
+    <div class="inset rv">
+      <details class="more">
+        <summary><span class="t">배포까지 가며 막혔던 곳과 해결</span><span class="n"><span class="mono">6</span>건 펼쳐 보기</span></summary>
+        <ol class="fixes">
+          <li><span class="k">메모리</span><div><p class="a">t3.micro에서는 Oracle XE가 뜨지 않았습니다</p><p class="r">메모리 1GB로는 모자라, 인스턴스를 t3.small(2GB)로 바꾸고 스왑 2GB를 잡았습니다.</p></div></li>
+          <li><span class="k">디스크</span><div><p class="a">루트 디스크 8GB가 모자랐습니다</p><p class="r">Oracle 이미지만 2.5GB쯤이라, EBS 볼륨을 30GB로 늘렸습니다.</p></div></li>
+          <li><span class="k">포트</span><div><p class="a">호스트의 1521번을 다른 Oracle이 쓰고 있었습니다</p><p class="r">컨테이너는 1522번으로 비켜 연결했습니다.</p></div></li>
+          <li><span class="k">권한</span><div><p class="a">Nginx가 정적 파일을 직접 읽지 못했습니다</p><p class="r">/home/ubuntu 아래의 권한 때문이었습니다. 정적 파일도 앱으로 넘기도록 바꿨습니다.</p></div></li>
+          <li><span class="k">시간대</span><div><p class="a">평일 아침 알림에 전날 메뉴가 떴습니다</p><p class="r">EC2가 UTC로 돌아서, 한국의 이른 아침에는 아직 전날이었습니다. '오늘'을 늘 한국 시간으로 계산하도록 바꿨습니다.</p></div></li>
+          <li><span class="k">로컬 환경</span><div><p class="a">WSL2가 깨져 Docker 엔진이 뜨지 않았습니다</p><p class="r">기능을 다시 켜고 재부팅해도 풀리지 않아, 공식 WSL 설치 파일을 직접 받아 설치해 되살렸습니다.</p></div></li>
+        </ol>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- 04~05: 터미널 화면이 이어지는 장은 남색 띠로 묶는다 -->
+<div class="dark">
+
+<!-- 04 CI/CD -->
+<section class="chap wrap" id="ch-cicd" aria-labelledby="h4">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>04</b>CI/CD · GitHub Actions</p>
+    <h2 class="ch-h" id="h4">테스트를 통과해야만 서버에 올라갑니다</h2>
+    <div class="prose">
+      <p>main 브랜치에 코드가 올라오면 먼저 pytest가 돕니다. 통과해야만 배포 작업이 이어져, SSH로 EC2에 들어가 비밀 값을 GitHub Secrets에서 <code>.env</code>로 만들고 docker compose로 다시 띄웁니다. 깨진 코드는 서버에 닿지 못합니다.</p>
+    </div>
+  </div>
+  <figure class="mt-l rv">
+    <div class="plate light pan"><img src="../../assets/img/lunch/cicd.jpg" width="1600" height="685" loading="lazy" alt="main push, ci.yml의 pytest, 테스트 통과 판정, deploy.yml, EC2 배포로 이어지는 흐름과 스케줄 워크플로가 토큰으로 엔드포인트를 부르는 흐름"></div>
+    <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
+    <figcaption><b>CI/CD 흐름</b> · 위는 코드를 올렸을 때, 아래는 스케줄 워크플로가 토큰을 붙여 앱을 부를 때입니다.</figcaption>
+  </figure>
+  <div class="split mt-l">
+    <figure class="a5 rv">
+      <div class="plate"><img src="../../assets/img/lunch/pytest.jpg" width="1250" height="1200" loading="lazy" alt="pytest 실행 결과: 테스트 23개 수집, 23개 모두 통과"></div>
+      <figcaption><b>pytest</b> · 내 PC에서 23개 모두 통과. AI·그림·크롤링·Teams·유틸을 나눠 시험했습니다.</figcaption>
+    </figure>
+    <div class="b7 rv">
+      <table class="tbl">
+        <thead><tr><th>워크플로</th><th>언제</th><th>하는 일</th></tr></thead>
+        <tbody>
+          <tr><td>ci.yml</td><td>push · PR</td><td>pytest. 목킹이라 비밀 값이 필요 없습니다</td></tr>
+          <tr><td>deploy.yml</td><td>main push</td><td>테스트 통과를 조건으로 EC2에 SSH 배포</td></tr>
+          <tr><td>weekly-menu.yml</td><td>운영 당시 월요일 08:30</td><td>토큰을 붙여 수집 주소 호출</td></tr>
+          <tr><td>daily-notify.yml</td><td>운영 당시 평일 09:00</td><td>토큰을 붙여 발송 주소 호출</td></tr>
+        </tbody>
+      </table>
+      <p class="note-s">시각은 모두 한국 시간입니다. 지금은 EC2를 내려 두어 스케줄을 끄고, 손으로 실행하는 단추만 남겼습니다.</p>
+      <ol class="notes mt-l">
+        <li><span class="t">시험은 바깥을 부르지 않습니다</span><span class="d">OpenAI와 Teams 호출을 모두 목킹해, 시험을 아무리 돌려도 요금이 나가거나 채널에 메시지가 가지 않습니다.</span></li>
+        <li><span class="t">웹 없이도 돌아가는 봇</span><span class="d">수집·분석·그림·발송을 CLI 하나로도 돌릴 수 있게 만들어, GitHub Actions만으로도 동작합니다.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- 05 비용과 보안 -->
+<section class="chap wrap" id="ch-guard" aria-labelledby="h5">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>05</b>비용과 보안</p>
+    <h2 class="ch-h" id="h5">돈이 드는 주소는 토큰으로 잠그고, 같은 그림은 다시 만들지 않았습니다</h2>
+    <div class="prose">
+      <p>수집 주소는 OpenAI를 부릅니다. 아무나 부를 수 있으면 요금이 새고, 웹훅 주소가 새면 채널로 아무 메시지나 갈 수 있습니다. 그래서 비밀 값은 저장소 밖에 두고, 비싼 작업은 토큰이 있어야만 시작되게 했습니다.</p>
+    </div>
+  </div>
+  <div class="grid mt-l">
+  <figure class="inset rv">
+    <div class="plate"><img src="../../assets/img/lunch/token401.jpg" width="1456" height="354" loading="lazy" alt="EC2에서 토큰 없이 수집 주소를 호출하자 Nginx를 거쳐 401 Unauthorized가 돌아온 터미널 화면"></div>
+    <figcaption><b>토큰 없는 호출</b> · EC2에서 토큰 없이 수집 주소를 부르자 401이 돌아왔습니다. 응답에는 Nginx가 붙인 보안 헤더도 보입니다.</figcaption>
+  </figure>
+  </div>
+  <div class="split mt-l">
+    <div class="a7 rv">
+      <table class="tbl sec">
+        <thead><tr><th>무엇을 막았나</th><th>어떻게</th></tr></thead>
+        <tbody>
+          <tr><td>키와 웹훅이 저장소에 올라가는 것</td><td><code>.env</code>는 추적에서 빼고, 코드에서는 환경 변수로만 읽습니다</td></tr>
+          <tr><td>실수로 커밋되는 것</td><td>저장소를 공개하기 전에 키·웹훅·비밀번호 형태를 검색해, 추적 중인 파일에 평문이 없는 것을 확인했습니다</td></tr>
+          <tr><td>CI와 배포에서 새는 것</td><td>GitHub Secrets로만 넣고, 배포할 때 EC2에 <code>.env</code>를 만듭니다</td></tr>
+          <tr><td>아무나 수집·발송을 부르는 것</td><td>Bearer 토큰이 없으면 401입니다</td></tr>
+          <tr><td>앱 포트가 밖에 드러나는 것</td><td>8000번은 127.0.0.1에만 묶고, 보안 그룹은 22번과 80번만 엽니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ol class="notes b5 rv">
+      <li><span class="t">같은 메뉴 그림은 다시 쓰기</span><span class="d">메뉴 구성을 해시로 묶어 그림 캐시 테이블에 따로 둡니다. 같은 구성이면 이미 만든 그림을 다시 써서 AI 호출을 줄입니다.</span></li>
+      <li><span class="t">부르면 바로 답하기</span><span class="d">수집처럼 무거운 일은 백그라운드로 돌리고, 부른 쪽에는 바로 202로 답합니다.</span></li>
+    </ol>
+  </div>
+</section>
+
+</div>
+
+<!-- 06 화면 -->
+<section class="chap wrap" id="ch-screens" aria-labelledby="h6">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>06</b>화면 · 웹과 Teams</p>
+    <h2 class="ch-h" id="h6">오늘의 점심과 지난 30일을 그림으로 넘겨 봅니다</h2>
+    <div class="prose">
+      <p>웹은 오늘의 점심, 지난 점심, 통계 세 화면입니다. 색과 간격은 CSS 변수로 묶어 두고 밝은 화면과 어두운 화면을 모두 지원했습니다.</p>
+    </div>
+  </div>
+  <div class="two mt-l rv">
+    <figure><div class="plate light"><img src="../../assets/img/lunch/history.jpg" width="1600" height="1592" loading="lazy" alt="지난 점심 화면: 6월 8일부터 12일까지 날짜별 대표 그림과 메뉴, 칼로리, 태그 카드"></div><figcaption><b>지난 점심</b> · 최근 30일의 점심을 날짜별 대표 그림과 함께 모아 봅니다.</figcaption></figure>
+    <figure><div class="plate light"><img src="../../assets/img/lunch/web.jpg" width="1200" height="1206" loading="lazy" alt="오늘의 점심 화면 전체: 대표 그림, 메뉴 목록, AI 한줄평, 700kcal, 태그, 추천"></div><figcaption><b>오늘의 점심</b> · 대표 그림 아래에 메뉴와 AI 한줄평·칼로리·태그·추천이 붙습니다.</figcaption></figure>
+  </div>
+</section>
+
+<!-- 07 배운 점 -->
+<section class="chap wrap" id="ch-learn" aria-labelledby="h7">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>07</b>결과와 배운 점</p>
+    <h2 class="ch-h" id="h7">작은 서비스라도, 사람이 없을 때 제대로 도는지가 중요했습니다</h2>
+  </div>
+  <div class="split mt-l">
+    <ol class="a6 notes rv">
+      <li><span class="t">시험을 배포 앞의 문으로 두었습니다</span><span class="d">테스트를 통과해야만 배포가 이어지게 하니, 서버에 올라가는 코드는 늘 시험을 거친 코드였습니다.</span></li>
+      <li><span class="t">돈이 드는 호출은 문 앞에서 막습니다</span><span class="d">외부 AI를 부르는 주소는 토큰으로 잠그고, 같은 결과는 캐시로 다시 썼습니다.</span></li>
+      <li><span class="t">'오늘'은 사용자의 시간으로 셉니다</span><span class="d">서버는 UTC로 돌았지만, 알림을 받는 사람은 한국 시간을 삽니다. 시간대 하나로 전날 메뉴가 갈 수 있다는 걸 직접 겪고 고쳤습니다.</span></li>
+    </ol>
+    <div class="b6 rv">
+      <table class="tbl">
+        <thead><tr><th>무엇을</th><th class="num">결과</th></tr></thead>
+        <tbody>
+          <tr><td>식단표 수집과 AI 정리</td><td class="num">매주 월요일 08:30 자동</td></tr>
+          <tr><td>오늘의 점심 알림</td><td class="num">평일 09:00 Teams로</td></tr>
+          <tr><td>배포</td><td class="num">pytest 통과 뒤에만</td></tr>
+          <tr><td>토큰 없는 수집 호출</td><td class="num">401로 차단</td></tr>
+          <tr><td>밖으로 연 포트</td><td class="num">22 · 80</td></tr>
+        </tbody>
+      </table>
+      <p class="note-s">시각은 운영 기간(2026년 6월 8일 – 9일)의 한국 시간 스케줄입니다.</p>
+      <p class="links-row mt-m"><a href="https://github.com/SanghyeokLee-KR/ai-lunch-curator">GitHub 저장소 <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<section class="wrap next" aria-label="다음 작업">
+  <a href="../sangkwon-platform-poly/">
+    <span class="k">다음 작업 <span class="mono">05</span></span>
+    <span class="t">sangkwon-platform-poly <span class="arrow" aria-hidden="true">→</span></span>
+    <span class="d">서버 한 대가 빠져도 멈추지 않는 상권 비교 서비스</span>
+  </a>
+</section>
+
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">전체 작업</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="../../infra.pdf" download>인프라 PDF</a><a href="../../backend.pdf" download>백엔드 PDF</a></span>
+  </div>
+</footer>
+
+<script src="../../js/flow.js"></script>
+<script src="flows.js"></script>
+<script src="../../js/case.js"></script>
+</body>
+</html>

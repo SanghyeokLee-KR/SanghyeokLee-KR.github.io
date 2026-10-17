@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sangkwon-platform-poly · 이상혁</title>
+<meta name="description" content="서울시 상권 1,650곳을 지도에서 비교하는 4인 팀 서비스. 서로 다른 가용 영역의 서버 두 대, 한 대씩 바꾸는 배포, 220만 행 재적재와 DB로 함께 세는 요청 제한을 맡았습니다.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+<style>
+  /* 이 페이지에만 필요한 규칙. 공통 css/site.css는 바꾸지 않는다 */
+  .hero-shot .plate.light { padding: clamp(10px, 1.6vw, 22px); }
+  .state { width: 100%; }
+  .state td:first-child { font-weight: 600; white-space: nowrap; }
+  .state td:nth-child(2) { color: var(--ink-2); }
+  .state td code { white-space: nowrap; }
+  .role-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); }
+  .role-cols .subk { margin-bottom: 0; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+  .role-cols .notes { border-top: 0; }
+  .role-cols .theirs .notes .t { color: var(--ink-2); font-weight: 560; }
+  @media (max-width: 760px) {
+    .role-cols { grid-template-columns: 1fr; row-gap: 40px; }
+    .state td:first-child { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#ch-intro">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a class="hide-m" href="https://github.com/SanghyeokLee-KR">GitHub</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- 여는 부분 -->
+<section class="case-open wrap" aria-labelledby="t">
+  <p class="crumb"><span class="bar" aria-hidden="true"></span><span>작업 <span class="mono">05 / 10</span></span><span>인프라 · 백엔드</span><span class="mono">2026</span></p>
+  <div class="grid case-row">
+    <div class="case-l">
+      <h1 class="case-title long" id="t">sangkwon-platform-poly</h1>
+      <p class="case-deck">서버 한 대가 빠져도<br>서비스가 멈추지 않게 배포했습니다.</p>
+    </div>
+    <dl class="case-meta">
+      <div><dt>기간</dt><dd>2026년 7월</dd></div>
+      <div><dt>형태</dt><dd>4인 팀의 팀장입니다. 상권분석 조회 API와 지도, 팀 공통 기반, 배포를 맡았습니다.</dd></div>
+      <div><dt>분야</dt><dd>인프라 · 백엔드</dd></div>
+      <div><dt>기술</dt><dd>AWS EC2 · ALB · ACM · systemd · Java 21 · Spring Boot 4 · Oracle Autonomous DB · Spring Session JDBC · ShedLock</dd></div>
+      <div><dt>자료</dt><dd class="lk"><a href="https://github.com/sangkwon-poly/sangkwon-platform-poly">GitHub 저장소</a></dd></div>
+    </dl>
+  </div>
+  <figure class="hero-shot">
+    <div class="plate light"><img src="../../assets/img/sangkwon/report.jpg" width="1400" height="825" alt="여기콕 상권 상세 화면: 추정 매출, 유동인구, 점포 수, 분기 매출 추이, 업종 구성, 요일·시간대 매출 히트맵, 인접 경쟁 상권"></div>
+    <figcaption><b>상권 상세 화면</b> · 서울 상권 한 곳의 매출, 유동인구, 점포 수, 업종 구성과 인접 경쟁 상권을 한 화면에 모았습니다. 서비스 이름은 여기콕입니다.</figcaption>
+  </figure>
+</section>
+
+<nav class="chapters" aria-label="장 목록">
+  <div class="wrap">
+    <ol>
+      <li><a href="#ch-intro"><span class="n">01</span>개요</a></li>
+      <li><a href="#ch-infra"><span class="n">02</span>운영 구성</a></li>
+      <li><a href="#ch-deploy"><span class="n">03</span>한 대씩 배포</a></li>
+      <li><a href="#ch-state"><span class="n">04</span>상태는 DB로</a></li>
+      <li><a href="#ch-load"><span class="n">05</span>공공데이터 재적재</a></li>
+      <li><a href="#ch-rate"><span class="n">06</span>요청 제한</a></li>
+      <li><a href="#ch-api"><span class="n">07</span>조회 API</a></li>
+      <li><a href="#ch-team"><span class="n">08</span>팀과 역할</a></li>
+    </ol>
+    <span class="progress" aria-hidden="true"></span>
+  </div>
+</nav>
+
+<div class="case-body">
+
+<!-- 01 개요 -->
+<section class="chap wrap" id="ch-intro" aria-labelledby="h1">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>01</b>개요</p>
+    <h2 class="ch-h" id="h1">공공데이터로 상권을 비교하는 서비스를, 실제로 배포해 운영했습니다</h2>
+    <div class="prose">
+      <p>서울시가 공개한 상권 데이터를 카카오맵 위에 올려, 상권 1,650곳의 매출과 유동인구, 점포 수를 지도에서 바로 비교하는 서비스입니다. 네 명이 도메인을 나눠 백엔드부터 화면까지 각자 책임지는 방식으로 7월 3일부터 14일까지 만들었고, 저는 팀장으로서 상권분석 조회 API와 지도, 팀이 함께 쓰는 공통 기반, 그리고 배포를 맡았습니다.</p>
+      <p>배포에서 가장 신경 쓴 것은 <em>서버를 두 대로 늘려도 아무것도 어긋나지 않게 하는 일</em>이었습니다. 서버가 두 대가 되면 로그인 세션, 스케줄러, 요청 제한처럼 서버 안에만 두던 상태가 모두 문제가 됩니다. 그래서 상태를 DB로 옮기고, 그 위에서 한 대씩 바꾸는 배포를 설계했습니다.</p>
+    </div>
+  </div>
+  <div class="facts mt-l rv">
+    <div class="fact"><p class="n">1,650<small>곳</small></p><p class="l">지도에서 비교하는 서울 상권</p><p class="c">매출 · 유동인구 · 점포 수 · 상권 변화.</p></div>
+    <div class="fact"><p class="n">220<small>만 행</small></p><p class="l">통째로 다시 넣는 공공데이터</p><p class="c">점포 통계 하나만 160만 행입니다.</p></div>
+    <div class="fact"><p class="n">2<small>대</small></p><p class="l">서로 다른 가용 영역의 서버</p><p class="c">ALB 뒤의 EC2 t3.small, 한 대가 빠지면 나머지가 받습니다.</p></div>
+    <div class="fact"><p class="n">20<small>초</small></p><p class="l">배포 때 진행 중인 요청을 기다리는 시간</p><p class="c">graceful shutdown, 서버는 한 대씩 바꿉니다.</p></div>
+  </div>
+</section>
+
+<!-- 02 운영 구성 -->
+<section class="chap wrap" id="ch-infra" aria-labelledby="h2">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>02</b>운영 구성 · AWS 서울 리전</p>
+    <h2 class="ch-h" id="h2">서로 다른 가용 영역에 서버를 한 대씩 두고, 로드밸런서 뒤에 세웠습니다</h2>
+    <div class="prose">
+      <p>사용자의 요청은 HTTPS로 로드밸런서(ALB)에 들어옵니다. 인증서와 TLS 종료, 헬스체크는 ALB가 맡고, 서버 두 대는 nginx 없이 jar 하나만 systemd로 띄웁니다. DB는 Oracle 자율 DB이고 지갑으로 접속합니다. 아래 그림에서 장면을 고르면 요청 한 건과 배포, 로그인 한도가 실제로 어떤 길을 지나는지 볼 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="flow mt-l rv" data-flow="sk" data-title="EC2 두 대와 로드밸런서"></div>
+  <p class="note-s">팀의 인프라 구성도를 옮겨 그렸습니다. 배포 장면은 설계한 배포 순서를 그대로 따라갑니다.</p>
+
+  <div class="split mt-l">
+    <figure class="a7 rv">
+      <div class="plate light pan"><img src="../../assets/img/sangkwon/infra.jpg" width="1400" height="765" loading="lazy" alt="AWS 인프라 구성도: 가비아 DNS, ALB와 대상 그룹, 가용 영역 a와 c의 EC2 두 대, Oracle 자율 DB, 실패 알림 웹훅, 외부 연동 API"></div>
+      <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
+      <figcaption><b>인프라 구성도</b> · 가용 영역 a와 c의 EC2 두 대가 대상 그룹으로 묶여 ALB 뒤에 있습니다.</figcaption>
+    </figure>
+    <ol class="b5 notes rv">
+      <li><span class="t">ALB가 HTTPS와 헬스체크를 맡습니다</span><span class="d">ACM 인증서로 HTTPS를 끝내고, <code>/actuator/health</code>를 30초마다 확인해 응답하지 않는 서버를 대상에서 뺍니다.</span></li>
+      <li><span class="t">서버는 jar 하나만 띄웁니다</span><span class="d">systemd가 앱을 띄우고, 앱이 죽거나 메모리가 바닥나면 <code>Restart=always</code>로 다시 올립니다.</span></li>
+      <li><span class="t">앱 포트는 ALB에서만 열립니다</span><span class="d">8080 포트의 인바운드는 ALB 보안 그룹에서 오는 요청만 허용했습니다.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 03 한 대씩 배포 -->
+<section class="chap wrap" id="ch-deploy" aria-labelledby="h3">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>03</b>한 대씩 바꾸는 배포</p>
+    <h2 class="ch-h" id="h3">교체는 언제나 한 대씩, 그동안 다른 서버가 요청을 받습니다</h2>
+    <div class="prose">
+      <p>새 버전을 올릴 때 두 서버를 한꺼번에 내리면 그 순간 서비스가 멈춥니다. 그래서 한 대를 바꾸는 동안 다른 한 대가 요청을 모두 받도록 순서를 정했습니다. 서버는 진행 중인 요청을 최대 20초 기다렸다가 내려가고, 그사이 ALB 헬스체크가 그 서버를 대상에서 빼 줍니다.</p>
+    </div>
+  </div>
+  <figure class="mt-l rv">
+    <div class="plate light pan"><div class="crop" style="--ct:2.9%;--ar:1381/567"><img src="../../assets/img/sangkwon/rolling.jpg" width="1381" height="607" loading="lazy" alt="무중단 롤링 배포 단계표: 현행 운영, EC2-A 교체, A 헬스 통과, EC2-B 교체, 완료. 단계마다 ALB가 보내는 곳과 각 서버의 상태"></div></div>
+    <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
+    <figcaption><b>배포 순서</b> · 단계마다 ALB가 어느 서버로 보내는지, 각 서버가 어떤 상태인지 정리한 표입니다.</figcaption>
+  </figure>
+  <ol class="chain mt-l rv">
+    <li><p class="nk">bootJar</p><p class="nt">한 번만 빌드</p><p class="nd">로컬에서 jar를 한 번 만들고, 두 서버에 같은 커밋으로 만든 같은 jar를 올려 버전이 어긋나지 않게 합니다.</p></li>
+    <li><p class="nk">EC2-A</p><p class="nt">A를 먼저 교체</p><p class="nd">새 jar를 올리고 서비스를 다시 시작합니다. 그동안 요청은 B가 받습니다.</p></li>
+    <li><p class="nk">health</p><p class="nt">A가 돌아오면</p><p class="nd">A가 헬스체크를 통과해 대상에 다시 들어온 뒤에만 다음으로 넘어갑니다.</p></li>
+    <li><p class="nk">EC2-B</p><p class="nt">B도 같은 순서로</p><p class="nd">이번에는 A가 요청을 받습니다. 문제가 생기면 이전 jar로 같은 순서를 되밟아 돌아갑니다.</p></li>
+  </ol>
+</section>
+
+<!-- 04 상태는 DB로 -->
+<section class="chap wrap" id="ch-state" aria-labelledby="h4">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>04</b>상태는 DB로</p>
+    <h2 class="ch-h" id="h4">어느 서버로 들어와도 결과가 같도록, 서버에는 상태를 두지 않았습니다</h2>
+    <div class="prose">
+      <p>서버가 한 대일 때는 문제가 없던 것들도 두 대가 되면 어긋납니다. 로그인한 사용자가 다른 서버로 가면 다시 로그인해야 하고, 스케줄러는 서버 수만큼 돌고, 요청 제한은 그만큼 느슨해집니다. 그래서 서버끼리 나눠 가져야 하는 상태를 모두 DB로 옮겼습니다. ALB가 어느 서버로 보내든 같은 결과가 나오므로, 세션 고정 없이 서버를 대상 그룹에 더하기만 하면 됩니다.</p>
+    </div>
+  </div>
+  <div class="split mt-l">
+    <div class="a5 rv">
+      <table class="tbl state">
+        <thead><tr><th>상태</th><th>서버에 두었다면</th><th>옮긴 곳</th></tr></thead>
+        <tbody>
+          <tr><td>로그인 세션</td><td>다른 서버로 가면 다시 로그인</td><td>Spring Session JDBC</td></tr>
+          <tr><td>스케줄러</td><td>서버 수만큼 겹쳐 실행</td><td>ShedLock</td></tr>
+          <tr><td>요청 제한</td><td>서버 수만큼 한도가 느슨해짐</td><td><code>RATE_LIMIT_BUCKET</code></td></tr>
+          <tr><td>데이터 재적재</td><td>같은 적재가 동시에 실행</td><td>함수 기반 유니크 인덱스</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure class="b7 rv">
+      <div class="plate light pan"><img src="../../assets/img/sangkwon/logic.jpg" width="1321" height="921" loading="lazy" alt="시스템 논리 구성도: 클라이언트, Spring Boot 앱의 보안·공통, 컨트롤러, 서비스, 저장소, 배치·스케줄러 계층, Oracle 자율 DB와 세션·상태"></div>
+      <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
+      <figcaption><b>시스템 논리 구성</b> · 세션, 스케줄러 락, 요청 제한 카운터가 모두 Oracle 자율 DB에 있습니다.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 05 재적재 -->
+<section class="chap wrap" id="ch-load" aria-labelledby="h5">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>05</b>공공데이터 재적재</p>
+    <h2 class="ch-h" id="h5">220만 행을 다시 넣는 동안에도, 잘린 데이터가 보이지 않게 했습니다</h2>
+    <div class="prose">
+      <p>상권 데이터는 분기마다 새로 나옵니다. 매출과 유동인구, 점포 수 같은 데이터를 지우고 다시 넣는데, 중간에 API 페이지가 비거나 제약을 어긴 행이 섞이면 반쯤 잘린 데이터가 커밋될 수 있었습니다. 서버가 두 대라 같은 데이터셋을 동시에 적재할 위험도 있었습니다.</p>
+    </div>
+  </div>
+  <ol class="chain mt-l rv">
+    <li><p class="nk">BEGIN</p><p class="nt">지우고 넣기를 한 번에</p><p class="nd">DELETE와 INSERT를 한 트랜잭션에 묶어, 커밋 전까지 화면은 이전 데이터를 그대로 봅니다.</p></li>
+    <li><p class="nk">INSERT × 5,000</p><p class="nt">5,000행씩 넣습니다</p><p class="nd">묶음 하나가 실패하면 그 묶음만 한 줄씩 다시 넣습니다.</p></li>
+    <li><p class="nk">total</p><p class="nt">받은 건수를 맞춰 봅니다</p><p class="nd">API가 알려 준 전체 건수보다 적게 받았거나, 건너뛴 행이 하나라도 있으면 전부 롤백합니다.</p></li>
+    <li><p class="nk">COMMIT</p><p class="nt">다 맞을 때만 바뀝니다</p><p class="nd">모든 확인을 통과해야 새 데이터가 한꺼번에 보입니다.</p></li>
+  </ol>
+  <div class="split mt-l">
+    <figure class="a7 rv">
+      <div class="plate light"><img src="../../assets/img/sangkwon/load.jpg" width="1248" height="692" loading="lazy" alt="관리자 데이터 적재 화면: 데이터셋 14종, 총 2,349,530건, 데이터셋별 적재 상태와 재적재 버튼"></div>
+      <figcaption><b>데이터 적재 현황</b> · 관리자 화면에서 데이터셋별 적재 상태를 보고 다시 적재합니다.</figcaption>
+    </figure>
+    <ol class="b5 notes rv">
+      <li><span class="t">같은 적재가 두 번 돌지 않게</span><span class="d">함수 기반 유니크 인덱스로 '실행 중' 기록을 데이터셋마다 하나로 묶었습니다. 다른 서버의 적재와 겹치면 나중 것이 건너뜁니다.</span></li>
+      <li><span class="t">멈춘 작업은 하트비트로 판단합니다</span><span class="d">실행 중에는 5분마다 하트비트를 남기고, 서버가 켜질 때 15분 넘게 소식이 없는 작업만 실패로 정리합니다.</span></li>
+      <li><span class="t">시작 시각으로 판단하지 않은 이유</span><span class="d">시작 시각만 보면 롤링 배포로 한 서버가 다시 켜질 때, 다른 서버에서 정상으로 돌고 있는 긴 적재까지 실패로 덮을 수 있었습니다.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 06 요청 제한: 코드와 숫자가 이어지는 장이라 남색 띠로 감싼다 -->
+<div class="dark">
+<section class="chap wrap" id="ch-rate" aria-labelledby="h6">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>06</b>요청 제한 · 서버 두 대, DB 하나</p>
+    <h2 class="ch-h" id="h6">서버가 두 대여도 요청 제한이 느슨해지지 않게 했습니다</h2>
+    <div class="prose">
+      <p>요청 횟수를 서버 메모리에서 세면, 서버 수만큼 한도가 늘어납니다. 그래서 공유 테이블 한 줄을 두 서버가 함께 세게 했습니다. 순서가 중요했습니다. <em>먼저 1을 더하고, 그다음 한도를 확인합니다.</em></p>
+    </div>
+  </div>
+  <div class="split mt-l">
+    <div class="a5 rv">
+      <div class="vs">
+        <div><p class="vk">서버마다 따로 세면</p><p class="vn">10<small>회</small></p><p class="vd">로그인 한도가 10분에 5회여도, 서버 두 대가 따로 세면 10회까지 통과합니다.</p></div>
+        <div class="on"><p class="vk">DB에서 함께 세면</p><p class="vn">5<small>회</small></p><p class="vd">어느 서버로 들어와도 같은 줄을 세서, 한도가 그대로 지켜집니다.</p></div>
+      </div>
+      <ol class="notes mt-l">
+        <li><span class="t">처음 들어온 키가 부딪힐 때</span><span class="d">같은 새 키가 동시에 처음 들어와 기본 키가 부딪히면 UPDATE로 다시 시도해, 한 번도 빠지지 않게 했습니다.</span></li>
+        <li><span class="t">같은 방식을 다른 한도에도</span><span class="d">관리자 로그인(30분에 10회)과 아이디 중복 확인(1분에 30회)에도 같은 카운터를 썼습니다.</span></li>
+      </ol>
+    </div>
+    <div class="b7 rv">
+      <p class="subk">Oracle MERGE 한 문장으로 더하기와 창 초기화를 함께</p>
+      <pre class="code">MERGE INTO RATE_LIMIT_BUCKET b
+USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
+   ON (b.RATE_KEY = s.RATE_KEY)
+ WHEN MATCHED THEN UPDATE SET
+      b.HIT_COUNT = CASE WHEN b.WINDOW_STARTED_AT &lt; s.CUTOFF_AT
+                         <b>THEN 1 ELSE b.HIT_COUNT + 1</b> END, ...
+ WHEN NOT MATCHED THEN INSERT ... <b>HIT_COUNT = 1</b>
+<i class="ko">더한 뒤의 값으로 한도를 확인합니다</i></pre>
+      <p class="note-s">창이 지났으면 1부터 다시 세고, 아니면 1을 더합니다. 처음 보는 키는 1로 들어갑니다.</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- 07 조회 API -->
+<section class="chap wrap" id="ch-api" aria-labelledby="h7">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>07</b>지도 · 상권 요약 조회 API</p>
+    <h2 class="ch-h" id="h7">무거운 경계와 가벼운 숫자를 나눠, 화면이 필요한 것만 다시 부르게 했습니다</h2>
+    <div class="prose">
+      <p>지도에는 상권 경계(GeoJSON)가 그려지고, 그 위에 매출과 유동인구 같은 숫자가 얹힙니다. 경계는 무겁고 거의 바뀌지 않지만, 숫자는 필터를 바꿀 때마다 새로 필요합니다. 그래서 두 가지를 다른 API로 나눴습니다.</p>
+    </div>
+  </div>
+  <div class="split mt-l">
+    <ol class="a6 notes rv">
+      <li><span class="t">경계는 <code>/geo</code>, 숫자는 <code>/summary</code></span><span class="d">상권 경계와 요약 수치를 따로 받아, 화면이 필요한 것만 다시 부르게 했습니다.</span></li>
+      <li><span class="t">적재 시점이 달라도 빈 값이 나오지 않게</span><span class="d">매출 · 점포 · 유동인구 · 변화지표를 쿼리 하나로 모으되, 각 데이터는 매출의 최신 분기를 넘지 않는 자기 최신 분기를 씁니다.</span></li>
+      <li><span class="t">결과에 상한을 두었습니다</span><span class="d">요약은 2만 행까지, 매출 목록은 필터를 꼭 받고 5,000행까지만 돌려주며, 잘렸는지를 응답에 표시합니다.</span></li>
+      <li><span class="t">응답과 예외는 한 가지 모양으로</span><span class="d">모든 API가 같은 응답 봉투를 쓰고, 제약 위반과 낙관적 락 충돌은 409, 처리하지 못한 예외는 내부 메시지를 숨긴 500으로 돌려줍니다.</span></li>
+    </ol>
+    <div class="b6 rv">
+      <p class="subk">분기가 서로 다를 때 각 데이터가 고르는 분기</p>
+      <table class="tbl">
+        <thead><tr><th>데이터</th><th>고르는 분기</th></tr></thead>
+        <tbody>
+          <tr><td>매출</td><td>가장 최신 분기 (기준)</td></tr>
+          <tr><td>점포</td><td>매출 기준을 넘지 않는 자기 최신 분기</td></tr>
+          <tr><td>유동인구</td><td>매출 기준을 넘지 않는 자기 최신 분기</td></tr>
+          <tr><td>변화지표</td><td>매출 기준을 넘지 않는 자기 최신 분기</td></tr>
+        </tbody>
+      </table>
+      <pre class="code mt-m"><b>GET</b> /api/districts/geo      <i class="ko">상권 경계 · 무겁고 거의 그대로</i>
+<b>GET</b> /api/districts/summary  <i class="ko">매출 · 점포 · 유동인구 · 변화지표</i>
+<b class="g">← { success, code, message, data }</b></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 08 팀과 역할 -->
+<section class="chap wrap" id="ch-team" aria-labelledby="h8">
+  <div class="grid ch-head">
+    <p class="ch-no"><b>08</b>팀과 역할</p>
+    <h2 class="ch-h" id="h8">도메인을 나눠 각자 끝까지 책임지고, 공통 기반은 제가 맡았습니다</h2>
+    <div class="prose">
+      <p>네 명이 상권 · 회원 · 관리자 · 창업지원 도메인을 나눠 백엔드부터 화면까지 각자 맡았습니다. 응답과 예외처럼 모두가 함께 쓰는 공통 부분은 팀장인 제가 관리해, 서로 기다리지 않고 나란히 개발할 수 있게 했습니다.</p>
+    </div>
+  </div>
+  <div class="grid mt-l">
+    <div class="inset role-cols rv">
+      <div>
+        <p class="subk">제가 한 일</p>
+        <ol class="notes">
+          <li><span class="t">상권분석 · 지도</span><span class="d">DB 설계, 상권분석 조회 API, 지도 화면</span></li>
+          <li><span class="t">팀 공통 기반</span><span class="d">응답 · 예외 · 배치 · 요청 제한 · 보안</span></li>
+          <li><span class="t">배포</span><span class="d">EC2 두 대와 ALB 구성, 한 대씩 바꾸는 배포</span></li>
+        </ol>
+      </div>
+      <div class="theirs">
+        <p class="subk">팀원이 맡은 일</p>
+        <ol class="notes">
+          <li><span class="t">회원 · 인증 · 결제</span><span class="d">로그인과 세션, 찜, 토스페이먼츠 결제와 구독</span></li>
+          <li><span class="t">관리자 · 운영</span><span class="d">관리자 인증(OTP), 공지와 1:1 문의, 운영 대시보드</span></li>
+          <li><span class="t">창업지원 · 콘텐츠</span><span class="d">지원사업, 업계동향, AI 상권 리포트(Gemini)</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="grid mt-l">
+    <p class="inset links-row rv"><a href="https://github.com/sangkwon-poly/sangkwon-platform-poly">GitHub 저장소 <span class="arrow" aria-hidden="true">→</span></a><a href="../../infra.pdf" download>인프라 PDF <span class="arrow" aria-hidden="true">→</span></a><a href="../../backend.pdf" download>백엔드 PDF <span class="arrow" aria-hidden="true">→</span></a></p>
+  </div>
+</section>
+
+</div>
+
+<section class="wrap next" aria-label="다음 작업">
+  <a href="../safetynevi/">
+    <span class="k">다음 작업 <span class="mono">06</span></span>
+    <span class="t">SafetyNevi <span class="arrow" aria-hidden="true">→</span></span>
+    <span class="d">재난문자를 지도 위 위험 구역으로 바꾸고, 안전한 대피소로</span>
+  </a>
+</section>
+
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">전체 작업</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="../../infra.pdf" download>인프라 PDF</a><a href="../../backend.pdf" download>백엔드 PDF</a></span>
+  </div>
+</footer>
+
+<script src="../../js/flow.js"></script>
+<script src="flows.js"></script>
+<script src="../../js/case.js"></script>
+</body>
+</html>
