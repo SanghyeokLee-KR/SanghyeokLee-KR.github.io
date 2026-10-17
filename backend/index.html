@@ -270,7 +270,7 @@ SELECT ...
         <p class="kicker">4인 팀 Tech Lead · PM · 2025년 9월 ~ 12월 · 졸업작품</p>
         <h2 class="h">재난문자를 지도 위 위험 구역으로 바꾸고, 가까운 대피소로 안내했습니다</h2>
         <p class="lede">재난문자는 글자뿐이라 내 주변이 위험한지 바로 알기 어렵습니다. 그래서 행안부 재난문자를 받아 지도에 위험 구역으로 그리고, 지금 운영 중인 가까운 대피소까지 길을 안내하는 서비스를 만들었습니다. 평가 기간에는 실제 도메인에서 일주일 동안 운영했습니다.</p>
-        <p class="role mt-s"><span><b>제가 한 일</b> 지도 핵심(위험 구역 · 경로)과 WebSocket, Python AI 서버, 관리자 기능과 팀원과 함께 짠 Oracle 스키마, 배포. 게시판 API와 처음 수집기, 화면 퍼블리싱은 팀원이 맡았습니다.</span></p>
+        <p class="role mt-s"><span><b>제가 한 일</b> 지도(위험 구역 · 경로)와 WebSocket, Python AI 서버, 관리자 기능과 팀원과 함께 짠 Oracle 스키마, 배포. 게시판 API와 처음 수집기, 화면 퍼블리싱은 팀원이 맡았습니다.</span></p>
         <ol class="notes mt-a">
           <li><span class="t">공식 단계가 있으면 그대로, 없을 때만 AI에게</span><span class="d">공식 API의 긴급단계가 '위급'이나 '긴급'이면 바로 60분짜리 위험 구역을 만듭니다. 단계가 비어 있을 때만 따로 띄운 Python 서버의 분류 모델에게 묻습니다.</span></li>
           <li><span class="t">DB 커밋이 끝난 뒤에만 알립니다</span><span class="d">롤백됐는데 알림이 먼저 나가면 없는 재난을 알리게 됩니다. 그래서 <code>afterCommit</code>에서만 WebSocket으로 보냅니다.</span></li>
