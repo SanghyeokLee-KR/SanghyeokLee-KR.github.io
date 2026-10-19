@@ -86,11 +86,11 @@
 
   <figure>
     <img src="../../assets/img/safetynevi/map.jpg" width="1600" height="1000" alt="SafetyNevi 지도 화면: 현재 위치와 날씨, 대피소·보건소·경찰서·소방서 같은 주변 시설 탐색 메뉴, 길찾기 탭">
-    <figcaption>지도 화면 · 내 위치 주변의 대피소와 시설을 찾고, 길찾기 탭에서 대피소까지 가는 길을 봅니다.</figcaption>
+    <figcaption>내 위치 주변의 대피소와 시설을 찾는 지도 화면입니다. 길찾기 탭에서는 대피소까지 가는 길을 봅니다.</figcaption>
   </figure>
 
   <p class="kick">개요</p>
-  <h2 id="ch-intro">재난문자를 지도 위 위험 구역으로 바꾸고, 가까운 대피소로 안내했습니다</h2>
+  <h2 id="ch-intro">재난문자를 지도 위 위험 구역으로 바꾸는 대피 안내 서비스</h2>
   <p>재난문자는 글자뿐이라 내 주변이 위험한지, 어디로 가야 하는지 바로 알기 어렵습니다. 그래서 행정안전부 재난문자를 받아 지도에 위험 구역으로 그리고, 지금 운영 중인 가까운 대피소까지 길을 안내하는 서비스를 만들었습니다. 메인 서버는 Spring Boot이고, 재난문자를 분류하는 AI 서버는 Python FastAPI로 따로 띄웠습니다.</p>
   <p>저는 위험 구역과 경로 탐색, 실시간 알림, AI 서버, 배포를 만들었습니다.</p>
   <div class="tbl-wrap">
@@ -113,10 +113,10 @@
     <figcaption>위험 구역이 화면에 뜨기까지 · 수집부터 Kafka와 WebSocket을 거쳐 브라우저에 닿기까지입니다.</figcaption>
   </figure>
   <ul class="items">
-    <li><b>위급 · 긴급이면 바로 구역으로</b>긴급단계가 위급이나 긴급이면 60분짜리 위험 구역을 바로 만듭니다. 단계가 없는 문자만 따로 띄운 Python 서버의 분류 모델에 묻습니다.</li>
+    <li><b>위급이나 긴급이면 바로 구역으로</b>긴급단계가 위급이나 긴급이면 60분짜리 위험 구역을 바로 만듭니다. 단계가 없는 문자만 따로 띄운 Python 서버의 분류 모델에 묻습니다.</li>
     <li><b>구역 표시는 브라우저에서</b>서버는 재난문자의 수신 지역 이름으로 구역을 만들고, 브라우저가 이 이름을 시군구 경계 GeoJSON에 맞춰 칠합니다.</li>
     <li><b>DB 커밋이 끝난 뒤에만 알립니다</b>알림을 먼저 보내고 저장이 롤백되면 DB에 없는 재난을 알리게 됩니다. 그래서 WebSocket과 웹푸시는 커밋 뒤에 보냅니다.</li>
-    <li><b>서버가 여러 대일 때의 알림 전달</b>알림을 Kafka로 보내고 서버마다 컨슈머 그룹을 따로 두어, 어느 서버에 붙어 있든 같은 알림을 받게 했습니다. Kafka와 Redis는 운영 프로파일에서 켜지게 해 두었고, 평가 기간에는 서버 한 대로 돌렸습니다.</li>
+    <li><b>서버가 여러 대일 때의 알림 전달</b>알림은 Kafka로 보내고 서버마다 컨슈머 그룹을 따로 둡니다. 사용자가 어느 서버에 붙어 있든 같은 알림이 갑니다. Kafka와 Redis는 운영 프로파일에서만 켜지고, 평가 기간에는 서버 한 대로 돌렸습니다.</li>
   </ul>
 <pre><code>DisasterZone saved = disasterZoneRepository.save(zone);
 DisasterZoneResponse response = DisasterZoneResponse.from(saved);
@@ -126,7 +126,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 });</code></pre>
 
   <p class="kick">대피소 추천</p>
-  <h2 id="ch-route">위험 구역 안에 있거나 가는 길이 구역을 지나는 대피소는 추천에서 뺐습니다</h2>
+  <h2 id="ch-route">구역 안의 대피소와 구역을 지나는 길은 뺐습니다</h2>
   <p>거리만 보고 고르면 위험 구역 한가운데로 안내할 수도 있습니다. 그래서 관리자가 발령한 원형 위험 구역을 기준으로, 대피소가 구역 안에 있는지와 가는 길이 구역을 지나는지를 같이 봅니다.</p>
   <div class="flow" id="shelter-flow" data-title="대피소 후보를 거르는 순서"></div>
   <ol class="items">
@@ -135,7 +135,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
     <li><b>가는 길이 구역을 지나도 뺍니다</b>구역 중심에서 출발지와 대피소를 잇는 선분까지의 최단거리가 반지름보다 짧으면, 길이 구역을 가로지른다고 봅니다.</li>
     <li><b>남은 후보에서 세 곳을 보여 줍니다</b>운영 중인 곳 가운데 가장 가까운 곳, 거리만 본 가장 가까운 곳, 수용 인원이 가장 큰 곳입니다.</li>
   </ol>
-  <div class="note">처음에는 운영 중인 대피소가 추천에 제대로 잡히지 않았습니다. 운영 여부를 '정상 · 영업 · 운영' 값으로 판단했는데, 실제 데이터에는 '사용중'으로 들어 있었습니다.</div>
+  <div class="note">처음에는 운영 중인 대피소가 추천에 제대로 잡히지 않았습니다. 운영 여부를 '정상', '영업', '운영' 값으로 판단했는데, 실제 데이터에는 '사용중'으로 들어 있었습니다.</div>
   <p>'사용중'만 운영 중으로 보도록 고치고, 이 규칙을 테스트로 고정했습니다.</p>
 
   <p class="kick">졸업 뒤 다시 본 부하 테스트</p>
@@ -179,7 +179,7 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
   <p class="kick">보안</p>
   <h2 id="ch-sec">로그인과 웹푸시 구독 API의 보안 보강</h2>
   <ul class="items">
-    <li><b>웹푸시 주소 검사<span class="nk">SSRF</span></b>https만 받고 localhost와 IP 주소는 거절해, 서버가 내부망으로 요청을 보내지 않게 했습니다.</li>
+    <li><b>웹푸시 주소 검사<span class="nk">SSRF</span></b>https만 받고 localhost와 IP 주소는 거절합니다. 서버가 내부망으로 요청을 보내는 길을 막으려는 검사입니다.</li>
     <li><b>IP마다 한도<span class="nk">rate limit</span></b>API는 분당 300건, 푸시 등록은 30건까지 받습니다. X-Forwarded-For는 설정을 켰을 때만 믿습니다.</li>
     <li><b>5번 틀리면 잠금<span class="nk">lockout</span></b>대소문자만 바꾼 아이디로 다시 시도해도 같은 계정으로 셉니다.</li>
     <li><b>가입 여부 숨기기<span class="nk">enumeration</span></b>비밀번호 찾기에서 없는 계정에도 가짜 질문을 보여 줍니다.</li>
@@ -190,28 +190,28 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
   <p>AWS EC2 한 대에 Docker Compose로 배포했습니다. GitHub Actions가 테스트를 돌리고 이미지를 만들어 GHCR에 올리면, 서버가 그 이미지를 받아 교체합니다. 비밀번호와 키는 이미지에 넣지 않고, 서버에 둔 설정 파일로 따로 넣었습니다.</p>
   <figure>
     <img src="../../assets/img/safetynevi/infra.jpg" width="1600" height="1148" loading="lazy" alt="배포·인프라 구성도: GitHub, GitHub Actions, GHCR, 서버의 docker compose pull로 이어지는 배포와 EC2 한 대 위의 Spring Boot, Redis, Kafka, 외부의 FastAPI, Oracle DB, 공공 API">
-    <figcaption>배포 · 인프라 구성도 · 메인 서버는 EC2 한 대에 있고, AI 서버와 Oracle DB, 공공 API는 바깥에 있습니다.</figcaption>
+    <figcaption>배포와 인프라 구성도입니다. 메인 서버는 EC2 한 대에 있고, AI 서버와 Oracle DB, 공공 API는 바깥에 있습니다.</figcaption>
   </figure>
   <ul class="items">
     <li><b>테스트 통과 후 이미지 빌드</b>서버 테스트와 프론트 타입 검사를 통과해야 이미지를 만듭니다.</li>
     <li><b>서버는 이미지만 받습니다</b>서버에서는 빌드하지 않고, <code>docker compose pull</code>로 받아 다시 띄우기만 합니다.</li>
-    <li><b>상태 확인 엔드포인트</b>Actuator의 health · liveness · readiness와 Prometheus 지표를 열어 두었습니다.</li>
+    <li><b>상태 확인 엔드포인트</b>Actuator의 health, liveness, readiness와 Prometheus 지표를 열어 두었습니다.</li>
     <li><b>로컬은 Docker 없이도</b>로컬과 테스트는 H2와 메모리 구현으로 바로 뜹니다.</li>
   </ul>
 
   <p class="kick">팀과 역할</p>
-  <h2 id="ch-team">지도 · AI 서버 · 배포는 제가, 게시판과 화면은 팀원이 맡았습니다</h2>
+  <h2 id="ch-team">지도와 AI 서버, 배포는 제가 맡고 게시판과 화면은 팀원이 맡았습니다</h2>
   <h3>제가 한 일</h3>
   <ul class="items tight">
     <li><b>지도</b>위험 구역과 경로 탐색, WebSocket 실시간 알림</li>
     <li><b>AI 서버</b>Python 서버와 재난문자 분류 모델</li>
     <li><b>DB와 관리자</b>팀원과 함께 짠 Oracle 스키마, 관리자 기능</li>
-    <li><b>운영 보강과 배포</b>공식 API 전환, Redis · Kafka, CI/CD, 관측, 보안, Docker 배포</li>
+    <li><b>운영 보강과 배포</b>공식 API 전환, Redis와 Kafka, CI/CD, 관측, 보안, Docker 배포</li>
   </ul>
   <h3>팀원이 맡은 일</h3>
   <ul class="items tight">
-    <li><b>백엔드</b>처음 재난문자 수집기, 게시판 · 공지 · 문의 API</li>
-    <li><b>프론트엔드</b>전체 화면 퍼블리싱과 반응형, 로고 · 아이콘, 회원 화면</li>
+    <li><b>백엔드</b>처음 재난문자 수집기, 게시판과 공지, 문의 API</li>
+    <li><b>프론트엔드</b>전체 화면 퍼블리싱과 반응형, 로고와 아이콘, 회원 화면</li>
     <li><b>콘텐츠</b>재난 행동요령 콘텐츠, 테스트 데이터셋</li>
   </ul>
 

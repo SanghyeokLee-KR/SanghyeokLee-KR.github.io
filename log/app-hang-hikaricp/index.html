@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>/api 504 진단: 가상 스레드와 HikariCP 라이브락 · 이상혁</title>
+<title>가상 스레드와 HikariCP 라이브락으로 /api만 504를 낸 장애 · 이상혁</title>
 <meta name="description" content="학교 AWS 앱 서버에서 /api만 504를 낸 장애를 스레드 덤프로 진단했습니다. HikariCP 스레드 세 개가 Thread.yield() 루프에 갇혀 있었고, 가상 스레드를 끄고 재시작해 복구했습니다.">
 <script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -16,7 +16,7 @@
   <header class="top"><a class="home" href="../../">이상혁</a>
     <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
   <article>
-  <div class="post-head"><p class="m"><time datetime="2026-09-21">2026.09.21</time> · 장애 대응 · 학교 AWS · failstop</p><h1>/api 504 진단: 가상 스레드와 HikariCP 라이브락</h1></div>
+  <div class="post-head"><p class="m"><time datetime="2026-09-21">2026.09.21</time> · 장애 대응 · 학교 AWS · failstop</p><h1>가상 스레드와 HikariCP 라이브락으로 /api만 504를 낸 장애</h1></div>
   <div class="body">
   <p class="lead">학교 AWS의 첫 앱 서버(app-1)에서 정적 웹과 Grafana는 응답하는데 <code>/api/*</code>만 30초 뒤 504를 냈습니다. 서비스는 <code>active (running)</code>였고 메모리, 디스크, DB 연결에도 문제가 없었습니다. 스레드 덤프에서 HikariCP 관련 스레드 세 개가 <code>Thread.yield()</code> 루프에 갇힌 것을 찾았고, 가상 스레드를 끄고 재시작해 복구했습니다.</p>
   <dl class="facts-mini">
@@ -57,7 +57,7 @@ Mem:            1909         692          65         123        1151         944
 code=000 time=15.001467s
 <span class="c">##### 앱 직접 호출 8080</span>
 code=000 time=15.001943s</code></pre>
-  <p>메모리는 944MiB가 남았고 서비스 사용량도 한도 1.3G 아래였습니다. 루트 디스크는 13%, inode는 1%를 썼습니다. primary와 standby 두 DB 모두 5432 TCP 연결이 됐고, 앱은 primary에 연결 12개를 유지하고 있었습니다. steal이 0이라 t3 CPU 크레딧 소진도 아닙니다.</p>
+  <p>메모리는 944MiB가 남았고 서비스 사용량도 한도 1.3G 아래였습니다. 루트 디스크는 13%, inode는 1%를 썼습니다. primary와 standby 두 DB 모두 5432 TCP 연결이 됐고, 앱은 primary에 연결 12개를 유지하고 있었습니다. steal이 0이니 t3 CPU 크레딧 소진도 아니었고요.</p>
   <p>눈에 띈 것은 CPU입니다. 2 vCPU에서 load가 3.37이었고, 시스템 시간이 57~64%, 컨텍스트 스위치가 초당 45만~57만 회였습니다. java 프로세스 하나가 %CPU 182.4를 쓰고 있었습니다.</p>
 
   <h3>스레드 덤프에서 같은 세 지점이 나왔습니다</h3>
@@ -85,12 +85,12 @@ code=000 time=15.001943s</code></pre>
   <p>48초 뒤의 두 번째 덤프도 같은 세 지점(<code>add:224</code>, <code>requite:198</code>, <code>unreserve:322</code>)에 있었습니다. JVM은 데드락을 보고하지 않았습니다.</p>
 
   <h2>원인</h2>
-  <p>세 지점은 모두 HikariCP의 <code>ConcurrentBag</code>이 연결을 기다리는 스레드가 있을 때 인계 큐에 연결을 넘기려 하고, 실패하면 <code>Thread.yield()</code> 후 다시 시도하는 구간입니다. 진행 없이 CPU만 쓰는 라이브락으로 판단했습니다.</p>
+  <p>세 지점은 모두 HikariCP <code>ConcurrentBag</code>에서 연결을 넘기는 구간인데요. 연결을 기다리는 스레드가 있으면 인계 큐에 연결을 넘기려 하고, 실패하면 <code>Thread.yield()</code> 후 다시 시도합니다. 진행 없이 CPU만 쓰는 라이브락으로 판단했습니다.</p>
   <p>앱은 <code>spring.threads.virtual.enabled: true</code>로 돌고 있었습니다. 요청을 처리하며 연결을 기다리는 쪽은 가상 스레드이고, 연결을 넘기는 쪽(<code>connection-adder</code>, <code>housekeeper</code>, <code>market-catalog-refresh</code>)은 플랫폼 스레드입니다. 2 vCPU에서 플랫폼 스레드 세 개가 yield 루프로 코어를 채우면 가상 스레드를 실어 나를 캐리어 스레드가 돌 여유가 줄고, 인계를 받을 쪽이 늦어지니 인계가 다시 실패합니다. 덤프의 스레드 번호(<code>#1450104</code>, <code>#1450149</code>)로 보면 기동 후 스레드가 백만 개 넘게 만들어졌습니다.</p>
-  <p>이 판단은 실행 중 상태를 관측한 결과이고, 같은 조건을 재현해 확정하지는 않았습니다. <code>connection-adder</code>는 덤프 시점에 만들어진 지 1,714초였고 CPU 시간은 871초였지만, 최초 계기는 찾지 못했습니다. 서비스 로그에는 30분 주기 WebSocket 통계만 있고 오류가 없었습니다. 풀 상한(요청 16, append 14, 리스 2)이 원인이라는 근거도 찾지 못했습니다.</p>
+  <p>이 판단은 실행 중인 상태를 보고 내린 것이고, 같은 조건을 재현해 확정하지는 않았습니다. <code>connection-adder</code>는 덤프 시점에 만들어진 지 1,714초였고 CPU 시간은 871초였지만, 최초 계기는 찾지 못했습니다. 서비스 로그에는 30분 주기 WebSocket 통계만 있고 오류가 없었습니다. 풀 상한(요청 16, append 14, 리스 2)이 원인이라는 근거도 찾지 못했습니다.</p>
 
   <h2>조치</h2>
-  <p>설정 파일을 기존 명명 규칙대로 백업하고 해시가 같은지 확인한 뒤, 되돌리는 방법을 주석으로 적고 가상 스레드를 끄는 한 줄을 추가했습니다. 파일 권한 <code>root:exchange 0640</code>은 그대로 두었습니다.</p>
+  <p>설정 파일을 기존 명명 규칙대로 백업하고 해시가 같은지 확인한 뒤, 되돌리는 방법을 주석으로 적고 가상 스레드를 끄는 한 줄을 추가했습니다. 파일 권한 <code>root:exchange 0640</code>은 바꾸지 않았습니다.</p>
 <div class="where"><span class="k">실행</span><b>첫 앱 서버 app-1</b><span>/etc/exchange/app.env 백업과 수정</span></div>
 <pre><code><span class="c">##### 1) 백업 (기존 백업 명명 규칙 유지)</span>
 -rw-r-----. 1 root exchange 962 Sep 19 16:55 /etc/exchange/app.env
@@ -108,7 +108,7 @@ code=000 time=15.001943s</code></pre>
 <span class="c">##### 5) 재시작</span>
 -- 재시작 명령 반환: 0
 재시작 후 PID: 169481</code></pre>
-  <p>JAR과 코드는 바꾸지 않았고, 저장소의 <code>application.yml</code>에 있는 <code>spring.threads.virtual.enabled: true</code>도 그대로 두었습니다. 이 서버만 환경변수로 덮어쓴 상태입니다. 기동은 12.7초가 걸렸습니다. 엔진이 마켓별 스냅샷을 채택하고 83건을 재생한 뒤 리더 리스를 epoch=6으로 얻었고, readiness가 08:22:07에 200을 반환했습니다.</p>
+  <p>JAR과 코드, 저장소의 <code>application.yml</code>에 있는 <code>spring.threads.virtual.enabled: true</code>에도 손대지 않았습니다. 이 서버만 환경변수로 덮어쓴 상태입니다. 기동은 12.7초가 걸렸습니다. 엔진이 마켓별 스냅샷을 채택하고 83건을 재생한 뒤 리더 리스를 epoch=6으로 얻었고, readiness가 08:22:07에 200을 반환했습니다.</p>
 
   <h2>결과</h2>
   <p>장애 때와 같은 항목을 다시 재서 비교했습니다.</p>
@@ -134,7 +134,7 @@ Carrying virtual thread: 0건 (장애 시 1건)
 /api/v1/markets -&gt; 200 0.003725s
 <span class="c">##### 최근 체결 (봇 거래 재개 확인)</span>
 {"schema_version":"1.0","data":[{"trade_id":"1000000232465","market":"KRW-BTC", … "timestamp":"2026-09-21T08:22:19.424Z", …</code></pre>
-  <p>작업 PC에서 공개 주소로 <code>/api/v1/markets</code>, <code>/api/v1/candles/1m</code>, <code>/api/v1/orderbook</code>, <code>/api/v1/trades</code>를 호출해 모두 200을 확인했고, 봇 거래도 08:22:18부터 체결이 이어졌습니다. 진단 초반에 본 <code>/api/v1/candles?market=…</code>의 404는 실제 경로가 <code>/api/v1/candles/{unit}</code>이라서 난 것으로 이번 장애와 관계없습니다.</p>
+  <p>작업 PC에서 공개 주소로 <code>/api/v1/markets</code>, <code>/api/v1/candles/1m</code>, <code>/api/v1/orderbook</code>, <code>/api/v1/trades</code>를 호출해 모두 200을 확인했고, 봇 거래도 08:22:18부터 체결이 이어졌습니다. 진단 초반에 본 <code>/api/v1/candles?market=…</code>의 404는 경로를 잘못 쓴 탓이었습니다. 맞는 경로는 <code>/api/v1/candles/{unit}</code>이고, 이번 장애와는 관계가 없습니다.</p>
 
   <div class="note">가상 스레드를 끈 것은 문제가 난 경로를 피한 조치이고, HikariCP의 인계 실패 자체를 고친 것은 아닙니다. 같은 조합을 다시 켜면 재발할 수 있습니다. 부하를 올린 장시간 운영에서 플랫폼 스레드 풀이 충분한지는 이 작업에서 확인하지 않았습니다.</div>
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>이상혁 · System · Infra Engineer</title>
-<meta name="description" content="Linux 서버와 AWS를 직접 구성하고, 장애를 내서 복구를 확인하는 시스템 · 인프라 엔지니어 이상혁의 포트폴리오입니다.">
+<meta name="description" content="Linux 서버와 AWS를 구성하고 장애를 내서 복구를 확인하는 시스템 · 인프라 엔지니어 이상혁의 포트폴리오입니다.">
 <script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -21,7 +21,7 @@
     <div>
       <h1>이상혁<small>Lee Sang Hyeok</small></h1>
       <p class="role">System · Infra Engineer · 백엔드 개발도 합니다</p>
-      <p class="desc">Linux 서버와 AWS를 직접 구성하고, 장애를 내서 복구를 확인합니다. 개인 AWS에서 주 DB 전원을 끊었을 때 예비 DB가 23.0초 만에 승격됐고, 차단 4초 전까지 1분 동안 커밋된 주문 196건 중 사라진 주문은 없었습니다. CTF에서는 3인 팀 조장으로 root 권한 공격자가 들어오는 서버를 사흘간 채점 기준 다운 0회로 지켰습니다.</p>
+      <p class="desc">Linux 서버와 AWS를 구성한 뒤 장애를 내서 복구되는지 확인합니다. 개인 AWS에서 주 DB 전원을 끊었을 때 예비 DB가 23.0초 만에 승격됐고, 차단 4초 전까지 1분 동안 커밋된 주문 196건 중 사라진 주문은 없었습니다. CTF에서는 3인 팀 조장을 맡았고, root 권한 공격자가 들어오는 서버로 사흘 동안 채점 기준 다운 0회를 기록했습니다.</p>
       <p class="desc">작업하면서 실행한 명령과 결과는 아래 기록에 정리하고 있습니다.</p>
       <div class="links"><a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="infra.pdf">인프라 PDF</a><a href="backend.pdf">백엔드 PDF</a></div>
     </div>
@@ -30,8 +30,8 @@
   <section id="projects">
     <h2>주요 프로젝트</h2>
     <ul class="proj">
-      <li><div><h3><a href="work/failstop/">모의 거래소의 AWS 이중화와 DB 페일오버 시험</a></h3><p>거래 서버와 DB를 두 가용 영역에 나눠 배치했습니다. 주 DB 전원을 끊었을 때 예비 DB가 23.0초 만에 승격됐고, 차단 4초 전까지 1분 동안 커밋된 주문 196건 중 사라진 주문은 없었습니다.</p><div class="meta"><code>AWS</code><code>Patroni</code><code>Linux</code><span>failstop · 1인 · 2026.07–10</span></div></div><a class="thumb" href="work/failstop/" tabindex="-1" aria-hidden="true"><img src="assets/img/failstop/aws-arch.jpg" alt="" loading="lazy"></a></li>
-      <li><div><h3><a href="work/keep-nginx-alive/">CTF에서 nginx 다층 자동 복구와 장애 노드 격리</a></h3><p>root 권한 공격자가 들어오는 서버에 복구 장치 다섯 가지를 두고, 헬스체크로 오염된 서버가 NLB에서 빠지게 했습니다. 사흘간 채점 기준 다운 0회였습니다.</p><div class="meta"><code>Linux</code><code>systemd</code><code>AWS NLB</code><span>keep-nginx-alive · 3인 팀 조장 · 2026.05</span></div></div><a class="thumb" href="work/keep-nginx-alive/" tabindex="-1" aria-hidden="true"><img src="assets/img/nginx/infra.jpg" alt="" loading="lazy"></a></li>
+      <li><div><h3><a href="work/failstop/">모의 거래소의 AWS 이중화와 DB 페일오버 시험</a></h3><p>거래 서버와 DB를 두 가용 영역에 나눠 배치했습니다. 주 DB 전원을 끊자 예비 DB가 23.0초 만에 승격했고, 차단 4초 전까지 1분 동안 커밋된 주문 196건도 모두 새 주 DB에 남아 있었습니다.</p><div class="meta"><code>AWS</code><code>Patroni</code><code>Linux</code><span>failstop · 1인 · 2026.07–10</span></div></div><a class="thumb" href="work/failstop/" tabindex="-1" aria-hidden="true"><img src="assets/img/failstop/aws-arch.jpg" alt="" loading="lazy"></a></li>
+      <li><div><h3><a href="work/keep-nginx-alive/">CTF에서 nginx 다층 자동 복구와 장애 노드 격리</a></h3><p>공격자가 root로 들어오는 서버에 nginx를 다시 띄우는 장치를 다섯 가지 두었습니다. 페이지가 오염된 서버는 헬스체크에 실패해 NLB에서 빠집니다. 사흘 동안 채점 기준 다운은 0회였습니다.</p><div class="meta"><code>Linux</code><code>systemd</code><code>AWS NLB</code><span>keep-nginx-alive · 3인 팀 조장 · 2026.05</span></div></div><a class="thumb" href="work/keep-nginx-alive/" tabindex="-1" aria-hidden="true"><img src="assets/img/nginx/infra.jpg" alt="" loading="lazy"></a></li>
       <li><div><h3><a href="work/sangkwon-platform-poly/">EC2 두 대 롤링 배포와 서버 상태 DB 이전</a></h3><p>서로 다른 가용 영역의 EC2 두 대를 ALB 뒤에 두고 한 대씩 교체하도록 배포했습니다. 세션, 스케줄러, 요청 제한 상태는 DB에서 함께 씁니다.</p><div class="meta"><code>AWS ALB</code><code>EC2</code><code>Oracle</code><span>sangkwon-platform-poly · 4인 팀 팀장 · 2026.07</span></div></div><a class="thumb" href="work/sangkwon-platform-poly/" tabindex="-1" aria-hidden="true"><img src="assets/img/sangkwon/infra.jpg" alt="" loading="lazy"></a></li>
     </ul>
   </section>
@@ -39,11 +39,11 @@
   <section id="posts">
     <h2>기록 <a href="log/">전체 보기</a></h2>
     <ul class="posts">
-      <li><time datetime="2026-10-10">2026-10-10</time><a href="log/aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</a><span class="cat">DB</span></li>
+      <li><time datetime="2026-10-10">2026-10-10</time><a href="log/aws-db-power-cut/">주 DB 전원을 바로 끊었을 때 승격까지 23.0초, 유실은 0건</a><span class="cat">DB</span></li>
       <li><time datetime="2026-09-29">2026-09-29</time><a href="log/nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기</a><span class="cat">네트워크</span></li>
       <li><time datetime="2026-09-28">2026-09-28</time><a href="log/pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a><span class="cat">네트워크</span></li>
       <li><time datetime="2026-09-26">2026-09-26</time><a href="log/backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</a><span class="cat">백업</span></li>
-      <li><time datetime="2026-09-21">2026-09-21</time><a href="log/app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락</a><span class="cat">장애 대응</span></li>
+      <li><time datetime="2026-09-21">2026-09-21</time><a href="log/app-hang-hikaricp/">가상 스레드와 HikariCP 라이브락으로 /api만 504를 낸 장애</a><span class="cat">장애 대응</span></li>
       <li><time datetime="2026-09-12">2026-09-12</time><a href="log/async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a><span class="cat">DB</span></li>
       <li><time datetime="2026-05-30">2026-05-30</time><a href="log/ctf-port80-hijack/">apache2에 80번 포트를 빼앗긴 2차 공격</a><span class="cat">장애 대응</span></li>
     </ul>
@@ -55,19 +55,19 @@
       <li><div><a href="work/failstop/">failstop</a> <span>— 모의 거래소의 AWS 이중화와 DB 페일오버 시험</span></div><span class="y">2026</span></li>
       <li><div><a href="work/keep-nginx-alive/">keep-nginx-alive</a> <span>— CTF에서 nginx를 다운 없이 유지한 방어 구조</span></div><span class="y">2026</span></li>
       <li><div><a href="work/high-throughput-image-pipeline/">high-throughput-image-pipeline</a> <span>— t3.micro 한 대에서 처리량 측정과 CPU 병목 확인</span></div><span class="y">2026</span></li>
-      <li><div><a href="work/ai-lunch-curator/">ai-lunch-curator</a> <span>— 식단표 수집, Teams 알림, CI/CD 배포</span></div><span class="y">2026</span></li>
+      <li><div><a href="work/ai-lunch-curator/">ai-lunch-curator</a> <span>— 식단표를 모아 Teams로 알리고 CI/CD로 배포</span></div><span class="y">2026</span></li>
       <li><div><a href="work/sangkwon-platform-poly/">sangkwon-platform-poly</a> <span>— 상권 비교 서비스와 EC2 두 대 롤링 배포</span></div><span class="y">2026</span></li>
       <li><div><a href="work/safetynevi/">SafetyNevi</a> <span>— 재난문자 위험 구역 표시와 대피소 추천</span></div><span class="y">2025</span></li>
       <li><div><a href="work/deliverypro/">DeliveryPro</a> <span>— 묶음배달 방문 순서를 서버에서 계산</span></div><span class="y">2025</span></li>
       <li><div><a href="work/appintoss-meetup/">하모니</a> <span>— 합주 토스 미니앱, 출시 전 보안 문제 해결</span></div><span class="y">2026</span></li>
-      <li><div><a href="work/devhub/">DevHub</a> <span>— 개발자 커뮤니티, 끝난 뒤 보안·포인트 수정</span></div><span class="y">2024</span></li>
+      <li><div><a href="work/devhub/">DevHub</a> <span>— 개발자 커뮤니티, 끝난 뒤 보안과 포인트 로직 수정</span></div><span class="y">2024</span></li>
       <li><div><a href="work/polytalk/">polytalk</a> <span>— 서버에 평문이 남지 않는 1:1 채팅</span></div><span class="y">2026</span></li>
     </ul>
   </section>
 
   <section id="about" class="about">
     <h2>소개</h2>
-    <p>처음에는 웹 서비스 기능을 만드는 백엔드 프로젝트를 주로 했습니다. 만든 서비스를 직접 배포하면서 서버가 죽거나 요청이 몰릴 때의 동작을 확인할 일이 많아졌고, 지금은 Linux 서버와 AWS 구성을 직접 설정한 뒤 장애를 내서 복구되는지 확인하는 작업을 주로 합니다.</p>
+    <p>처음에는 웹 서비스 기능을 만드는 백엔드 프로젝트를 주로 했습니다. 만든 서비스를 배포하고 나니 서버가 죽거나 요청이 몰릴 때 어떻게 되는지 볼 일이 많아졌습니다. 지금은 Linux 서버와 AWS를 설정하고, 장애를 내서 복구되는지 확인하는 작업을 합니다.</p>
     <dl class="kv">
       <dt>서버 운영</dt><dd>Linux · systemd · nftables · Docker · Nginx · HAProxy</dd>
       <dt>클라우드</dt><dd>AWS EC2 · ALB · Auto Scaling · CloudFront · SSM · S3</dd>

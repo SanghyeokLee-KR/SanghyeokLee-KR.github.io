@@ -62,19 +62,19 @@
   <p class="lead">모의 거래소를 AWS에 이중화하고, DB 장애와 부하를 시험했습니다.</p>
   <dl class="facts-mini">
     <dt>기간</dt><dd>2026년 7월 – 10월</dd>
-    <dt>형태</dt><dd>1인 프로젝트. Claude·Codex를 함께 썼고, 설계 결정은 직접 했습니다.</dd>
+    <dt>형태</dt><dd>1인 프로젝트. Claude와 Codex를 함께 썼고 설계 결정은 제가 했습니다.</dd>
     <dt>기술</dt><dd>AWS · Linux · PostgreSQL · Patroni · HAProxy · pfSense · Prometheus · Grafana · Java · Spring Boot</dd>
     <dt>자료</dt><dd><a href="https://github.com/SanghyeokLee-KR/failstop">GitHub 저장소</a> · <a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/docs/portfolio/failstop-presentation.pdf">발표 자료</a> · <a href="https://github.com/SanghyeokLee-KR/failstop/blob/main/%EB%B0%9C%ED%91%9C%EB%8D%B1/assets/video/failstop-aws-demo-v9.mp4">시연 영상 7분</a></dd>
-    <dt>관련 기록</dt><dd><a href="../../log/async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a><br><a href="../../log/app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락</a><br><a href="../../log/backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</a><br><a href="../../log/pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a><br><a href="../../log/nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기</a><br><a href="../../log/aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</a></dd>
+    <dt>관련 기록</dt><dd><a href="../../log/async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a><br><a href="../../log/app-hang-hikaricp/">가상 스레드와 HikariCP 라이브락으로 /api만 504를 낸 장애</a><br><a href="../../log/backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</a><br><a href="../../log/pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a><br><a href="../../log/nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기</a><br><a href="../../log/aws-db-power-cut/">주 DB 전원을 바로 끊었을 때 승격까지 23.0초, 유실은 0건</a></dd>
   </dl>
   <figure>
     <img src="../../assets/img/failstop/exchange.jpg" width="1280" height="720" alt="failstop 거래소 화면: 비트코인 차트, 호가, 체결 내역, 주문 입력창">
-    <figcaption><b>거래소</b> · 시장 봇이 주문을 주고받는 화면입니다. 실제 돈은 다루지 않고, 주문 체결과 원장 기록은 거래소와 같은 방식으로 처리합니다.</figcaption>
+    <figcaption>시장 봇이 주문을 주고받는 거래소 화면입니다. 실제 돈은 다루지 않지만 주문 체결과 원장 기록은 거래소와 같은 방식으로 처리합니다.</figcaption>
   </figure>
 
   <p class="kick">개요</p>
   <h2 id="ch-intro">운영 대상은 직접 만든 모의 거래소입니다</h2>
-  <p>이 거래소를 운영 대상 서비스로 두고 인프라를 구성했습니다. 제 PC의 Docker에서 장애 시험을 먼저 하고, Packet Tracer로 망을 설계하고, 가상 머신으로 서버를 다시 구성한 다음 AWS로 옮겼습니다.</p>
+  <p>이 거래소를 운영 대상 서비스로 두고 인프라를 구성했습니다. 제 PC의 Docker에서 장애 시험부터 했습니다. 이어서 Packet Tracer로 망을 설계하고, 가상 머신에 서버를 다시 구성한 다음 AWS로 옮겼습니다.</p>
   <p>사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. 서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데 가장 공을 들였습니다.</p>
   <table>
     <tbody>
@@ -88,10 +88,10 @@
   <p class="kick">진행 단계</p>
   <h2 id="ch-path">로컬 Docker에서 AWS까지, 네 단계</h2>
   <ol>
-    <li><a href="#ch-chaos">1단계 · Docker · 로컬 Docker 시험</a>: Docker로 거래소를 띄우고 장애와 부하를 넣어 봤습니다.</li>
-    <li><a href="#ch-net">2단계 · Packet Tracer · 네트워크 설계</a>: Packet Tracer로 필요한 통신만 허용하도록 망을 설계했습니다.</li>
-    <li><a href="#ch-data">3단계 · 가상 머신 · 가상 머신 구성</a>: 가상 머신에 서버 여섯 대를 올려 방화벽과 백업을 구성했습니다.</li>
-    <li><a href="#ch-aws">4단계 · AWS · AWS 배포</a>: 두 가용 영역에 나눠 배포하고, DB 장애와 서버 증설을 시험했습니다.</li>
+    <li><a href="#ch-chaos">1단계 로컬 Docker 시험</a>: 거래소를 Docker로 띄우고 장애와 부하를 넣어 봤습니다.</li>
+    <li><a href="#ch-net">2단계 Packet Tracer 망 설계</a>: 필요한 통신만 허용하도록 망을 나눴습니다.</li>
+    <li><a href="#ch-data">3단계 가상 머신 구성</a>: 서버 여섯 대를 올려 방화벽과 백업까지 갖춘 실습망입니다.</li>
+    <li><a href="#ch-aws">4단계 AWS 배포</a>: 두 가용 영역에 나눠 배포한 뒤 DB 장애와 서버 증설을 시험했습니다.</li>
   </ol>
 
   <p class="kick">AWS 구성 · 서울 리전</p>
@@ -101,16 +101,16 @@
   <p>AI 서버와 Teams는 AWS 바깥에 있습니다. <a href="../../assets/img/failstop/aws-map.jpg">처음 그린 구성도 보기</a></p>
   <ul>
     <li><b>거래 서버와 DB는 두 데이터센터에.</b> 가용 영역 두 곳에 한 대씩 나눠 두었습니다. 한쪽 서버가 멈추면 다른 쪽이 거래를 이어받습니다.</li>
-    <li><b>조회 서버는 평소에 꺼 둡니다.</b> 부하가 올라갈 때만 켜지게 해서 상시 운영 비용을 줄였습니다.</li>
+    <li><b>조회 서버는 평소에 꺼 둡니다.</b> 부하가 올라갈 때만 켜서 상시 운영 비용을 줄였습니다.</li>
     <li><b>DB는 Patroni 엄격 동기 복제.</b> 주 DB가 멈추면 같은 내용을 가진 예비 DB만 새 주 DB가 됩니다. 커밋을 확인해 준 주문은 예비 DB에도 남아 있습니다.</li>
-    <li><b>서버 접속은 SSM으로.</b> SSH 대신 SSM으로 접속했고, 배포 파일은 S3에 올려 두었습니다.</li>
+    <li><b>서버 접속은 SSM으로.</b> SSH 대신 SSM으로 접속했고 배포 파일은 S3에 올려 두었습니다.</li>
   </ul>
 
   <p class="kick">장애 시험 · 제 PC의 Docker</p>
-  <h2 id="ch-chaos">AWS에 올리기 전에, 로컬 Docker에서 장애 시험을 179회 진행했습니다</h2>
+  <h2 id="ch-chaos">AWS에 올리기 전, 로컬 Docker에서 해 본 장애 시험 179회</h2>
   <figure>
     <img src="../../assets/img/failstop/docker-failover.gif" width="1100" height="470" loading="lazy" alt="주 DB를 강제 종료하자 예비 DB가 약 23초 만에 새 주 DB로 승격하는 장면">
-    <figcaption>주 DB를 강제로 끄자 약 23초 만에 Patroni가 예비 DB를 새 주 DB로 승격했고, 거래 서버의 연결도 새 주 DB로 옮겨 갑니다. 확인해 준 주문은 사라지지 않았습니다.</figcaption>
+    <figcaption>주 DB를 강제로 끄자 약 23초 만에 Patroni가 예비 DB를 새 주 DB로 승격했고, 거래 서버의 연결도 그쪽으로 옮겨 갔습니다. 확인해 준 주문은 사라지지 않았습니다.</figcaption>
   </figure>
   <table>
     <thead><tr><th>장애</th><th class="num">횟수</th><th class="num">가장 오래 걸린 복구</th></tr></thead>
@@ -125,8 +125,8 @@
   </table>
 
   <p class="kick">망과 방화벽 · Packet Tracer와 가상 머신</p>
-  <h2 id="ch-net">망을 구간별로 나누고, 계층마다 방화벽을 두었습니다</h2>
-  <p>Packet Tracer로 먼저 망을 설계했습니다. 외부 웹 요청은 DMZ에서 받고 거래 서버와 DB는 내부망에 두었으며, 관리자도 점프 서버를 거쳐야 서버에 접속할 수 있게 했습니다. 가상 머신 실습망에서는 서버 설정을 바꾸지 않고 서버 앞에 투명 방화벽(pfSense 브리지)을 넣었습니다.</p>
+  <h2 id="ch-net">구간별로 나눈 망과 계층마다 둔 방화벽</h2>
+  <p>Packet Tracer로 먼저 망을 설계했습니다. 외부 웹 요청은 DMZ에서 받고, 거래 서버와 DB는 내부망에 둡니다. 관리자도 점프 서버를 거쳐야 서버에 들어갈 수 있습니다. 가상 머신 실습망에서는 서버 설정을 바꾸지 않고 서버 앞에 투명 방화벽(pfSense 브리지)을 넣었습니다.</p>
   <div class="flow" data-flow="fw" data-title="가상 머신 실습망의 방화벽 층"></div>
   <figure>
     <div class="pan"><img src="../../assets/img/failstop/network-map.jpg" width="1600" height="689" loading="lazy" alt="DMZ, 내부망, 관리망과 역할별 VLAN으로 나눈 네트워크 구성도"></div>
@@ -136,7 +136,7 @@
   <figure>
     <div class="pan"><div class="crop" style="--ct:1.25%;--ar:1600/600"><img src="../../assets/img/failstop/vmfw-map.jpg" width="1600" height="700" loading="lazy" alt="가상 머신 실습망: 경계 방화벽과 투명 방화벽, 서버마다 nftables"></div></div>
     <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-    <figcaption><b>가상 머신 실습망</b> · 서버 앞에는 투명 방화벽을, 서버 안에는 nftables를 한 겹 더 두었습니다.</figcaption>
+    <figcaption>가상 머신 실습망에서는 서버 앞에 투명 방화벽을, 서버 안에 nftables를 한 겹 더 두었습니다.</figcaption>
   </figure>
 
   <p class="kick">AI 관제 · 온프레미스 AI 서버와 Teams</p>
@@ -149,33 +149,33 @@
     <tbody>
       <tr><td class="num"><time>03:02:12</time></td><td>CPU 경보가 울리고 Teams로 알림이 갑니다.</td></tr>
       <tr><td class="num"><time>03:03:57</time></td><td>AI가 지표와 서버 수, 최근 조치를 살펴보고 조회 서버를 한 대 늘리자고 합니다.</td></tr>
-      <tr><td class="num"><time>03:05:49</time></td><td>AI가 제시한 근거를 확인하고 승인합니다.</td></tr>
-      <tr><td class="num"><time>03:06:56</time></td><td>승인하고 67초 뒤 조회 서버가 합류합니다.</td></tr>
-      <tr><td class="num"><time>03:07</time></td><td>경보가 풀리고, 장애 보고서가 Teams에 올라옵니다.</td></tr>
+      <tr><td class="num"><time>03:05:49</time></td><td>AI가 제시한 근거를 확인하고 제가 승인합니다.</td></tr>
+      <tr><td class="num"><time>03:06:56</time></td><td>승인 67초 뒤, 조회 서버 합류.</td></tr>
+      <tr><td class="num"><time>03:07</time></td><td>경보가 풀리고 장애 보고서가 Teams에 올라옵니다.</td></tr>
     </tbody>
   </table>
   <ul>
     <li><b>AI는 제안만 합니다.</b> 서버를 바꾸는 일은 제가 승인해야 실행됩니다. 미리 허용해 둔 다섯 가지 조치에서 벗어난 제안은 코드가 먼저 걸러 냅니다.</li>
-    <li><b>DB 전환은 AI에게 맡기지 않았습니다.</b> 되돌리기 어려운 작업이라 Patroni의 페일오버 규칙에 맡겼습니다.</li>
+    <li><b>DB 전환은 AI에게 맡기지 않았습니다.</b> 되돌리기 어려운 작업이라 Patroni의 페일오버 규칙이 처리합니다.</li>
   </ul>
 
   <p class="kick">데이터 보존과 리눅스 운영</p>
-  <h2 id="ch-data">DB 장애와 OS 삭제 뒤에도 데이터가 남는지 확인했습니다</h2>
+  <h2 id="ch-data">DB가 꺼지거나 OS를 지워도 데이터가 남는가</h2>
   <h3>DB 전원을 끊었을 때 · AWS</h3>
   <p><b>0건.</b> 장애 4초 전까지 1분 동안 커밋된 주문 196건을 새 주 DB와 하나씩 대조했는데, 사라진 주문은 없었습니다.</p>
   <h3>OS를 통째로 지웠을 때 · 가상 머신</h3>
-  <p><b>15분 22초.</b> DB 서버의 OS와 데이터 디스크를 지우고, 다시 설치해 백업으로 되살리기까지 걸린 시간입니다. 따로 떠 둔 DB 백업으로 복원했을 때도 테이블 109개가 원래 DB와 모두 같았습니다.</p>
+  <p><b>15분 22초.</b> DB 서버의 OS와 데이터 디스크를 지우고 다시 설치해 백업으로 되살리기까지 걸린 시간입니다. 따로 떠 둔 DB 백업으로 복원했을 때도 테이블 109개가 원래 DB와 모두 같았습니다.</p>
   <figure>
     <div class="crop" style="--ct:1.5%;--ar:1600/671"><img src="../../assets/img/failstop/backup.jpg" width="1600" height="695" loading="lazy" alt="DB 백업 복원과 OS 복구 기록 표"></div>
-    <figcaption><b>백업과 복구</b> · 복원한 DB를 원래 DB와 비교하고, OS를 다시 깐 뒤 되살리는 과정</figcaption>
+    <figcaption>복원한 DB를 원래 DB와 비교하고, OS를 다시 깐 뒤 되살리는 과정을 기록한 표입니다.</figcaption>
   </figure>
   <h3>평소에 해 두는 일 · Linux</h3>
   <ul>
     <li>앱은 로그인할 수 없는 전용 계정으로 돌립니다.</li>
-    <li>로그는 재부팅 뒤에도 남도록 디스크에 보관합니다.</li>
+    <li>로그는 디스크에 보관해서 재부팅해도 남습니다.</li>
     <li>방화벽 규칙을 잘못 넣으면 90초 뒤 저절로 되돌아갑니다.</li>
     <li>디스크 여유가 15% 아래로 떨어지면 경보가 옵니다.</li>
-    <li>디스크 하나가 고장 나도 RAID1로 버팁니다.</li>
+    <li>디스크는 RAID1로 묶어 한 개가 고장 나도 버팁니다.</li>
   </ul>
   <figure>
     <div class="crop" style="--ct:1.125%;--ar:1600/671"><img src="../../assets/img/failstop/server.jpg" width="1600" height="689" loading="lazy" alt="RAID1 디스크 교체, LVM 증설, NIC 본딩 전환 실습"></div>
@@ -183,7 +183,7 @@
   </figure>
 
   <p class="kick">주문 처리 · 백엔드</p>
-  <h2 id="ch-order">같은 주문을 여러 번 다시 보내도 주문은 하나만 생기게 했습니다</h2>
+  <h2 id="ch-order">같은 주문을 여러 번 다시 보내도 주문은 하나</h2>
   <p>응답을 받지 못한 사용자는 같은 주문을 다시 보냅니다. 그때마다 새 주문이 생기면 안 되고, 들어갔는지 모르는 상태로 남아서도 안 됩니다. 그래서 주문 처리 경로를 네 단계로 나눴습니다.</p>
   <ol>
     <li><code>POST /orders</code> <b>주문 API</b> · 클라이언트가 만든 주문 키로 같은 주문을 알아보고, 내용이 다르면 거절합니다.</li>
@@ -192,13 +192,13 @@
     <li><code>ledger</code> <b>원장과 잔고</b> · 금액은 BigDecimal과 NUMERIC(40,18)로만 다루고, 자산마다 원장 합계는 0이어야 합니다.</li>
   </ol>
   <h3>주문 키는 클라이언트가 만듭니다</h3>
-  <p><code>client_order_id</code>가 없으면 받지 않습니다. 서버가 키를 대신 만들면, 응답을 못 받고 다시 보낼 때마다 새 주문이 생길 수 있기 때문입니다.</p>
+  <p><code>client_order_id</code>가 없으면 받지 않습니다. 서버가 키를 대신 만들면 응답을 못 받고 다시 보낼 때마다 새 주문이 생길 수 있습니다.</p>
   <h3>같은 키면 내용을 비교합니다</h3>
   <p>요청 본문을 JCS(RFC 8785)로 정규화한 뒤 SHA-256 해시로 비교합니다. 필드 순서나 공백이 달라도 같은 주문이면 같은 값이 나옵니다.</p>
   <h3>엔진보다 저널에 먼저 기록합니다</h3>
   <p>명령을 <code>command_journal</code>에 커밋한 다음에야 엔진에 넘깁니다. 그래서 엔진이 처리한 명령은 빠짐없이 DB에 남아 있습니다.</p>
   <h3>커밋됐는지 모를 때는 DB에 다시 묻습니다</h3>
-  <p>기록하는 순간 연결이 끊기면, DB 함수로 저널에 실제로 들어갔는지 확인합니다. 그래도 답을 못 받으면 503을 돌려주되 주문 키는 지우지 않습니다.</p>
+  <p>기록하는 순간 연결이 끊기면 저널에 들어갔는지 DB 함수로 다시 확인합니다. 그래도 답을 못 받으면 503을 돌려주되 주문 키는 지우지 않습니다.</p>
   <p class="subk">같은 키로 다시 보냈을 때 돌아가는 응답</p>
   <table>
     <thead><tr><th>상황</th><th>응답</th></tr></thead>
@@ -218,7 +218,7 @@
 
   <p class="kick">리더와 원장 · 앱 서버 두 대 중 주문장 쓰기는 리더 한 대</p>
   <h2 id="ch-leader">잠깐 멈췄다 돌아온 옛 리더의 쓰기를 리스와 epoch로 막았습니다</h2>
-  <p>리더만 기한이 있는 리스를 쥐고, 리더가 바뀔 때마다 epoch를 1씩 올립니다. 까다로운 건 잠깐 멈췄던 옛 리더가 자기가 아직 리더라고 믿고 쓰기를 이어 가는 경우였습니다. 그래서 권한을 확인하는 일과 쓰는 일을 나누지 않고, SQL 한 문장 안에 넣었습니다.</p>
+  <p>리더만 기한이 있는 리스를 쥐고, 리더가 바뀔 때마다 epoch를 1씩 올립니다. 까다로운 건 잠깐 멈췄던 옛 리더가 자기가 아직 리더라고 믿고 쓰기를 이어 가는 경우였습니다. 그래서 권한을 확인하는 일과 쓰는 일을 SQL 한 문장 안에 함께 넣었습니다.</p>
 <pre><code><span class="c">-- 저널에 쓰는 SQL, 일부만 옮김</span>
 INSERT INTO command_journal (...)
 SELECT ...
@@ -238,7 +238,7 @@ SELECT ...
   <details class="more">
     <summary><span class="t">장애 시험 중 찾아서 고친 문제</span><span class="n">4건 펼쳐 보기</span></summary>
     <ol class="fixes">
-      <li><span class="k">DB 지연</span><div><p class="a">DB를 느리게만 했는데 리더가 바뀌었습니다</p><p class="r">정산 트랜잭션의 <code>FOR SHARE</code>가 리스 갱신을 막고 있었습니다. <code>FOR KEY SHARE</code>와 유일 인덱스로 바꾼 뒤, 같은 시험 세 번 모두 리더가 그대로였습니다.</p></div></li>
+      <li><span class="k">DB 지연</span><div><p class="a">DB를 느리게만 했는데 리더가 바뀌었습니다</p><p class="r">정산 트랜잭션의 <code>FOR SHARE</code>가 리스 갱신을 막고 있었습니다. <code>FOR KEY SHARE</code>와 유일 인덱스로 바꾸고 같은 시험을 세 번 돌렸습니다. 세 번 모두 리더가 그대로였습니다.</p></div></li>
       <li><span class="k">연결 끊김</span><div><p class="a">연결이 끊기면 리더 없이 멈췄습니다</p><p class="r">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 고친 직후 시험에서 13.9초 만에 이어받았고, 이후 28회 반복에서는 길어도 13.5초였습니다.</p></div></li>
       <li><span class="k">리더 교대</span><div><p class="a">새 리더가 이미 끝난 리스를 받았습니다</p><p class="r">만료 시각을 잠금을 기다리기 전부터 세고 있었습니다. 잠금을 얻은 뒤부터 세도록 고치자 이어받기가 10초 안팎으로 고르게 나왔습니다.</p></div></li>
       <li><span class="k">옛 리더</span><div><p class="a">물러난 리더가 500을 돌려줬습니다</p><p class="r">리더가 아닌 서버는 503을 돌려주게 바꿨습니다. 그 뒤로 다시 돌린 시험에서는 주문 500이 한 건도 나오지 않았습니다.</p></div></li>
@@ -253,7 +253,7 @@ SELECT ...
     <li>잔고가 원장을 다시 계산한 값과 같은가</li>
     <li>명령 저널에 빈 번호가 없는가</li>
   </ul>
-  <p>이 검사를 돌리다가, 비동기 복제에서는 커밋이 확인된 쓰기도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+  <p>이 검사를 돌리다가 비동기 복제에서는 커밋이 확인된 쓰기도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꿨습니다. 동기 예비 DB가 없을 때는 앱이 주문을 <code>423</code>으로 막습니다.</p>
   <div class="vs">
     <div><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p>
       <div class="cells" data-total="122" data-lost="36" data-cols="31" role="img" aria-label="커밋이 확인된 쓰기 122건 가운데 36건이 사라졌습니다"></div>
@@ -275,7 +275,7 @@ SELECT ...
 
   <p class="kick">관제 화면</p>
   <h2 id="ch-learn">관제 화면과 시험 기록</h2>
-  <p><b>측정 환경과 결과를 함께 기록했습니다.</b> 측정값마다 제 PC의 Docker, 가상 머신, AWS 중 어디서 쟀는지 구분해 적었습니다. 시험마다 실행한 명령과 화면도 함께 남겼습니다.</p>
+  <p><b>측정값에는 잰 곳을 붙였습니다.</b> 제 PC의 Docker인지, 가상 머신인지, AWS인지 구분해 적었고 시험마다 실행한 명령과 화면도 남겼습니다.</p>
   <div class="pair">
     <figure><img src="../../assets/img/failstop/control.jpg" width="1280" height="720" loading="lazy" alt="관제센터 화면: 서버와 DB 상태, AI 운영 모드"><figcaption><b>관제센터</b> · 서버와 DB 상태, AI 운영 모드</figcaption></figure>
     <figure><img src="../../assets/img/failstop/grafana-service.jpg" width="1280" height="720" loading="lazy" alt="Grafana 서비스 관제 화면"><figcaption><b>Grafana</b> · 요청, 오류, 응답 시간</figcaption></figure>

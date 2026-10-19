@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>keep-nginx-alive · 이상혁</title>
-<meta name="description" content="공격자가 root 권한을 갖고 차단도 할 수 없는 공격/방어 CTF에서, 사흘 동안 채점 다운 없이 nginx를 유지한 방어 구조입니다. 3인 팀 조장으로 설계하고 구현했습니다.">
+<meta name="description" content="공격자가 root 권한을 갖고 차단도 할 수 없는 공격/방어 CTF에서, 사흘 동안 채점 기준 다운 없이 nginx를 유지한 방어 구조입니다. 3인 팀 조장으로 설계하고 구현했습니다.">
 <script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -56,13 +56,13 @@
   <figure>
     <div class="pan"><img src="../../assets/img/nginx/infra.jpg" width="1600" height="1115" alt="NLB 뒤에 서버 세 대를 둔 인프라 구조도. 공격자는 #1에만 SSH로 들어오고, 채점 봇은 NLB 주소로 채점합니다."></div>
     <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-    <figcaption><b>인프라 구조</b> · 공격자가 들어오는 서버는 한 대뿐이고, 같은 구성의 서버 두 대가 로드밸런서 뒤에서 함께 채점을 받습니다.</figcaption>
+    <figcaption>공격자가 들어오는 서버는 한 대뿐입니다. 같은 구성의 서버 두 대가 로드밸런서 뒤에서 함께 채점을 받습니다.</figcaption>
   </figure>
 
   <p class="kick">개요</p>
-  <h2 id="ch-intro">root 권한을 가진 공격자가 들어와도, 채점 페이지는 응답해야 했습니다</h2>
-  <p>교수님이 root 권한으로 서버에 들어와 nginx를 끄고 포트를 빼앗는 공격/방어 CTF였습니다. 규칙상 공격자를 차단할 수 없어서, 막는 대신 nginx가 꺼지면 바로 다시 띄우고, 그래도 안 되면 그 서버를 로드밸런서에서 빼는 구조로 방어했습니다.</p>
-  <p>서버 안에서는 서로 다른 복구 장치 다섯 가지가 nginx를 되살립니다. 그래도 페이지가 오염되면 그 서버는 스스로 로드밸런서에서 빠지고, 같은 구성의 다른 서버가 채점을 받습니다. 공격자의 접속과 명령은 Teams 알림과 직접 만든 관제 화면으로 확인했습니다.</p>
+  <h2 id="ch-intro">공격자가 root로 들어오는 경기</h2>
+  <p>교수님이 root 권한으로 서버에 들어와 nginx를 끄고 포트를 빼앗는 공격/방어 CTF였습니다. 규칙상 공격자를 차단할 수는 없었습니다. 그래서 nginx가 꺼지면 바로 다시 띄우고, 그래도 안 되면 그 서버를 로드밸런서에서 빼는 쪽으로 방어를 짰습니다.</p>
+  <p>서버 안에는 nginx를 다시 띄우는 장치를 다섯 가지 두었습니다. 그래도 페이지가 망가진 채로 남으면 그 서버는 로드밸런서에서 빠지고, 나머지 두 대가 채점을 받습니다. 공격자의 접속과 명령은 Teams 알림과 따로 만든 관제 화면으로 지켜봤습니다.</p>
   <div class="tbl-wrap">
   <table>
     <thead><tr><th>항목</th><th class="num">기록</th><th>기준</th></tr></thead>
@@ -77,12 +77,12 @@
 
   <p class="kick">경기 규칙</p>
   <h2 id="ch-rules">경기 규칙과 방어 목표</h2>
-  <p>공격자가 root라서 서버 안의 방어 장치는 언제든 꺼질 수 있다고 봤습니다. 서버 안의 장치는 감점 전 복구를 맡고, 마지막 대책인 서버 제외는 서버 밖의 로드밸런서에서 처리하게 했습니다.</p>
+  <p>공격자가 root라서 서버 안의 방어 장치는 언제든 꺼질 수 있다고 봤습니다. 그래서 서버 안의 장치에는 감점 전 복구만 맡기고, 마지막 대책인 서버 제외는 서버 밖의 로드밸런서가 처리합니다.</p>
   <dl class="rows">
-    <dt>공격자가 할 수 있는 일</dt><dd>프로세스를 죽이거나 조작하고, 특정 포트를 먼저 차지해 웹 서비스를 막을 수 있습니다. 단, DDoS 같은 가용성 공격과 OS를 망가뜨리는 공격은 하지 않습니다.</dd>
-    <dt>방어 측이 못 하는 일</dt><dd>공격자의 <strong>권한·접속·명령을 제한할 수 없습니다.</strong> 제한하면 규칙 위반입니다.</dd>
+    <dt>공격자가 할 수 있는 일</dt><dd>프로세스를 죽이거나 조작하고, 특정 포트를 먼저 차지해 웹 서비스를 막을 수 있습니다. 다만 DDoS 같은 가용성 공격과 OS를 망가뜨리는 공격은 하지 않습니다.</dd>
+    <dt>방어 측이 못 하는 일</dt><dd>공격자의 <strong>권한과 접속, 명령을 제한할 수 없습니다.</strong> 제한하면 규칙 위반입니다.</dd>
     <dt>채점 방식</dt><dd>제출한 주소를 5분 간격으로 헬스체크합니다. 연속 2회 오류까지는 감점이 없고, 3회째부터 감점됩니다.</dd>
-    <dt>방어 목표</dt><dd>다운은 감점이 시작되기 전에 복구하고, 그래도 오염되면 그 서버가 스스로 채점에서 빠지게 하는 것입니다.</dd>
+    <dt>방어 목표</dt><dd>감점이 시작되기 전에 다운을 복구하고, 그래도 오염된 서버는 채점에서 스스로 빠지게 하는 것.</dd>
   </dl>
 
   <p class="kick">방어 구조 · AWS 위의 서버 세 대</p>
@@ -91,15 +91,15 @@
   <div class="flow" data-flow="ctf" data-title="공격이 들어왔을 때"></div>
   <p class="small"><a href="../../assets/img/nginx/infra.jpg">구성도 그림 크게 보기</a></p>
   <dl class="rows">
-    <dt>공격자가 들어오는 서버는 #1 하나</dt><dd>#2와 #3은 #1을 AMI로 복제한 같은 구성의 서버입니다. 보안 그룹에서 22번을 막아, 공격자가 들어올 수 있는 서버를 #1 하나로 좁혔습니다.</dd>
+    <dt>공격자가 들어오는 서버는 #1 하나</dt><dd>#2와 #3은 #1을 AMI로 복제한 같은 구성의 서버입니다. 보안 그룹에서 22번을 막아 공격자가 들어올 수 있는 서버를 #1 하나로 좁혔습니다.</dd>
     <dt>정상 판정 기준은 하나로</dt><dd>감시 스크립트, cron, 헬스체크가 모두 같은 기준을 씁니다. 응답 본문에 채점 페이지 제목 ‘NginX를 살려라’가 h1으로 들어 있어야 정상입니다.</dd>
-    <dt>#1이 망가지면 #2·#3이 채점을 받습니다</dt><dd>#1이 통째로 망가지면 로드밸런서가 채점 요청을 #2와 #3으로만 보냅니다.</dd>
-    <dt>설치는 Ansible playbook으로</dt><dd>스크립트와 systemd 서비스, cron, auditd 규칙을 Ansible playbook으로 묶어, 몇 번을 다시 깔아도 같은 상태가 되게 했습니다.</dd>
+    <dt>#1이 망가지면 #2와 #3이 채점을 받습니다</dt><dd>#1이 통째로 망가지면 로드밸런서가 채점 요청을 #2와 #3으로만 보냅니다.</dd>
+    <dt>설치는 Ansible playbook으로</dt><dd>스크립트, systemd 서비스, cron, auditd 규칙은 Ansible playbook 하나로 설치합니다. 다시 돌려도 결과가 같습니다.</dd>
   </dl>
 
   <p class="kick">다층 복구 · #1 서버 안</p>
-  <h2 id="ch-layers">nginx를 서로 다른 복구 장치 다섯 가지로 되살립니다</h2>
-  <p>장치 하나가 꺼지면 남은 장치가 nginx와 꺼진 장치를 함께 되살립니다. 여러 장치가 동시에 재시작하다 충돌하지 않도록, 다시 띄우는 작업은 <code>flock</code>으로 한 번에 하나만 실행되게 했습니다.</p>
+  <h2 id="ch-layers">nginx를 되살리는 장치 다섯 가지</h2>
+  <p>장치 하나가 꺼지면 남은 장치가 nginx와 꺼진 장치를 함께 되살립니다. 여러 장치가 동시에 재시작하다 부딪히지 않도록 다시 띄우는 작업은 <code>flock</code>으로 묶어, 한 번에 하나씩만 돕니다.</p>
   <figure>
     <div class="pan"><img src="../../assets/img/nginx/defense.jpg" width="1600" height="874" loading="lazy" alt="#1 서버 안에서 systemd, 감시 스크립트 A·B, cron, 무결성 감시, 독립 감시가 nginx를 지키는 다층 복구 구조도"></div>
     <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
@@ -110,8 +110,8 @@
     <thead><tr><th></th><th>무엇이</th><th class="num">얼마마다</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>systemd 재시작<span class="s">강제로 꺼지면 2초 뒤 다시 띄웁니다</span></td><td class="num">2초</td></tr>
-      <tr><td>2</td><td>감시 스크립트 A·B<span class="s">응답 본문을 검사하고, 80번을 차지한 프로세스를 치우고, 서로를 살립니다</span></td><td class="num">5초</td></tr>
-      <tr><td>3</td><td>cron<span class="s">index.html을 되돌리고 nginx를 다시 띄우며, 감시 스크립트와 자기 자신도 되살립니다</span></td><td class="num">1분</td></tr>
+      <tr><td>2</td><td>감시 스크립트 A·B<span class="s">응답 본문을 검사하고 80번을 차지한 프로세스를 치웁니다. A와 B가 서로를 살립니다</span></td><td class="num">5초</td></tr>
+      <tr><td>3</td><td>cron<span class="s">index.html을 되돌리고 nginx를 다시 띄우며 감시 스크립트와 자기 자신도 되살립니다</span></td><td class="num">1분</td></tr>
       <tr><td>4</td><td>무결성 감시<span class="s">감시 스크립트가 켜져 있고 부팅 때 켜지게 되어 있는지 지킵니다</span></td><td class="num">10초</td></tr>
       <tr><td>5</td><td>systemd 밖의 독립 감시<span class="s">systemctl에 기대지 않는 다른 복구 경로입니다</span></td><td class="num">3초</td></tr>
     </tbody>
@@ -128,7 +128,7 @@
   <figure>
     <div class="pan"><img src="../../assets/img/nginx/failover.jpg" width="1400" height="1134" loading="lazy" alt="평상시, 오염과 자가격리, 자동 재포함 세 구간으로 나눈 헬스체크 자가격리 시퀀스 다이어그램"></div>
     <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-    <figcaption><b>헬스체크 자가격리</b> · 평상시, 오염되어 빠질 때, 돌아와 다시 들어갈 때.</figcaption>
+    <figcaption>헬스체크 자가격리를 평상시, 오염되어 빠질 때, 돌아와 다시 들어갈 때로 나눠 그렸습니다.</figcaption>
   </figure>
 <pre><code><span class="c"># healthz-checker.sh 일부 · 2초마다</span>
 if curl -s -m 3 http://127.0.0.1:80/ | grep -qF "$NEEDLE"; then
@@ -136,21 +136,21 @@ if curl -s -m 3 http://127.0.0.1:80/ | grep -qF "$NEEDLE"; then
 else
   <span class="hl">rm -f /var/www/health/ok</span>                <span class="c"># 오염 → 503</span>
 fi</code></pre>
-  <p>ok 파일은 일부러 잠그지 않았습니다. 잠가 두면 지울 수가 없어서, 페이지가 오염돼도 200이 계속 나가고 그대로 채점됩니다.</p>
+  <p>ok 파일은 일부러 잠그지 않았습니다. 잠가 두면 지울 수가 없으니 페이지가 오염돼도 200이 계속 나가고, 오염된 페이지가 그대로 채점됩니다.</p>
 
   <h3>#2의 tg-guardian으로 한 번 더 확인</h3>
-  <p>로드밸런서의 헬스체크는 #1이 스스로 내는 <code>/healthz</code>를 그대로 믿습니다. 공격자가 #1 안에서 헬스체크를 조작해 거짓 200을 내면 놓칠 수 있습니다. 그래서 공격자가 들어올 수 없는 #2에서 tg-guardian이 #1과 #3의 실제 응답을 3초마다 확인하게 했습니다. 변조나 다운을 알아채면 AWS CLI로 그 서버를 대상 그룹에서 빼고, 정상으로 돌아오면 다시 등록합니다. #2의 IAM 권한은 대상 등록·해제와 상태 조회로만 좁혔습니다.</p>
+  <p>로드밸런서의 헬스체크는 #1이 스스로 내는 <code>/healthz</code>를 그대로 믿습니다. 공격자가 #1 안에서 헬스체크를 조작해 거짓 200을 내면 놓칠 수 있습니다. 그래서 공격자가 들어올 수 없는 #2에 tg-guardian을 두고, #1과 #3의 응답을 3초마다 확인합니다. 변조나 다운을 알아채면 AWS CLI로 그 서버를 대상 그룹에서 빼고, 정상으로 돌아오면 다시 등록합니다. #2의 IAM 권한은 대상 등록과 해제, 상태 조회로만 좁혔습니다.</p>
   <figure>
     <img src="../../assets/img/nginx/isolation.jpg" width="1600" height="669" loading="lazy" alt="서버별 다운과 복구 이벤트 로그, tg-guardian이 #1과 #3을 대상 그룹에서 제외했다가 재등록한 자동 격리 로그">
-    <figcaption><b>자동 격리 기록</b> · #2의 tg-guardian이 #1과 #3의 다운을 알아채 대상 그룹에서 빼고, 정상으로 돌아오자 다시 등록했습니다.</figcaption>
+    <figcaption>#2의 tg-guardian이 #1과 #3의 다운을 알아채 대상 그룹에서 뺐다가, 정상으로 돌아오자 다시 등록한 기록입니다.</figcaption>
   </figure>
 
   <p class="kick">공격 기록</p>
-  <h2 id="ch-attacks">세 번의 공격을 받았고, 채점 기준 다운 없이 대응했습니다</h2>
-  <p>공격자가 친 명령은 auditd가 잡아 관제 화면에 바로 띄웠습니다. 시각이 초 단위로 남아서, 공격이 어떤 순서로 들어왔는지 그대로 따라갈 수 있습니다.</p>
+  <h2 id="ch-attacks">공격은 세 번 들어왔습니다</h2>
+  <p>공격자가 친 명령은 auditd가 잡아 관제 화면에 바로 띄웠습니다. 시각이 초 단위로 남아 있어 공격 순서를 따라가기 쉽습니다.</p>
 
   <h3>1차 · 감시 스크립트를 끄고 서버를 둘러봤습니다</h3>
-  <p>감시 스크립트와 nginx를 한꺼번에 껐지만, 남아 있던 다른 복구 장치가 되살렸고, Teams 알림 기준 다운 감지 2초 뒤 복구됐습니다.</p>
+  <p>공격자가 감시 스크립트와 nginx를 한꺼번에 껐습니다. 남아 있던 다른 복구 장치가 되살렸고, Teams 알림 기준으로 다운 감지 2초 뒤 복구됐습니다.</p>
   <p class="sub">1차 공격 때 친 명령</p>
   <ol class="tl">
     <li><time>00:03:44</time><span>감시 스크립트와 nginx를 한꺼번에 강제로 끕니다.<span class="cmd">pkill -9 -f "nginx_.*_watch.sh"; systemctl stop nginx; pkill -9 -x nginx</span></span></li>
@@ -160,11 +160,11 @@ fi</code></pre>
   </ol>
   <figure>
     <img src="../../assets/img/nginx/attack1.jpg" width="1600" height="641" loading="lazy" alt="1차 공격 명령 기록: 감시 스크립트 강제 종료, docker와 .ssh 정찰, crontab 확인">
-    <figcaption><b>1차 공격 기록</b> · 감시 스크립트를 노린 명령과 정찰 흔적이 그대로 남았습니다. 공격자 IP는 가렸습니다.</figcaption>
+    <figcaption><b>1차 공격 기록</b> · 감시 스크립트를 노린 명령과 정찰 흔적이 남았습니다. 공격자 IP는 가렸습니다.</figcaption>
   </figure>
 
-  <h3>2차 · apache2를 설치해 80번 포트를 빼앗았습니다</h3>
-  <p>#1이 스스로 빠지고 #2·#3이 채점을 받는 사이, 팀원이 들어가 apache2를 정리했습니다. 채점은 끊기지 않았습니다.</p>
+  <h3>2차 · apache2 설치와 80번 포트 탈취</h3>
+  <p>#1이 스스로 빠지고 #2와 #3이 채점을 받는 사이 팀원이 들어가 apache2를 정리했습니다. 채점은 끊기지 않았습니다.</p>
   <p class="sub">2차 공격 때 친 명령</p>
   <ol class="tl">
     <li><time>07:50:42</time><span>apache2를 설치합니다.<span class="cmd">apt-get install apache2</span></span></li>
@@ -173,7 +173,7 @@ fi</code></pre>
   </ol>
   <figure>
     <img src="../../assets/img/nginx/attack2.jpg" width="1600" height="636" loading="lazy" alt="2차 공격 명령 기록: apache2 설치, nginx 정지와 비활성화, 80번 포트 강제 해제, apache2 시작">
-    <figcaption><b>2차 공격 기록</b> · apache2 설치부터 80번 포트를 빼앗기까지의 명령이 순서대로 남았습니다.</figcaption>
+    <figcaption>2차 공격에서 apache2 설치부터 80번 포트를 빼앗기까지 친 명령이 순서대로 남았습니다.</figcaption>
   </figure>
 
   <h3>3차 · nginx가 다시 켜지지 못하게 막았습니다</h3>
@@ -190,31 +190,31 @@ fi</code></pre>
 
   <p class="kick">관제와 알림 · 직접 만든 화면과 Teams</p>
   <h2 id="ch-watch">auditd 명령 기록과 Teams 알림</h2>
-  <p>auditd 로그에서 이벤트 번호가 같은 줄을 묶어, 실행된 명령을 한 줄로 정리했습니다. 이 기록과 서버 상태는 경기 중에 직접 만든 관제 화면에 띄웠고, 로그인·명령·다운과 복구는 Power Automate를 거쳐 Teams의 세 채널로 보냈습니다.</p>
+  <p>auditd 로그에서 이벤트 번호가 같은 줄을 묶으면 실행된 명령이 한 줄로 정리됩니다. 이 기록과 서버 상태는 경기 중에 만든 관제 화면에 띄웠습니다. 로그인, 명령, 다운과 복구 알림은 Power Automate를 거쳐 Teams 채널 세 곳으로 나눠 보냈습니다.</p>
   <figure>
     <img src="../../assets/img/nginx/control-room.jpg" width="1593" height="761" loading="lazy" alt="경기 중 직접 만든 #1 관제 화면: 현재 접속자, 페이지와 nginx 상태, 80번 포트 점유자, 파일 잠금, 방어 서비스 9개, 명령어 실행 로그">
     <figcaption><b>#1 종합 관제</b> · 접속자, 복구 장치 상태, 공격자의 명령이 실시간으로 올라옵니다.</figcaption>
   </figure>
   <figure>
     <img src="../../assets/img/nginx/scoring.jpg" width="1600" height="762" loading="lazy" alt="채점 대상 관제 화면: 체커 봇 공식 기록, 제출 주소와 서버 세 대를 2초마다 직접 검증한 상태, 5분 채점 기록">
-    <figcaption><b>채점 대상 관제</b> · 채점 봇이 보는 제출 주소와 서버 세 대를 저희도 2초마다 똑같이 확인했습니다.</figcaption>
+    <figcaption>채점 봇이 보는 제출 주소와 서버 세 대를 저희도 2초마다 같은 방식으로 확인했습니다.</figcaption>
   </figure>
   <figure class="alert-shot">
     <img src="../../assets/img/nginx/alert.jpg" width="878" height="501" loading="lazy" alt="Teams 알림 두 장: nginx 다운 감지 00:03:45, nginx 복구 완료 00:03:47, 복구 시간 2초">
     <figcaption><b>다운과 복구 알림</b> · 다운을 알아챈 지 2초 만에 복구 알림이 왔습니다. 5분마다 살아 있다는 보고도 따로 보냈습니다.</figcaption>
   </figure>
   <dl class="rows">
-    <dt>야간 교대 관제</dt><dd>채점은 밤에도 돌아갑니다. 웬만한 일은 자동 복구가 처리했지만, 셋이 Discord로 교대표를 짜서 새벽에도 누군가는 화면을 보고 있게 했습니다.</dd>
+    <dt>야간 교대 관제</dt><dd>채점은 밤에도 돌아갑니다. 웬만한 일은 자동 복구가 처리했지만, 셋이 Discord로 교대표를 짜서 새벽에도 누군가는 화면 앞에 있었습니다.</dd>
     <dt>다른 조와 채점 기록 공유</dt><dd>규칙에는 없었지만 3·5·6조가 서로의 채점 기록을 10초마다 모아 보고, 어느 조든 오류가 나면 알려 주기로 했습니다.</dd>
   </dl>
 
   <p class="kick">결과</p>
   <h2 id="ch-learn">경기 결과와 failstop으로 이어진 구성</h2>
-  <p>문제가 생긴 서버를 대상 그룹에서 빼고 다른 서버로 채점을 넘기는 방식은 이후 <a href="../failstop/">failstop</a>의 증설·교체 구조로 이어졌습니다.</p>
+  <p>문제가 생긴 서버를 대상 그룹에서 빼고 다른 서버로 채점을 넘기는 방식은 이후 <a href="../failstop/">failstop</a>의 증설과 교체 구조로 이어졌습니다.</p>
   <dl class="rows">
-    <dt>채점이 끊기지 않은 이유</dt><dd>#1의 복구 장치보다 로드밸런서와 복제 서버 #2·#3의 역할이 컸습니다. 2차 공격 때는 #1이 빠진 동안 #2·#3이 채점을 받았습니다.</dd>
+    <dt>채점이 끊기지 않은 이유</dt><dd>#1의 복구 장치보다 로드밸런서와 복제 서버 #2·#3의 역할이 컸습니다. 2차 공격 때는 #1이 빠진 동안 #2와 #3이 채점을 받았습니다.</dd>
     <dt>잠글 파일과 남길 파일 구분</dt><dd>index.html, nginx.conf, nginx 실행 파일은 잠그고, 헬스체크용 ok 파일은 지울 수 있게 남겨 두었습니다.</dd>
-    <dt>2차 공격은 팀원이 직접 정리했습니다</dt><dd>2차 공격 때 apache2는 팀원이 직접 지웠습니다. 관제 화면과 알림을 보고 있어서 바로 조치할 수 있었습니다.</dd>
+    <dt>2차 공격은 팀원이 정리</dt><dd>2차 공격 때는 관제 화면과 알림을 보고 있던 팀원이 바로 서버에 들어가 apache2를 지웠습니다.</dd>
   </dl>
 
   </div>

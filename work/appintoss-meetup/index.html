@@ -57,11 +57,11 @@
       <figure><img src="../../assets/img/harmony/share.jpg" width="636" height="1048" alt="녹음한 트랙과 공유 코드, 레이어 추가와 합주 듣기 버튼"><figcaption>공유 코드</figcaption></figure>
       <figure><img src="../../assets/img/harmony/community.jpg" width="636" height="1048" alt="커뮤니티 보드: 공개된 곡 목록과 좋아요, 댓글 수"><figcaption>커뮤니티</figcaption></figure>
     </div>
-    <figcaption>하모니 · 토스 앱 안에서 도는 미니앱입니다. 코드 패드를 눌러 연주하고, 공유 코드로 친구의 트랙 위에 내 트랙을 얹어 한 곡을 함께 만듭니다.</figcaption>
+    <figcaption>하모니는 토스 앱 안에서 도는 미니앱입니다. 코드 패드를 눌러 연주하고, 공유 코드로 친구의 트랙 위에 내 트랙을 얹어 한 곡을 함께 만듭니다.</figcaption>
   </figure>
 
   <p class="kick">개요</p>
-  <h2 id="ch-intro">출시 직전 보안 검토에서 걸린 문제를 고치고, 시작 7일 만에 출시했습니다</h2>
+  <h2 id="ch-intro">출시 직전 보안 문제를 고치고 7일 만에 출시했습니다</h2>
   <p>밴드 합주를 하려면 같은 시간에 같은 곳에 모여야 하고, 악기도 다룰 줄 알아야 합니다. 하모니에서는 코드 패드를 눌러 연주하고, 친구가 올린 트랙 위에 내 연주를 얹어 합주합니다. 회원가입 없이 닉네임만 넣으면 바로 시작합니다.</p>
   <p>팀장인 저는 제품 방향과 정책을 정했고, 출시 직전 검토에서 걸린 보안 문제를 풀고 출시를 최종 승인했습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다. 일주일 안에 실제로 쓸 수 있는 앱을 내는 게 목표였고, 6월 26일 토스 앱에 출시했습니다.</p>
   <div class="tbl-wrap">
@@ -89,11 +89,11 @@
   </div>
 
   <p class="kick">합주 방식</p>
-  <h2 id="ch-jam">실시간으로 맞추는 대신, 트랙을 한 겹씩 얹어 합주하게 했습니다</h2>
+  <h2 id="ch-jam">트랙을 한 겹씩 얹는 합주</h2>
   <p>실시간으로 소리를 주고받으며 합주하면 네트워크 왕복 시간 때문에 박자가 어긋납니다. 그래서 각자 메트로놈에 맞춰 자기 트랙을 녹음하고, 같은 공유 코드의 곡에 얹는 방식으로 정했습니다.</p>
   <figure>
     <img src="../../assets/img/harmony/service-flow.jpg" width="1600" height="1031" loading="lazy" alt="원작자, 서버, 참여자 세 줄로 그린 합주 공유 흐름: 코드 발급, 곡 열기, 트랙 추가, 1.5초 폴링">
-    <figcaption>합주 공유 흐름 · 원작자와 서버, 참여자 사이에 오가는 요청입니다.</figcaption>
+    <figcaption>합주를 공유할 때 원작자와 서버, 참여자 사이에 오가는 요청입니다.</figcaption>
   </figure>
   <ul class="items">
     <li><b>혼자 하는 연주는 기기 안에서 처리</b>녹음과 편집은 기기 안에서 끝납니다. 공유를 누를 때만 곡이 서버로 갑니다.</li>
@@ -107,12 +107,12 @@
   </figure>
 
   <p class="kick">출시 전 보안 검토</p>
-  <h2 id="ch-sec">보안 검토에서 나온 권한 · 신고 · 재시도 문제</h2>
+  <h2 id="ch-sec">보안 검토에서 나온 권한, 신고, 재시도 문제</h2>
   <p>계정 없이 코드만으로 들어오는 구조라, 커뮤니티에 곡을 공개하는 기능을 붙이기 전에 독립 검토를 받았습니다. Codex 검토에서 결함이 나왔고, 판정은 출시 불가였습니다. 저는 검토에서 나온 문제를 하나씩 풀고 다시 검토받는 일을 맡았습니다.</p>
   <div class="flow" data-flow="harmony" data-title="공유 코드로 들어오는 요청"></div>
   <h3>검토가 찾은 문제와 고친 방법</h3>
   <ul class="items">
-    <li><b><span class="kk">권한</span>공개된 곡 코드만 알면 남의 곡에 트랙을 붙일 수 있었습니다</b>공개된 곡은 작성자 키가 같을 때만 붙일 수 있게 하고, 다르면 403을 돌려줍니다. 남의 곡을 쓰고 싶으면 <code>origin_code</code>로 원본을 밝힌 새 곡을 만들게 했습니다. 비공개 곡은 코드가 곧 열쇠라, <code>crypto.randomInt</code>로 만들어 추측하기 어렵게 했습니다.</li>
+    <li><b><span class="kk">권한</span>공개된 곡 코드만 알면 남의 곡에 트랙을 붙일 수 있었습니다</b>공개된 곡에는 작성자 키가 같을 때만 트랙을 붙이고, 다르면 403을 돌려줍니다. 남의 곡을 쓰고 싶으면 <code>origin_code</code>로 원본을 밝힌 새 곡을 만들어야 합니다. 비공개 곡은 코드가 곧 열쇠라서 <code>crypto.randomInt</code>로 만들어 추측하기 어렵게 했습니다.</li>
     <li><b><span class="kk">신고</span>키만 바꿔 신고하면 남의 댓글을 숨길 수 있었습니다</b>신고자와 요청 제한의 기준을 서버가 확인한 IP로 바꿨습니다. nginx가 클라이언트가 보낸 <code>X-Forwarded-For</code>를 실제 접속 주소로 덮어쓰고, 앱은 127.0.0.1에만 열어 두었습니다.</li>
     <li><b><span class="kk">재시도</span>다시 보내면 같은 곡이 여러 번 올라갔습니다</b>멱등 토큰을 요청한 사람의 키와 묶고, 첫 트랙 내용의 해시로 같은 곡을 알아봐 이미 있는 코드를 돌려줍니다. 다른 사람이 같은 토큰을 보내도 원래 작성자의 코드는 받아 갈 수 없습니다.</li>
   </ul>
@@ -126,7 +126,7 @@
   <div class="note">출시 승인은 세 번째 검토를 통과한 뒤에 했습니다.</div>
 
   <p class="kick">서버 구조</p>
-  <h2 id="ch-server">EC2 한 대의 nginx · Node · SQLite 구성</h2>
+  <h2 id="ch-server">EC2 한 대에 올린 nginx와 Node, SQLite</h2>
   <p>서버 구현은 백엔드 팀원이 이끌었고, 저는 보안 검토에서 걸린 부분을 고쳤습니다. 서울 리전 EC2 한 대에서 nginx가 TLS를 맡고, 요청을 127.0.0.1:8080의 Node 앱으로 넘깁니다. 데이터는 SQLite 파일 하나에 담습니다. 서버는 Node 내장 모듈만으로 짜서 외부 패키지가 없습니다.</p>
   <figure>
     <img src="../../assets/img/harmony/dfd.jpg" width="1600" height="842" loading="lazy" alt="인터넷, EC2에서 밖으로 열린 부분, localhost 세 신뢰 경계와 nginx, node API, SQLite 사이의 데이터 흐름">
@@ -139,7 +139,7 @@
   <ul class="items">
     <li><b>전용 계정과 좁은 쓰기 권한</b>앱은 systemd에서 전용 계정 <code>harmony</code>로 돌고, 권한 상승을 막고 시스템 경로를 읽기 전용으로 둡니다. 쓸 수 있는 곳은 <code>data</code> 디렉터리 하나입니다.</li>
     <li><b>여러 번 돌려도 안전한 테이블 변경</b>컬럼 추가는 try로 감싼 <code>ALTER TABLE</code>이라, 이미 있는 DB에 다시 실행해도 문제가 없습니다.</li>
-    <li><b>중복 게시는 한 번의 트랜잭션 안에서</b>찾기와 저장 사이에 <code>await</code>가 끼지 않게 <code>node:sqlite</code>의 동기 API로 BEGIN과 COMMIT을 걸어, 경쟁 상태를 막았습니다.</li>
+    <li><b>중복 게시는 한 번의 트랜잭션 안에서</b>찾기와 저장 사이에 <code>await</code>가 끼면 경쟁 상태가 생깁니다. 그래서 <code>node:sqlite</code>의 동기 API로 BEGIN과 COMMIT을 걸었습니다.</li>
   </ul>
   <h3>systemd 서비스 파일과 nginx 설정 일부</h3>
 <pre><code><span class="c"># /etc/systemd/system/harmony-api.service</span>
@@ -188,7 +188,7 @@ location /sessions {
     <li><time>06-26</time><span>테스트 출시를 거쳐, 같은 날 토스 앱에 출시했습니다.</span></li>
   </ul>
   <ul class="items">
-    <li><b>구현자와 다른 검토자가 확인</b>독립 검토자가 직접 재현하고, 테스트와 보안 검사, 헬스체크를 통과한 것만 병합했습니다. 03장의 보안 문제도 이 독립 검토에서 나왔습니다.</li>
+    <li><b>구현자와 다른 검토자가 확인</b>독립 검토자가 직접 재현하고, 테스트와 보안 검사, 헬스체크를 통과한 것만 병합했습니다. 위의 권한, 신고, 재시도 문제도 이 검토에서 나왔습니다.</li>
   </ul>
 
   </div>

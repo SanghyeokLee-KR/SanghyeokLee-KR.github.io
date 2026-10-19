@@ -82,18 +82,18 @@
 <section class="sheet" id="about"><div class="in">
   <div class="run"><span><b>소개</b></span><span class="pg">02 / 15</span></div>
   <div class="body">
-    <h2 class="h">중복 요청, 서버 증설, 느린 응답에서 생기는 문제를 주로 고쳤습니다</h2>
+    <h2 class="h">중복 요청과 서버 증설, 느린 응답에서 생기는 문제를 주로 고쳤습니다</h2>
     <p class="lede">같은 주문이 두 번 들어오는 경우, 서버가 두 대가 되면서 카운터를 서버마다 따로 세는 경우, 응답이 느린 원인을 찾는 일을 주로 했습니다. 고친 동작은 테스트로 고정하고, 성능은 고치기 전과 후를 같은 조건에서 쟀습니다.</p>
     <div class="g mt">
       <div class="c4 cap">
         <p class="cap-k">01</p>
         <p class="cap-t">데이터가 어긋나지 않게</p>
-        <p class="cap-d">같은 주문이 두 번 들어와도 한 번만 처리되게 하고, 대량 적재가 중간에 끊기면 통째로 되돌리게 했습니다. 원장이 맞는지는 SQL로 직접 확인합니다.</p>
+        <p class="cap-d">같은 주문이 두 번 들어와도 한 번만 처리하고, 대량 적재가 중간에 끊기면 통째로 되돌립니다. 원장이 맞는지는 SQL로 확인합니다.</p>
       </div>
       <div class="c4 cap">
         <p class="cap-k">02</p>
         <p class="cap-t">서버가 여러 대여도 같은 규칙으로</p>
-        <p class="cap-d">리더 권한은 리스와 epoch로 확인하고, 요청 제한과 배치 중복 실행 방지는 DB에서 함께 쓰게 했습니다. 서버 수만큼 한도가 늘어나거나 같은 배치가 두 번 도는 일을 막기 위해서입니다.</p>
+        <p class="cap-d">리더 권한은 리스와 epoch로 확인하고, 요청 제한과 배치 중복 실행 방지는 DB에 두어 서버들이 함께 씁니다. 서버 수만큼 한도가 늘어나거나 같은 배치가 두 번 도는 일을 막기 위해서입니다.</p>
       </div>
       <div class="c4 cap">
         <p class="cap-k">03</p>
@@ -132,7 +132,7 @@
   <div class="body">
     <p class="kicker">혼자 진행한 프로젝트 · 2026년 7월 ~ 10월</p>
     <h2 class="h">주문이 중복되거나 처리 여부를 알 수 없는 상태로 남지 않게 주문 경로를 나눴습니다</h2>
-    <p class="lede">실제 돈은 다루지 않지만 거래소처럼 동작하는 모의 거래소입니다. 사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. 서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데 가장 공을 들였습니다. Claude·Codex를 함께 썼고, 설계 결정은 직접 했습니다.</p>
+    <p class="lede">실제 돈은 다루지 않지만 거래소처럼 동작하는 모의 거래소입니다. 사용자와 봇이 같은 주문 API로 주문을 넣으면 Java 매칭 엔진이 체결하고, 결과는 PostgreSQL 원장에 남습니다. 서버가 죽거나 DB가 끊겨도 주문 기록과 잔고가 어긋나지 않게 하는 데 가장 공을 들였습니다. Claude와 Codex를 함께 썼고 설계 결정은 제가 했습니다.</p>
     <div class="chain mt-a">
       <div class="node"><p class="nk">POST /orders</p><p class="nt">주문 API</p><p class="nd">클라이언트가 만든 주문 키로 같은 주문을 알아보고, 내용이 다르면 거절합니다.</p></div>
       <div class="node"><p class="nk">command_journal</p><p class="nt">명령 저널</p><p class="nd">엔진보다 먼저 DB에 커밋합니다. 리더 권한이 확인돼야 한 줄이 들어갑니다.</p></div>
@@ -152,7 +152,7 @@
   <div class="run"><span><b>01 failstop</b> · 주문 접수와 멱등성</span><span class="pg">04 / 15</span></div>
   <div class="body">
     <p class="kicker">주문 API</p>
-    <h2 class="h">같은 주문을 여러 번 다시 보내도 주문은 하나만 생기게 했습니다</h2>
+    <h2 class="h">같은 주문을 여러 번 다시 보내도 주문은 하나만 생깁니다</h2>
     <div class="g mt" style="flex:1">
       <div class="c5" style="display:flex;flex-direction:column">
         <ol class="notes">
@@ -238,7 +238,7 @@ SELECT ...
         </ul>
       </div>
       <div class="c7">
-        <p class="p">이 검사를 돌리다가, 비동기 복제에서는 커밋이 확인된 쓰기도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+        <p class="p">이 검사를 돌리다가, 비동기 복제에서는 커밋이 확인된 쓰기도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꿨고, 동기 예비 DB가 없을 때는 앱이 주문을 <code>423</code>으로 막습니다.</p>
         <div class="vs mt-s">
           <div class="vc"><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p><p class="vd">예비 DB를 8초 멈춘 뒤 주 DB를 끄자, 커밋이 확인된 시험용 쓰기 122건 중 36건이 사라졌습니다.</p></div>
           <div class="vc on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험에서 사라진 주문이 없었습니다. 두 시험 모두 제 PC에서 돌렸습니다.</p></div>
@@ -272,7 +272,7 @@ SELECT ...
         <p class="kicker">4인 팀 Tech Lead · PM · 2025년 9월 ~ 12월 · 졸업작품</p>
         <h2 class="h">재난문자를 지도 위 위험 구역으로 바꾸고, 가까운 대피소로 안내했습니다</h2>
         <p class="lede">재난문자는 글자뿐이라 내 주변이 위험한지 바로 알기 어렵습니다. 그래서 행안부 재난문자를 받아 지도에 위험 구역으로 그리고, 지금 운영 중인 가까운 대피소까지 길을 안내하는 서비스를 만들었습니다. 평가 기간에는 실제 도메인에서 일주일 동안 운영했습니다.</p>
-        <p class="role mt-s"><span><b>제가 한 일</b> 지도(위험 구역 · 경로)와 WebSocket, Python AI 서버, 관리자 기능과 팀원과 함께 짠 Oracle 스키마, 배포. 게시판 API와 처음 수집기, 화면 퍼블리싱은 팀원이 맡았습니다.</span></p>
+        <p class="role mt-s"><span><b>제가 한 일</b> 지도(위험 구역과 경로), WebSocket, Python AI 서버, 관리자 기능, 배포, 그리고 팀원과 함께 짠 Oracle 스키마. 게시판 API와 처음 수집기, 화면 퍼블리싱은 팀원이 맡았습니다.</span></p>
         <ol class="notes mt-a">
           <li><span class="t">공식 단계가 있으면 그대로, 없을 때만 AI에게</span><span class="d">공식 API의 긴급단계가 '위급'이나 '긴급'이면 바로 60분짜리 위험 구역을 만듭니다. 단계가 비어 있을 때만 따로 띄운 Python 서버의 분류 모델에게 묻습니다.</span></li>
           <li><span class="t">DB 커밋이 끝난 뒤에만 알립니다</span><span class="d">롤백됐는데 알림이 먼저 나가면 없는 재난을 알리게 됩니다. 그래서 <code>afterCommit</code>에서만 WebSocket으로 보냅니다.</span></li>
@@ -321,7 +321,7 @@ SELECT ...
           <li><span class="t">반경을 넓혀 가며 찾습니다</span><span class="d">위경도 사각형 범위로 5km, 20km, 100km 순으로 넓혀, 후보가 3곳 이상 나올 때까지 찾습니다.</span></li>
           <li><span class="t">구역 안의 대피소는 뺍니다</span><span class="d">위험 원 안에 있는 대피소는 거리와 상관없이 후보에서 제외합니다.</span></li>
           <li><span class="t">가는 길이 구역을 지나도 뺍니다</span><span class="d">점과 선분 사이의 최단거리를 계산해, 출발지에서 대피소로 가는 길이 위험 원을 가로지르는지 봅니다.</span></li>
-          <li><span class="t">세 가지 기준으로 보여 줍니다</span><span class="d">운영 중인 가장 가까운 곳, 가장 가까운 곳, 수용 인원이 가장 큰 곳을 하나씩 고릅니다. 실제 도로 경로는 Kakao Mobility로 받고, 그 경로가 위험 원을 지나면 화면에서 경고합니다.</span></li>
+          <li><span class="t">추천은 기준 세 가지로</span><span class="d">운영 중인 가장 가까운 곳, 가장 가까운 곳, 수용 인원이 가장 큰 곳을 하나씩 고릅니다. 실제 도로 경로는 Kakao Mobility로 받고, 그 경로가 위험 원을 지나면 화면에서 경고합니다.</span></li>
         </ol>
         <p class="quote mt-a">처음에는 운영 중인 대피소가 추천에 제대로 잡히지 않았습니다. 운영 여부를 '정상·영업·운영' 값으로 판단했는데, 실제 데이터에는 '사용중'으로 들어 있었습니다. '사용중'만 운영 중으로 보도록 고치고, 이 규칙을 테스트로 고정했습니다.</p>
       </div>
@@ -337,8 +337,8 @@ SELECT ...
     <h2 class="h">시설 조회 응답을 387KB에서 55KB로 줄였습니다</h2>
     <div class="g mt">
       <div class="c6">
-        <p class="p">k6로 동시 사용자 60명까지 부하를 걸어 보니, 시설 조회 한 번이 1,500건, 387KB를 내려보내고 있었습니다. 응답을 필드별로 나눠 보니 주소가 25.2%였는데, 지도 마커에는 주소가 필요 없었습니다. 그래서 목록 전용 DTO를 따로 만들어 주소를 빼고 응답 압축을 켰습니다.</p>
-        <p class="p">처음에는 압축을 켜도 효과가 잡히지 않았는데, k6가 <code>Accept-Encoding</code>을 보내지 않고 있었습니다. 그래서 시나리오부터 고쳤습니다.</p>
+        <p class="p">k6로 동시 사용자 60명까지 부하를 걸어 보니, 시설 조회 한 번이 1,500건, 387KB를 내려보내고 있었습니다. 필드별로 따지면 주소가 25.2%였는데, 지도 마커에는 주소가 필요 없었습니다. 그래서 목록 전용 DTO를 따로 만들어 주소를 빼고 응답 압축을 켰습니다.</p>
+        <p class="p">처음에는 압축을 켜도 효과가 잡히지 않았는데, k6가 <code>Accept-Encoding</code>을 보내지 않고 있었습니다. 시나리오부터 고쳤습니다.</p>
         <table class="tbl mt">
           <thead><tr><th>시설 조회</th><th class="num">전</th><th class="num">후</th></tr></thead>
           <tbody>
@@ -351,7 +351,7 @@ SELECT ...
       </div>
       <div class="c6 split">
         <p class="sub-k">AI 분류 모델의 데이터 누수 수정</p>
-        <p class="p">재난문자의 위험도를 가르는 모델을 처음 돌렸을 때 정확도가 99%가 나왔습니다. 너무 높아서 확인해 보니, 데이터를 부풀린(업샘플) 뒤에 학습용과 평가용을 나눠 같은 문장이 양쪽에 들어가 있었습니다. 먼저 나누고, 불균형은 클래스 가중치로 다루도록 고쳤습니다.</p>
+        <p class="p">재난문자의 위험도를 가르는 모델을 처음 돌렸을 때 정확도 99%가 나왔습니다. 너무 높아서 확인해 보니, 데이터를 부풀린(업샘플) 뒤에 학습용과 평가용을 나눠 같은 문장이 양쪽에 들어가 있었습니다. 먼저 나누고, 불균형은 클래스 가중치로 다루도록 고쳤습니다.</p>
         <div class="metrics m3 mt">
           <div class="metric"><div class="n">78<small>%</small></div><div class="l">재난 종류 분류 정확도</div><div class="c">누수를 고친 뒤</div></div>
           <div class="metric"><div class="n">1.00</div><div class="l">위험 문자 재현율</div><div class="c">평가 1,202건 기준</div></div>
@@ -377,8 +377,8 @@ SELECT ...
   <div class="run"><span><b>03 sangkwon-platform-poly</b> · 공공데이터 재적재</span><span class="pg">10 / 15</span></div>
   <div class="body">
     <p class="kicker">4인 팀 팀장 · 2026년 7월</p>
-    <h2 class="h">220만 행을 다시 넣는 동안에도, 잘린 데이터가 보이지 않게 했습니다</h2>
-    <p class="lede">서울시 상권 1,650곳의 매출, 유동인구, 점포 수를 지도에서 비교하는 서비스입니다. 저는 상권분석 조회 API와 지도, 팀 공통 기반(응답 · 예외 · 배치 · 요청 제한 · 보안), 배포를 맡았습니다.</p>
+    <h2 class="h">220만 행을 다시 넣는 동안에도 화면에는 잘린 데이터가 나오지 않습니다</h2>
+    <p class="lede">서울시 상권 1,650곳의 매출, 유동인구, 점포 수를 지도에서 비교하는 서비스입니다. 저는 상권분석 조회 API와 지도, 팀 공통 기반(응답, 예외, 배치, 요청 제한, 보안), 배포를 맡았습니다.</p>
     <div class="g mt">
       <figure class="fig c7"><div class="frame light"><img src="../assets/img/sangkwon/load.jpg" alt="관리자 데이터 적재 화면: 데이터셋 14종, 총 2,349,530건, 데이터셋별 적재 상태와 재적재 버튼"></div>
         <figcaption>관리자 화면에서 데이터셋별 적재 상태를 보고 다시 적재합니다. 화면의 14종 2,349,530건 가운데 서울시 데이터 7종이 약 220만 행이고, 점포 통계 하나만 160만 행입니다.</figcaption></figure>
@@ -399,14 +399,14 @@ SELECT ...
   <div class="run"><span><b>03 sangkwon-platform-poly</b> · 요청 제한과 조회 API</span><span class="pg">11 / 15</span></div>
   <div class="body">
     <p class="kicker">서버 두 대, DB 하나</p>
-    <h2 class="h">서버가 두 대여도 요청 제한이 느슨해지지 않게 했습니다</h2>
+    <h2 class="h">서버가 두 대여도 요청 제한은 한 곳에서 셉니다</h2>
     <div class="g mt" style="flex:1">
       <div class="c6" style="display:flex;flex-direction:column">
         <div class="vs">
           <div class="vc"><p class="vk">서버마다 따로 세면</p><p class="vn">10<small>회</small></p><p class="vd">로그인 한도가 10분에 5회여도, 서버 두 대가 따로 세면 10회까지 통과합니다.</p></div>
           <div class="vc on"><p class="vk">DB에서 함께 세면</p><p class="vn">5<small>회</small></p><p class="vd">어느 서버로 들어와도 같은 줄을 세서, 한도가 그대로 지켜집니다.</p></div>
         </div>
-        <p class="p mt">그래서 공유 테이블에 먼저 1을 더하고, 그다음 한도를 확인하게 했습니다. 같은 새 키가 동시에 처음 들어와 기본 키가 부딪히면 UPDATE로 한 번 더 시도해, 세는 데서 빠지는 요청이 없게 했습니다.</p>
+        <p class="p mt">그래서 공유 테이블에 먼저 1을 더한 다음 한도를 확인합니다. 같은 새 키가 동시에 처음 들어와 기본 키가 부딪히면 UPDATE로 한 번 더 시도하므로, 세는 데서 빠지는 요청이 없습니다.</p>
         <pre class="code mt-s">MERGE INTO RATE_LIMIT_BUCKET b
 USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
    ON (b.RATE_KEY = s.RATE_KEY)
@@ -417,10 +417,10 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
         <p class="p mt-a">관리자 로그인(30분에 10회)과 아이디 중복 확인(1분에 30회)에도 같은 방식을 썼습니다.</p>
       </div>
       <div class="c6 split compact" style="display:flex;flex-direction:column">
-        <p class="sub-k">지도 · 상권 요약 조회</p>
+        <p class="sub-k">지도와 상권 요약 조회</p>
         <ol class="notes">
-          <li><span class="t">무거운 경계와 숫자를 나눴습니다</span><span class="d">상권 경계(GeoJSON)는 <code>/geo</code>로, 매출 같은 숫자는 <code>/summary</code>로 따로 받아 화면이 필요한 것만 다시 부르게 했습니다.</span></li>
-          <li><span class="t">적재 시점이 달라도 빈 값이 나오지 않게</span><span class="d">매출 · 점포 · 유동인구 · 변화지표를 쿼리 하나로 모으되, 각 데이터는 매출의 최신 분기를 넘지 않는 자기 최신 분기를 씁니다.</span></li>
+          <li><span class="t">무거운 경계와 숫자를 나눴습니다</span><span class="d">상권 경계(GeoJSON)는 <code>/geo</code>로, 매출 같은 숫자는 <code>/summary</code>로 따로 받습니다. 화면은 필요한 쪽만 다시 부릅니다.</span></li>
+          <li><span class="t">적재 시점이 달라도 빈 값이 나오지 않게</span><span class="d">매출, 점포, 유동인구, 변화지표를 쿼리 하나로 모으되, 각 데이터는 매출의 최신 분기를 넘지 않는 자기 최신 분기를 씁니다.</span></li>
           <li><span class="t">결과에 상한을 두었습니다</span><span class="d">요약은 2만 행까지, 매출 목록은 필터를 꼭 받고 5,000행까지만 돌려주며, 잘렸는지를 응답에 표시합니다.</span></li>
           <li><span class="t">응답과 예외는 한 가지 모양으로</span><span class="d">모든 API가 같은 응답 형식을 쓰고, 제약 위반과 낙관적 락 충돌은 409, 처리하지 못한 예외는 내부 메시지를 숨긴 500으로 돌려줍니다.</span></li>
         </ol>
@@ -435,7 +435,7 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
   <div class="run"><span><b>04 DeliveryPro</b> · 묶음배달 경로 계산</span><span class="pg">12 / 15</span></div>
   <div class="body">
     <p class="kicker">5인 팀 조장 · 2025년 1월 ~ 2월</p>
-    <h2 class="h">라이더가 어느 집부터 들러야 할지, 서버가 계산하게 했습니다</h2>
+    <h2 class="h">라이더가 어느 집부터 들를지 서버가 계산합니다</h2>
     <div class="g mt" style="flex:1">
       <figure class="fig c7 grow"><div class="frame light contain"><img src="../assets/img/delivery/route.jpg" alt="배달지 5곳을 서버가 계산한 순서와 구간 경로로 그린 라이더 화면"></div>
         <figcaption>배달지 5곳을 서버가 계산한 순서대로 그린 라이더 화면입니다. 데모용 격자 도로망에서 총 14.58km, 약 38분이고, 방문 순서는 Held-Karp로 구한 정확한 답입니다.</figcaption></figure>
@@ -445,9 +445,9 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
           <li><span class="t">배달지를 가까운 교차로에 붙입니다</span><span class="d">400m 격자 색인으로 찾고, 1,500m 넘게 떨어지면 구역 밖으로 봅니다.</span></li>
           <li><span class="t">정차지마다 다익스트라 한 번</span><span class="d">목적지를 다 찾으면 바로 멈추고, 정차지끼리의 소요 시간표를 만듭니다.</span></li>
           <li><span class="t">방문 순서는 Held-Karp로</span><span class="d">12곳까지는 정확한 답을 구하고, 그보다 많으면 최근접 이웃과 2-opt 근사로 내려가며 정확한 답인지 함께 표시합니다.</span></li>
-          <li><span class="t">순서와 경로를 한 응답으로</span><span class="d">계산한 순서는 DB에 저장하고 구간 좌표와 함께 돌려줘, 화면의 경로와 저장된 순서가 어긋나지 않게 했습니다.</span></li>
+          <li><span class="t">순서와 경로를 한 응답으로</span><span class="d">계산한 순서를 DB에 저장하고 구간 좌표와 함께 돌려주므로, 화면의 경로와 저장된 순서가 어긋나지 않습니다.</span></li>
         </ol>
-        <p class="quote mt-a">직선으로 208m인 두 집이 도로로는 1,876m였고, 갈 때 247.7초, 올 때 97.6초가 걸렸습니다. 일방통행이 그대로 반영된다는 걸 이 값으로 테스트에 고정해 두었습니다.</p>
+        <p class="quote mt-a">직선으로 208m인 두 집이 도로로는 1,876m였고, 갈 때 247.7초, 올 때 97.6초가 걸렸습니다. 일방통행이 반영되는지는 이 값으로 테스트에 고정해 두었습니다.</p>
       </div>
     </div>
   </div>
@@ -458,27 +458,27 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
   <div class="run"><span><b>04 DeliveryPro</b> · 서버 공통 규약과 로그인</span><span class="pg">13 / 15</span></div>
   <div class="body">
     <p class="kicker">조장으로 맡은 서버 공통 부분</p>
-    <h2 class="h">다섯 명이 만든 API가 같은 모양으로 응답하게 맞췄습니다</h2>
+    <h2 class="h">다섯 명이 만든 API의 응답 모양을 하나로 맞췄습니다</h2>
     <div class="g mt">
       <div class="c3 cap">
         <p class="cap-k">01</p>
         <p class="cap-t">응답과 예외 규약</p>
-        <p class="cap-d">API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 응답은 ApiResponse 하나로 감싸고, 실패는 오류 코드 8종과 BusinessException으로 알리게 했습니다. 예전 핸들러와 부딪히지 않게 적용 범위도 좁혔습니다.</p>
+        <p class="cap-d">API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 응답은 ApiResponse 하나로 감싸고, 실패는 오류 코드 8종과 BusinessException으로 알립니다. 예전 핸들러와 부딪히지 않게 적용 범위도 좁혔습니다.</p>
       </div>
       <div class="c3 cap">
         <p class="cap-k">02</p>
         <p class="cap-t">트랜잭션은 서비스에서</p>
-        <p class="cap-d">트랜잭션 경계를 서비스 계층으로 옮기고 조회에는 readOnly를 붙였습니다. open-in-view를 꺼서 지연 로딩이 화면까지 새어 나가지 않게 했습니다.</p>
+        <p class="cap-d">트랜잭션 경계를 서비스 계층으로 옮기고 조회에는 readOnly를 붙였습니다. open-in-view도 꺼서 지연 로딩이 화면까지 새어 나가지 않습니다.</p>
       </div>
       <div class="c3 cap">
         <p class="cap-k">03</p>
         <p class="cap-t">소셜 로그인 3사</p>
-        <p class="cap-d">네이버 · 구글 · 카카오의 인가 코드 교환과 프로필 조회를 Apache HttpClient로 직접 호출했습니다. 카카오는 응답 구조가 달라 따로 읽었고, 비밀번호는 BCrypt로 저장합니다.</p>
+        <p class="cap-d">네이버, 구글, 카카오의 인가 코드 교환과 프로필 조회를 Apache HttpClient로 직접 호출했습니다. 카카오는 응답 구조가 달라 따로 읽었고, 비밀번호는 BCrypt로 저장합니다.</p>
       </div>
       <div class="c3 cap">
         <p class="cap-k">04</p>
         <p class="cap-t">받아서 바로 실행되게</p>
-        <p class="cap-d">h2 프로파일에서 Oracle 호환 모드로 띄우고 데모 데이터를 넣습니다. 지도 키가 없으면 서버가 계산한 경로를 SVG로 그려, 외부 키 없이도 경로 계산 결과를 확인할 수 있습니다.</p>
+        <p class="cap-d">h2 프로파일에서 Oracle 호환 모드로 띄우고 데모 데이터를 넣습니다. 지도 키가 없으면 서버가 계산한 경로를 SVG로 그려, 외부 키 없이도 경로 계산 결과가 보입니다.</p>
       </div>
     </div>
     <div class="shots mt-a">
@@ -496,11 +496,11 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
   <div class="body">
     <p class="kicker">4인 팀 팀장 · 2026년 6월 · 토스 앱에 정식 출시</p>
     <h2 class="h">출시 직전 보안 검토에서 걸린 문제를 고치고, 시작 7일 만에 출시했습니다</h2>
-    <p class="lede">토스 앱 안에서, 친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 미니앱입니다. 저는 팀장으로 제품과 정책을 정하고, 출시 전 보안 문제 해결과 최종 승인을 맡았습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다.</p>
+    <p class="lede">토스 앱 안에서 친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 미니앱입니다. 저는 팀장으로 제품과 정책을 정하고, 출시 전 보안 문제 해결과 최종 승인을 맡았습니다. 서버 구현은 백엔드 담당 팀원이 이끌었습니다.</p>
     <div class="g mt" style="flex:1">
       <div class="c7" style="display:flex;flex-direction:column">
         <ol class="attack">
-          <li><span class="k">권한</span><span class="a">공개된 곡 코드만 알면 남의 곡에 트랙을 붙일 수 있었습니다</span><span class="r">공개된 곡은 작성자 키가 같을 때만 붙일 수 있게 하고, 남의 곡을 쓰려면 원본을 표시한 새 곡을 만들게 했습니다. 비공개 곡 코드는 <code>crypto.randomInt</code>로 만들어 추측하기 어렵게 했습니다.</span></li>
+          <li><span class="k">권한</span><span class="a">공개된 곡 코드만 알면 남의 곡에 트랙을 붙일 수 있었습니다</span><span class="r">공개된 곡에는 작성자 키가 같을 때만 트랙을 붙입니다. 남의 곡을 쓰려면 원본을 표시한 새 곡을 만들어야 합니다. 비공개 곡 코드는 <code>crypto.randomInt</code>로 만들어 추측하기 어렵게 했습니다.</span></li>
           <li><span class="k">신고</span><span class="a">키만 바꿔 신고하면 남의 댓글을 숨길 수 있었습니다</span><span class="r">신고자와 요청 제한의 기준을 서버가 확인한 IP로 바꿨습니다. nginx가 클라이언트가 보낸 <code>X-Forwarded-For</code>를 실제 접속 주소로 덮어쓰고, 앱은 127.0.0.1에만 열어 두었습니다.</span></li>
           <li><span class="k">재시도</span><span class="a">다시 보내면 같은 곡이 여러 번 올라갔습니다</span><span class="r">멱등 토큰을 '요청한 사람의 키 + 토큰'으로 묶고, 첫 트랙 내용의 해시로 같은 곡을 알아봐 이미 있는 코드를 돌려줍니다.</span></li>
         </ol>
@@ -508,7 +508,7 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
       </div>
       <div class="c5" style="display:flex;flex-direction:column">
         <figure class="fig"><div class="frame light"><img src="../assets/img/harmony/dfd.jpg" alt="인터넷, EC2 공개면, localhost 세 신뢰 경계와 nginx, node API, SQLite 사이의 데이터 흐름"></div>
-          <figcaption>신뢰 경계 그림 · 밖에서는 nginx만 보이고, 앱과 DB는 서버 안쪽에만 있습니다.</figcaption></figure>
+          <figcaption>밖에서는 nginx만 보이고, 앱과 DB는 서버 안쪽 신뢰 경계에만 있습니다.</figcaption></figure>
         <table class="tbl mt-a">
           <thead><tr><th>고친 뒤 시험</th><th class="num">결과</th></tr></thead>
           <tbody>
@@ -532,9 +532,9 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
         <h3 class="h3">DevHub<small>개발자 커뮤니티</small></h3>
         <p class="p mt-s">인증과 보안, 카카오페이 결제창 연동, 실시간 채팅, 챗봇을 맡았습니다. 프로젝트가 끝난 뒤 코드를 다시 열어 아래 문제를 고치고 테스트 17건을 붙였습니다.</p>
         <ol class="notes mt">
-          <li><span class="t">Security를 켜면 모든 요청이 막혔습니다</span><span class="d">세션 로그인 정보를 요청마다 SecurityContext에 올려 주는 필터를 넣고, 회원 수정 · 글쓰기 · 결제 · 출석 같은 경로만 로그인을 요구하게 했습니다.</span></li>
+          <li><span class="t">Security를 켜면 모든 요청이 막혔습니다</span><span class="d">세션 로그인 정보를 요청마다 SecurityContext에 올려 주는 필터를 넣고, 회원 수정, 글쓰기, 결제, 출석 같은 경로에만 로그인을 요구했습니다.</span></li>
           <li><span class="t">음수를 빼면 포인트가 오히려 늘었습니다</span><span class="d">0 이하 차감을 거부하고 잔액이 충분할 때만 빼도록 고쳤고, 트랜잭션은 서비스 계층에 두었습니다.</span></li>
-          <li><span class="t">챗봇 키 파일이 없으면 앱이 뜨지 않았습니다</span><span class="d">키 파일이 있을 때만 챗봇 클라이언트를 만들게 해, 키가 없어도 앱은 뜨고 챗봇은 안내 문구를 돌려줍니다.</span></li>
+          <li><span class="t">챗봇 키 파일이 없으면 앱이 뜨지 않았습니다</span><span class="d">키 파일이 있을 때만 챗봇 클라이언트를 만듭니다. 키가 없으면 앱은 그대로 뜨고 챗봇만 안내 문구를 돌려줍니다.</span></li>
         </ol>
         <figure class="fig mt-a"><div class="frame light fixed"><img src="../assets/img/devhub/architecture.jpg" alt="브라우저, Spring Security, Controller, Service, Repository, Oracle과 H2, 외부 API로 이어지는 계층 구조"></div></figure>
         <p class="links mt-s"><a href="https://github.com/SanghyeokLee-KR/DevHub">DevHub 저장소</a></p>
