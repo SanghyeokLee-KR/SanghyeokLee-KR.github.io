@@ -3,30 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>비동기 복제에서 확인받은 쓰기 36건이 사라졌습니다 · 이상혁</title>
+<title>비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다 · 이상혁</title>
 <meta name="description" content="로컬 Docker의 PostgreSQL 비동기 복제에서 primary를 강제 종료해 ACK 받은 쓰기 122건 중 36건 유실을 확인하고, Patroni 엄격 동기 복제와 423 쓰기 게이트로 바꾼 과정입니다.">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../../assets/fonts/plex.css">
-<link rel="stylesheet" href="../../css/site.css">
+<link rel="stylesheet" href="../../css/blog.css">
 </head>
 <body>
-<a class="skip" href="#post">본문으로 건너뛰기</a>
-
-<header class="head">
-  <div class="wrap">
-    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
-    <nav class="nav" aria-label="주 메뉴">
-      <a href="../../">처음으로</a>
-      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
-    </nav>
-  </div>
-</header>
-
-<main>
-<article class="post" id="post">
-  <p class="post-meta"><time datetime="2026-09-12">2026.09.12</time><span class="tag">DB</span><span>로컬 Docker · failstop</span></p>
-  <h1>비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</h1>
+<div class="page">
+  <header class="top"><a class="home" href="../../">이상혁</a>
+    <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
+  <article>
+  <div class="post-head"><p class="m"><time datetime="2026-09-12">2026.09.12</time> · DB · 로컬 Docker · failstop</p><h1>비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</h1></div>
+  <div class="body">
   <p class="lead">로컬 Docker에서 PostgreSQL 비동기 복제의 primary를 강제 종료하고, 클라이언트가 커밋 확인(ACK)을 받은 행이 승격한 standby에 남아 있는지 셌습니다. standby를 8초 멈춘 회차에서는 ACK 122건 중 36건이 없었습니다. 이 결과를 근거로 DB 복제를 Patroni 엄격 동기로 바꾸고, 앱에는 동기 standby가 없을 때 쓰기를 거절하는 게이트를 넣었습니다.</p>
   <dl class="facts-mini">
     <dt>환경</dt><dd>로컬 Docker 한 호스트, <code>postgres:17-alpine</code> 2대(각 메모리 512MiB), 비동기 스트리밍 복제</dd>
@@ -115,18 +106,11 @@ switch (view.state()) {
 
   <div class="note">모두 로컬 Docker 한 호스트의 결과입니다. primary와 standby가 같은 커널과 디스크를 써서 AZ 간 지연이 없고, 비동기 회차는 조건마다 한 번씩만 돌렸습니다. 비동기 시험의 프로브는 psql로 직접 쓴 행이라 주문 경로가 아니라 저장 계층의 유실량입니다. Docker Desktop에는 <code>/dev/watchdog</code>이 없어 Patroni 워치독은 쓰지 않았습니다. AWS에서 잰 결과는 <a href="../aws-db-power-cut/">주 DB 전원 차단 시험</a>에 따로 적었습니다.</div>
 
-  <div class="post-foot">
-    <a href="../ctf-port80-hijack/"><span class="k">← 이전 글</span>apache2에 80번 포트를 빼앗긴 2차 공격</a>
-    <a href="../app-hang-hikaricp/"><span class="k">다음 글 →</span>/api 504 진단: 가상 스레드와 HikariCP 라이브락</a>
   </div>
-</article>
-</main>
-
-<footer class="foot slim wrap">
-  <div class="foot-meta">
-    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
-    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
-  </div>
-</footer>
+  <div class="post-nav"><a href="../ctf-port80-hijack/"><span class="k">← 이전 글</span>apache2에 80번 포트를 빼앗긴 2차 공격</a><a href="../app-hang-hikaricp/"><span class="k">다음 글 →</span>/api 504 진단: 가상 스레드와 HikariCP 라이브락</a></div>
+  </article>
+  <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
+</div>
+<script src="../../js/theme.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SafetyNevi · 이상혁</title>
 <meta name="description" content="재난문자를 지도에 위험 구역으로 표시하고, 가는 길이 위험 구역을 지나지 않는 대피소를 추천하는 재난 대피 서비스입니다. 4인 팀 졸업작품에서 Tech Lead와 PM을 맡았습니다.">
@@ -75,8 +76,8 @@
 
 <header class="head">
   <div class="wrap">
-    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴">
+    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
       <a class="hide-m" href="https://github.com/SanghyeokLee-KR">GitHub</a>
       <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
     </nav>
@@ -361,5 +362,6 @@ DisasterZoneResponse response = DisasterZoneResponse.from(saved);
 
 <script src="shelter.js"></script>
 <script src="../../js/case.js"></script>
+<script src="../../js/theme.js"></script>
 </body>
 </html>

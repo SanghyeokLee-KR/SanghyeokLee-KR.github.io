@@ -5,38 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>기록 · 이상혁</title>
 <meta name="description" content="장애 진단, 장애 시험, 백업, 방화벽 작업을 실제 명령과 출력으로 정리한 기록입니다.">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../assets/fonts/plex.css">
-<link rel="stylesheet" href="../css/site.css">
+<link rel="stylesheet" href="../css/blog.css">
 </head>
 <body>
-<header class="head">
-  <div class="wrap">
-    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 처음으로</a>
-    <nav class="nav" aria-label="주 메뉴">
-      <a class="hide-m" href="../#work">작업</a>
-      <span class="pdfs"><a href="../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
-    </nav>
-  </div>
-</header>
-<main class="wrap" style="padding-top:clamp(32px,5vw,72px);padding-bottom:clamp(56px,7vw,96px)">
-  <div class="sec-head"><h1 class="sec-title" style="margin:0">기록<sup>7</sup></h1><p class="muted" style="font-size:15px;margin:0">장애 진단, 장애 시험, 백업, 방화벽 작업을 실제 명령과 출력으로 정리했습니다.</p></div>
-  <ol class="log-list" style="border-top:0">
-    <li class="log-item"><a href="aws-db-power-cut/"><time class="d" datetime="2026-10-10">2026.10.10</time><span class="t">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</span><span class="g">DB</span><span class="s">개인 AWS에서 주 DB 전원을 끊고, 예비 DB 승격과 주문 재개까지의 시각을 기록했습니다.</span></a></li>
-    <li class="log-item"><a href="nftables-central-rollback/"><time class="d" datetime="2026-09-29">2026.09.29</time><span class="t">nftables 규칙 중앙 관리와 90초 자동 되돌리기</span><span class="g">방화벽</span><span class="s">VM 여섯 대의 nftables 규칙을 원본 하나로 관리하고, 확인이 없으면 90초 뒤 스스로 되돌리게 했습니다.</span></a></li>
-    <li class="log-item"><a href="pfsense-transparent-firewall/"><time class="d" datetime="2026-09-28">2026.09.28</time><span class="t">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</span><span class="g">방화벽</span><span class="s">서버 주소와 경로를 그대로 둔 채 pfSense 브리지 방화벽으로 구역을 나눴습니다.</span></a></li>
-    <li class="log-item"><a href="backup-offsite-restore/"><time class="d" datetime="2026-09-26">2026.09.26</time><span class="t">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</span><span class="g">백업</span><span class="s">Databasus 백업을 다른 서버로 보내 보관하고, 복원한 DB의 테이블 109개를 원본과 대조했습니다.</span></a></li>
-    <li class="log-item"><a href="app-hang-hikaricp/"><time class="d" datetime="2026-09-21">2026.09.21</time><span class="t">/api 504 진단: 가상 스레드와 HikariCP 라이브락</span><span class="g">장애 진단</span><span class="s">학교 AWS 앱 서버가 /api에만 504를 낼 때 스레드 덤프로 원인을 찾았습니다.</span></a></li>
-    <li class="log-item"><a href="async-replication-loss/"><time class="d" datetime="2026-09-12">2026.09.12</time><span class="t">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</span><span class="g">DB</span><span class="s">로컬 Docker에서 비동기 복제의 유실을 확인하고 Patroni 엄격 동기 복제로 바꿨습니다.</span></a></li>
-    <li class="log-item"><a href="ctf-port80-hijack/"><time class="d" datetime="2026-05-30">2026.05.30</time><span class="t">apache2에 80번 포트를 빼앗긴 2차 공격</span><span class="g">장애 대응</span><span class="s">공격자가 apache2로 80번 포트를 차지했을 때 서버가 NLB에서 빠지고 다른 서버가 채점을 받은 기록입니다.</span></a></li>
-  </ol>
-</main>
-<footer class="foot slim wrap">
-  <div class="foot-meta">
-    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
-    <span class="links"><a href="../">처음으로</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
-  </div>
-</footer>
+<div class="page log-page">
+  <header class="top"><a class="home" href="../">이상혁</a>
+    <nav><a href="../#projects">프로젝트</a><a href="../log/">기록</a><a href="../#about">소개</a><a href="../infra.pdf">인프라 PDF</a><a href="../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
+  <h1>기록</h1>
+  <p class="sub">장애 진단, 장애 시험, 백업, 방화벽 작업을 실제 명령과 출력으로 정리했습니다.</p>
+  <ul class="posts big">
+      <li><time datetime="2026-10-10">2026-10-10</time><a href="aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건<span class="s">개인 AWS에서 주 DB 전원을 끊고, 예비 DB 승격과 주문 재개까지의 시각을 기록했습니다.</span></a></li>
+      <li><time datetime="2026-09-29">2026-09-29</time><a href="nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기<span class="s">VM 여섯 대의 nftables 규칙을 원본 하나로 관리하고, 확인이 없으면 90초 뒤 스스로 되돌리게 했습니다.</span></a></li>
+      <li><time datetime="2026-09-28">2026-09-28</time><a href="pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환<span class="s">서버 주소와 경로를 그대로 둔 채 pfSense 브리지 방화벽으로 구역을 나눴습니다.</span></a></li>
+      <li><time datetime="2026-09-26">2026-09-26</time><a href="backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다<span class="s">Databasus 백업을 다른 서버로 보내 보관하고, 복원한 DB의 테이블 109개를 원본과 대조했습니다.</span></a></li>
+      <li><time datetime="2026-09-21">2026-09-21</time><a href="app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락<span class="s">학교 AWS 앱 서버가 /api에만 504를 낼 때 스레드 덤프로 원인을 찾았습니다.</span></a></li>
+      <li><time datetime="2026-09-12">2026-09-12</time><a href="async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다<span class="s">로컬 Docker에서 비동기 복제의 유실을 확인하고 Patroni 엄격 동기 복제로 바꿨습니다.</span></a></li>
+      <li><time datetime="2026-05-30">2026-05-30</time><a href="ctf-port80-hijack/">apache2에 80번 포트를 빼앗긴 2차 공격<span class="s">공격자가 apache2로 80번 포트를 차지했을 때 서버가 NLB에서 빠지고 다른 서버가 채점을 받은 기록입니다.</span></a></li>
+  </ul>
+  <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
+</div>
+<script src="../js/theme.js"></script>
 </body>
 </html>

@@ -3,30 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>주 DB 전원 차단 시험: 승격 23.0초, 유실 0건 · 이상혁</title>
+<title>주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건 · 이상혁</title>
 <meta name="description" content="개인 AWS 서울 리전의 Patroni 엄격 동기 두 노드에서 주 DB 전원을 즉시 끊고, 승격 시간과 직전 60초 커밋의 유실 여부, 거래 재개 시각을 기록했습니다.">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../../assets/fonts/plex.css">
-<link rel="stylesheet" href="../../css/site.css">
+<link rel="stylesheet" href="../../css/blog.css">
 </head>
 <body>
-<a class="skip" href="#post">본문으로 건너뛰기</a>
-
-<header class="head">
-  <div class="wrap">
-    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
-    <nav class="nav" aria-label="주 메뉴">
-      <a href="../../">처음으로</a>
-      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
-    </nav>
-  </div>
-</header>
-
-<main>
-<article class="post" id="post">
-  <p class="post-meta"><time datetime="2026-10-10">2026.10.10</time><span class="tag">DB</span><span>개인 AWS · failstop</span></p>
-  <h1>주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</h1>
+<div class="page">
+  <header class="top"><a class="home" href="../../">이상혁</a>
+    <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
+  <article>
+  <div class="post-head"><p class="m"><time datetime="2026-10-10">2026.10.10</time> · DB · 개인 AWS · failstop</p><h1>주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</h1></div>
+  <div class="body">
   <p class="lead">개인 AWS 서울 리전의 Patroni 두 노드에서 주 DB 커널에 sysrq 전원 차단을 걸었습니다. 예비 DB가 23.0초 뒤 승격했고, 직전 60초 동안 커밋된 주문 196건과 체결 129건이 모두 새 주 DB에 있었습니다. 엄격 동기 복제라 옛 주 DB가 예비로 돌아온 뒤에야 주문이 다시 커밋됐고, 그 시각은 장애 후 70.1초였습니다.</p>
   <dl class="facts-mini">
     <dt>환경</dt><dd>개인 AWS 서울 리전. PostgreSQL + Patroni db-1·db-2(엄격 동기), etcd 3표. 시각은 서버 시계(UTC)</dd>
@@ -98,17 +89,11 @@ date +%s.%N &gt; /var/tmp/failstop-t0 &amp;&amp; sync &amp;&amp; echo o &gt; /pr
 
   <div class="note">대조 대상은 주입 직전 60초 동안 커밋이 보인 주문과 체결입니다. 목록을 적은 뒤 주입까지 약 4초 사이의 커밋은 대조에 들어가지 않았고, 클라이언트가 응답을 받은 주문을 하나하나 대조한 것도 아닙니다(로컬 시험의 ACK 기록기와 k6 대조는 개인 AWS에서 돌리지 않았습니다). 회차별 한 번의 값이라 반복 측정 분포는 없습니다.</div>
 
-  <div class="post-foot">
-    <a href="../nftables-central-rollback/"><span class="k">← 이전 글</span>nftables 규칙 중앙 관리와 90초 자동 되돌리기</a>
   </div>
-</article>
-</main>
-
-<footer class="foot slim wrap">
-  <div class="foot-meta">
-    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
-    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
-  </div>
-</footer>
+  <div class="post-nav"><a href="../nftables-central-rollback/"><span class="k">← 이전 글</span>nftables 규칙 중앙 관리와 90초 자동 되돌리기</a></div>
+  </article>
+  <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
+</div>
+<script src="../../js/theme.js"></script>
 </body>
 </html>

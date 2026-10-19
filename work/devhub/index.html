@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DevHub · 이상혁</title>
 <meta name="description" content="개발자들이 UI와 코드를 공유하는 커뮤니티입니다. 4인 팀의 PM으로 인증과 보안, 결제창 연동, 실시간 채팅, 챗봇을 맡았고, 프로젝트가 끝난 뒤 Spring Security를 다시 켜고 포인트 버그를 고친 뒤 테스트 17건을 붙였습니다.">
@@ -30,8 +31,8 @@
 
 <header class="head">
   <div class="wrap">
-    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴">
+    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
       <a class="hide-m" href="https://github.com/SanghyeokLee-KR/DevHub">GitHub</a>
       <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
     </nav>
@@ -265,5 +266,6 @@ if (currentPoints <b>&gt;=</b> MPoint) { ... }</pre>
 <script src="../../js/flow.js"></script>
 <script src="flows.js"></script>
 <script src="../../js/case.js"></script>
+<script src="../../js/theme.js"></script>
 </body>
 </html>

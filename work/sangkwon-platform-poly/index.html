@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>sangkwon-platform-poly · 이상혁</title>
 <meta name="description" content="서울시 상권 1,650곳을 지도에서 비교하는 4인 팀 서비스입니다. 팀장으로 상권 조회 API와 지도, 팀 공통 기반을 만들고, EC2 두 대를 한 대씩 교체하는 배포를 맡았습니다.">
@@ -31,8 +32,8 @@
 
 <header class="head">
   <div class="wrap">
-    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴">
+    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
       <a class="hide-m" href="https://github.com/SanghyeokLee-KR">GitHub</a>
       <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
     </nav>
@@ -332,5 +333,6 @@ USING (SELECT ? RATE_KEY, ? NOW_AT, ? CUTOFF_AT FROM dual) s
 <script src="../../js/flow.js"></script>
 <script src="flows.js"></script>
 <script src="../../js/case.js"></script>
+<script src="../../js/theme.js"></script>
 </body>
 </html>

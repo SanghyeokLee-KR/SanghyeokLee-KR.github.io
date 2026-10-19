@@ -4,278 +4,83 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>이상혁 · System · Infra Engineer</title>
-<meta name="description" content="시스템·인프라 엔지니어 이상혁의 포트폴리오입니다. Linux 서버 운영, AWS 구성, 장애 시험과 백엔드 작업을 정리했습니다.">
+<meta name="description" content="Linux 서버와 AWS를 직접 구성하고, 장애를 내서 복구를 확인하는 시스템 · 인프라 엔지니어 이상혁의 포트폴리오입니다.">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="assets/fonts/plex.css">
-<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/blog.css">
 </head>
 <body>
-<a class="skip" href="#work">작업 목록으로 건너뛰기</a>
+<div class="page">
+  <header class="top"><a class="home" href="./">이상혁</a>
+    <nav><a href="#projects">프로젝트</a><a href="log/">기록</a><a href="#about">소개</a><a href="infra.pdf">인프라 PDF</a><a href="backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
 
-<header class="head" id="top">
-  <div class="wrap">
-    <a class="brand" href="./">이상혁<small>포트폴리오</small></a>
-    <nav class="nav" aria-label="주 메뉴">
-      <a href="#work">작업</a>
-      <a href="log/">기록</a>
-      <a class="hide-m" href="#about">소개</a>
-      <a class="hide-m" href="#contact">연락</a>
-      <span class="pdfs"><a href="infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
-    </nav>
-  </div>
-</header>
-
-<main id="main">
-
-<!-- 첫 화면: 이름 · 사진 · 한 줄 소개 · 연락처 -->
-<section class="hero wrap" aria-labelledby="who">
-  <p class="role fade"><span class="bar" aria-hidden="true"></span><b>System · Infra Engineer</b><span class="also">백엔드 개발도 합니다</span></p>
-  <div class="grid hero-grid">
-    <div class="h-id">
-      <h1 class="name" id="who" aria-label="이상혁"><span class="ch" aria-hidden="true">이</span><span class="ch" aria-hidden="true">상</span><span class="ch" aria-hidden="true">혁</span></h1>
-      <p class="en-name fade">Lee Sang Hyeok</p>
-      <p class="statement fade d2">Linux 서버와 AWS를 직접 구성하고,<br>장애를 내서 복구를 확인합니다.</p>
-      <dl class="contact-mini fade d3">
-        <div><dt>Email</dt><dd><a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></dd></div>
-        <div><dt>GitHub</dt><dd><a href="https://github.com/SanghyeokLee-KR">github.com/SanghyeokLee-KR</a></dd></div>
-      </dl>
-    </div>
-    <figure class="portrait h-photo"><img src="assets/img/profile/photo.jpg" width="480" height="640" alt="이상혁 증명사진"></figure>
-
-  </div>
-
-</section>
-
-<!-- 작업 -->
-<section class="sec wrap" id="work" aria-labelledby="work-h">
-  <div class="sec-head">
-    <h2 class="sec-title" id="work-h"><span class="no">01</span>작업</h2>
-    <a class="feat-all" href="#all">전체 작업 10개 보기 <span aria-hidden="true">↓</span></a>
-  </div>
-
-  <p class="lbl feat-h">주요 프로젝트</p>
-  <div class="feat">
-    <a class="fcard" href="work/failstop/">
-      <span class="f-img"><img src="assets/img/failstop/aws-arch.jpg" alt="개인 AWS 서울 리전 인프라 구성도" loading="lazy"></span>
-      <span class="f-body">
-        <span class="f-top"><span class="f-no">01</span><span class="f-tags"><i>AWS</i><i>Patroni</i><i>Linux</i></span></span>
-        <span class="f-t">모의 거래소의 AWS 이중화와 DB 페일오버 시험</span>
-        <span class="f-d">거래 서버와 DB를 두 가용 영역에 나눠 배치했습니다. 주 DB 전원을 끊었을 때 예비 DB가 23.0초 만에 승격됐고, 차단 직전 주문 196건 중 사라진 주문은 없었습니다.</span>
-        <span class="f-meta">failstop · 1인 프로젝트 · 2026.07 – 10</span>
-      </span>
-    </a>
-    <a class="fcard" href="work/keep-nginx-alive/">
-      <span class="f-img"><img src="assets/img/nginx/infra.jpg" alt="NLB 뒤 서버 세 대와 감시 흐름" loading="lazy"></span>
-      <span class="f-body">
-        <span class="f-top"><span class="f-no">02</span><span class="f-tags"><i>Linux</i><i>systemd</i><i>AWS NLB</i></span></span>
-        <span class="f-t">CTF에서 nginx 다층 자동 복구와 장애 노드 격리</span>
-        <span class="f-d">root 권한 공격자가 들어오는 서버에 복구 장치 다섯 가지를 두고, 헬스체크 503으로 오염된 서버가 NLB에서 빠지게 했습니다. 사흘간 채점 기준 다운 0회였습니다.</span>
-        <span class="f-meta">keep-nginx-alive · 3인 팀 조장 · 2026.05</span>
-      </span>
-    </a>
-    <a class="fcard" href="work/sangkwon-platform-poly/">
-      <span class="f-img"><img src="assets/img/sangkwon/infra.jpg" alt="두 가용 영역의 EC2와 로드밸런서" loading="lazy"></span>
-      <span class="f-body">
-        <span class="f-top"><span class="f-no">03</span><span class="f-tags"><i>AWS ALB</i><i>EC2</i><i>Oracle</i></span></span>
-        <span class="f-t">EC2 두 대 롤링 배포와 서버 상태 DB 이전</span>
-        <span class="f-d">서로 다른 가용 영역의 EC2 두 대를 ALB 뒤에 두고 한 대씩 교체하도록 배포했습니다. 세션, 스케줄러, 요청 제한 상태는 DB에서 함께 씁니다.</span>
-        <span class="f-meta">sangkwon-platform-poly · 4인 팀 팀장 · 2026.07</span>
-      </span>
-    </a>
-  </div>
-
-  <div class="sub-head" id="all">
-    <h3 class="sub-title">전체 작업<sup id="work-count">10</sup></h3>
-    <div class="filter" role="group" aria-label="분야로 거르기">
-      <button type="button" data-f="all" aria-pressed="true">전체<span class="c">10</span></button>
-      <button type="button" data-f="infra" aria-pressed="false">인프라<span class="c">5</span></button>
-      <button type="button" data-f="backend" aria-pressed="false">백엔드<span class="c">7</span></button>
+  <div class="intro">
+    <img src="assets/img/profile/photo.jpg" width="480" height="640" alt="이상혁 증명사진">
+    <div>
+      <h1>이상혁<small>Lee Sang Hyeok</small></h1>
+      <p class="role">System · Infra Engineer · 백엔드 개발도 합니다</p>
+      <p class="desc">Linux 서버와 AWS를 직접 구성하고, 장애를 내서 복구를 확인합니다. 작업하면서 실행한 명령과 결과는 아래 기록에 정리하고 있습니다.</p>
+      <div class="links"><a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="infra.pdf">인프라 PDF</a><a href="backend.pdf">백엔드 PDF</a></div>
     </div>
   </div>
 
-  <ol class="index">
-    <li class="work" data-kind="infra backend" data-img="assets/img/failstop/aws-map.jpg" data-cap="AWS 운영 구성도"><div class="w-in"><a href="work/failstop/">
-      <span class="w-no">01</span>
-      <span class="w-main"><span class="w-title">failstop</span><span class="w-line">모의 거래소의 AWS 이중화와 DB 페일오버 시험</span></span>
-      <span class="w-role">혼자 진행<br>Claude·Codex와 함께<span class="w-kind"><span class="i">인프라</span> · 백엔드</span></span>
-      <span class="w-year">2026<small>7–10월</small></span>
-      <span class="w-thumb"><img src="assets/img/failstop/aws-map.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
+  <section id="projects">
+    <h2>주요 프로젝트</h2>
+    <ul class="proj">
+      <li><div><h3><a href="work/failstop/">모의 거래소의 AWS 이중화와 DB 페일오버 시험</a></h3><p>거래 서버와 DB를 두 가용 영역에 나눠 배치했습니다. 주 DB 전원을 끊었을 때 예비 DB가 23.0초 만에 승격됐고, 차단 직전 주문 196건 중 사라진 주문은 없었습니다.</p><div class="meta"><code>AWS</code><code>Patroni</code><code>Linux</code><span>failstop · 1인 · 2026.07–10</span></div></div><a class="thumb" href="work/failstop/" tabindex="-1" aria-hidden="true"><img src="assets/img/failstop/aws-arch.jpg" alt="" loading="lazy"></a></li>
+      <li><div><h3><a href="work/keep-nginx-alive/">CTF에서 nginx 다층 자동 복구와 장애 노드 격리</a></h3><p>root 권한 공격자가 들어오는 서버에 복구 장치 다섯 가지를 두고, 헬스체크로 오염된 서버가 NLB에서 빠지게 했습니다. 사흘간 채점 기준 다운 0회였습니다.</p><div class="meta"><code>Linux</code><code>systemd</code><code>AWS NLB</code><span>keep-nginx-alive · 3인 팀 조장 · 2026.05</span></div></div><a class="thumb" href="work/keep-nginx-alive/" tabindex="-1" aria-hidden="true"><img src="assets/img/nginx/infra.jpg" alt="" loading="lazy"></a></li>
+      <li><div><h3><a href="work/sangkwon-platform-poly/">EC2 두 대 롤링 배포와 서버 상태 DB 이전</a></h3><p>서로 다른 가용 영역의 EC2 두 대를 ALB 뒤에 두고 한 대씩 교체하도록 배포했습니다. 세션, 스케줄러, 요청 제한 상태는 DB에서 함께 씁니다.</p><div class="meta"><code>AWS ALB</code><code>EC2</code><code>Oracle</code><span>sangkwon-platform-poly · 4인 팀 팀장 · 2026.07</span></div></div><a class="thumb" href="work/sangkwon-platform-poly/" tabindex="-1" aria-hidden="true"><img src="assets/img/sangkwon/infra.jpg" alt="" loading="lazy"></a></li>
+    </ul>
+  </section>
 
-    <li class="work" data-kind="infra" data-img="assets/img/nginx/infra.jpg" data-tone="light" data-cap="NLB 뒤 서버 세 대와 감시 흐름"><div class="w-in"><a href="work/keep-nginx-alive/">
-      <span class="w-no">02</span>
-      <span class="w-main"><span class="w-title">keep-nginx-alive</span><span class="w-line">공격자를 차단할 수 없는 CTF에서 nginx를 다운 없이 유지한 방어 구조</span></span>
-      <span class="w-role">3인 팀 조장<br>공격/방어 CTF<span class="w-kind"><span class="i">인프라</span></span></span>
-      <span class="w-year">2026<small>5월</small></span>
-      <span class="w-thumb light"><img src="assets/img/nginx/infra.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
+  <section id="posts">
+    <h2>기록 <a href="log/">전체 보기</a></h2>
+    <ul class="posts">
+      <li><time datetime="2026-10-10">2026-10-10</time><a href="log/aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</a></li>
+      <li><time datetime="2026-09-29">2026-09-29</time><a href="log/nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기</a></li>
+      <li><time datetime="2026-09-28">2026-09-28</time><a href="log/pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a></li>
+      <li><time datetime="2026-09-26">2026-09-26</time><a href="log/backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</a></li>
+      <li><time datetime="2026-09-21">2026-09-21</time><a href="log/app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락</a></li>
+      <li><time datetime="2026-09-12">2026-09-12</time><a href="log/async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a></li>
+      <li><time datetime="2026-05-30">2026-05-30</time><a href="log/ctf-port80-hijack/">apache2에 80번 포트를 빼앗긴 2차 공격</a></li>
+    </ul>
+  </section>
 
-    <li class="work" data-kind="infra" data-img="assets/img/pipeline/latency.jpg" data-cap="지연 시간과 처리량 한계"><div class="w-in"><a href="work/high-throughput-image-pipeline/">
-      <span class="w-no">03</span>
-      <span class="w-main"><span class="w-title">high-throughput-image-pipeline</span><span class="w-line">t3.micro 한 대에서 이미지 수집 처리량을 측정하고 CPU 병목을 확인한 과제</span></span>
-      <span class="w-role">3인 팀<br>팀 제출본으로 채택<span class="w-kind"><span class="i">인프라</span></span></span>
-      <span class="w-year">2026<small>6월</small></span>
-      <span class="w-thumb"><img src="assets/img/pipeline/latency.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
+  <section id="all">
+    <h2>전체 작업</h2>
+    <ul class="all">
+      <li><div><a href="work/failstop/">failstop</a> <span>— 모의 거래소의 AWS 이중화와 DB 페일오버 시험</span></div><span class="y">2026</span></li>
+      <li><div><a href="work/keep-nginx-alive/">keep-nginx-alive</a> <span>— CTF에서 nginx를 다운 없이 유지한 방어 구조</span></div><span class="y">2026</span></li>
+      <li><div><a href="work/high-throughput-image-pipeline/">high-throughput-image-pipeline</a> <span>— t3.micro 한 대에서 처리량 측정과 CPU 병목 확인</span></div><span class="y">2026</span></li>
+      <li><div><a href="work/ai-lunch-curator/">ai-lunch-curator</a> <span>— 식단표 수집, Teams 알림, CI/CD 배포</span></div><span class="y">2026</span></li>
+      <li><div><a href="work/sangkwon-platform-poly/">sangkwon-platform-poly</a> <span>— 상권 비교 서비스와 EC2 두 대 롤링 배포</span></div><span class="y">2026</span></li>
+      <li><div><a href="work/safetynevi/">SafetyNevi</a> <span>— 재난문자 위험 구역 표시와 대피소 추천</span></div><span class="y">2025</span></li>
+      <li><div><a href="work/deliverypro/">DeliveryPro</a> <span>— 묶음배달 방문 순서를 서버에서 계산</span></div><span class="y">2025</span></li>
+      <li><div><a href="work/appintoss-meetup/">하모니</a> <span>— 합주 토스 미니앱, 출시 전 보안 문제 해결</span></div><span class="y">2026</span></li>
+      <li><div><a href="work/devhub/">DevHub</a> <span>— 개발자 커뮤니티, 끝난 뒤 보안·포인트 수정</span></div><span class="y">2024</span></li>
+      <li><div><a href="work/polytalk/">polytalk</a> <span>— 서버에 평문이 남지 않는 1:1 채팅</span></div><span class="y">2026</span></li>
+    </ul>
+  </section>
 
-    <li class="work" data-kind="infra" data-img="assets/img/lunch/architecture.jpg" data-tone="light" data-cap="수집부터 배포까지의 구조"><div class="w-in"><a href="work/ai-lunch-curator/">
-      <span class="w-no">04</span>
-      <span class="w-main"><span class="w-title">ai-lunch-curator</span><span class="w-line">식단표 수집, AI 정리, Teams 알림과 CI/CD 배포</span></span>
-      <span class="w-role">3인 팀 조장<span class="w-kind"><span class="i">인프라</span></span></span>
-      <span class="w-year">2026<small>6월</small></span>
-      <span class="w-thumb light"><img src="assets/img/lunch/architecture.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
-
-    <li class="work" data-kind="infra backend" data-img="assets/img/sangkwon/infra.jpg" data-tone="light" data-cap="두 가용 영역의 EC2와 로드밸런서"><div class="w-in"><a href="work/sangkwon-platform-poly/">
-      <span class="w-no">05</span>
-      <span class="w-main"><span class="w-title">sangkwon-platform-poly</span><span class="w-line">서울 상권 비교 서비스와 EC2 두 대 순차 배포</span></span>
-      <span class="w-role">4인 팀 팀장<span class="w-kind"><span class="i">인프라</span> · 백엔드</span></span>
-      <span class="w-year">2026<small>7월</small></span>
-      <span class="w-thumb light"><img src="assets/img/sangkwon/infra.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
-
-    <li class="work" data-kind="backend" data-img="assets/img/safetynevi/flow.jpg" data-tone="light" data-cap="재난문자가 위험 구역이 되기까지"><div class="w-in"><a href="work/safetynevi/">
-      <span class="w-no">06</span>
-      <span class="w-main"><span class="w-title">SafetyNevi</span><span class="w-line">재난문자를 지도 위 위험 구역으로 바꾸고, 가는 길이 구역을 지나지 않는 대피소를 추천하는 서비스</span></span>
-      <span class="w-role">4인 팀 Tech Lead · PM<br>졸업작품<span class="w-kind">백엔드</span></span>
-      <span class="w-year">2025<small>9–12월</small></span>
-      <span class="w-thumb light"><img src="assets/img/safetynevi/flow.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
-
-    <li class="work" data-kind="backend" data-img="assets/img/delivery/route.jpg" data-tone="light" data-cap="서버가 계산한 묶음배달 순서"><div class="w-in"><a href="work/deliverypro/">
-      <span class="w-no">07</span>
-      <span class="w-main"><span class="w-title">DeliveryPro</span><span class="w-line">묶음배달 방문 순서를 서버에서 계산하는 배달 플랫폼</span></span>
-      <span class="w-role">5인 팀 조장<span class="w-kind">백엔드</span></span>
-      <span class="w-year">2025<small>1–2월</small></span>
-      <span class="w-thumb light"><img src="assets/img/delivery/route.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
-
-    <li class="work" data-kind="backend" data-img="assets/img/harmony/dfd.jpg" data-tone="light" data-cap="신뢰 경계와 데이터 흐름"><div class="w-in"><a href="work/appintoss-meetup/">
-      <span class="w-no">08</span>
-      <span class="w-main"><span class="w-title">하모니</span><span class="w-line">친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 토스 미니앱</span></span>
-      <span class="w-role">4인 팀 팀장<br>보안 문제 해결 · 최종 승인<span class="w-kind">백엔드</span></span>
-      <span class="w-year">2026<small>6월</small></span>
-      <span class="w-thumb light"><img src="assets/img/harmony/dfd.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
-
-    <li class="work" data-kind="backend" data-img="assets/img/devhub/architecture.jpg" data-tone="light" data-cap="계층 구조"><div class="w-in"><a href="work/devhub/">
-      <span class="w-no">09</span>
-      <span class="w-main"><span class="w-title">DevHub</span><span class="w-line">프로젝트 종료 후 코드를 고치고 테스트를 붙인 개발자 커뮤니티</span></span>
-      <span class="w-role">4인 팀 PM<span class="w-kind">백엔드</span></span>
-      <span class="w-year">2024<small>6–7월</small></span>
-      <span class="w-thumb light"><img src="assets/img/devhub/architecture.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
-
-    <li class="work" data-kind="backend" data-img="assets/img/polytalk/e2ee.jpg" data-tone="light" data-cap="공개키 중계와 ECDH"><div class="w-in"><a href="work/polytalk/">
-      <span class="w-no">10</span>
-      <span class="w-main"><span class="w-title">polytalk</span><span class="w-line">서버에 평문이 남지 않는 1:1 채팅</span></span>
-      <span class="w-role">자바 심화 과제<span class="w-kind">백엔드</span></span>
-      <span class="w-year">2026<small>5월</small></span>
-      <span class="w-thumb light"><img src="assets/img/polytalk/e2ee.jpg" alt="" loading="lazy"></span>
-    </a></div></li>
-  </ol>
-</section>
-
-<!-- 기록 -->
-<section class="sec wrap" id="log" aria-labelledby="log-h">
-  <div class="sec-head"><h2 class="sec-title" id="log-h"><span class="no">02</span>기록</h2><a class="feat-all" href="log/">기록 7편 모두 보기 <span aria-hidden="true">→</span></a></div>
-  <ol class="log-list" style="border-top:0">
-    <li class="log-item"><a href="log/aws-db-power-cut/"><time class="d" datetime="2026-10-10">2026.10.10</time><span class="t">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</span><span class="g">DB</span><span class="s">개인 AWS에서 주 DB 전원을 끊고, 예비 DB 승격과 주문 재개까지의 시각을 기록했습니다.</span></a></li>
-    <li class="log-item"><a href="log/nftables-central-rollback/"><time class="d" datetime="2026-09-29">2026.09.29</time><span class="t">nftables 규칙 중앙 관리와 90초 자동 되돌리기</span><span class="g">방화벽</span><span class="s">VM 여섯 대의 nftables 규칙을 원본 하나로 관리하고, 확인이 없으면 90초 뒤 스스로 되돌리게 했습니다.</span></a></li>
-    <li class="log-item"><a href="log/pfsense-transparent-firewall/"><time class="d" datetime="2026-09-28">2026.09.28</time><span class="t">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</span><span class="g">방화벽</span><span class="s">서버 주소와 경로를 그대로 둔 채 pfSense 브리지 방화벽으로 구역을 나눴습니다.</span></a></li>
-    <li class="log-item"><a href="log/backup-offsite-restore/"><time class="d" datetime="2026-09-26">2026.09.26</time><span class="t">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</span><span class="g">백업</span><span class="s">Databasus 백업을 다른 서버로 보내 보관하고, 복원한 DB의 테이블 109개를 원본과 대조했습니다.</span></a></li>
-  </ol>
-</section>
-
-<!-- 소개 -->
-<section class="sec wrap" id="about" aria-labelledby="about-h">
-  <div class="sec-head"><h2 class="sec-title" id="about-h"><span class="no">03</span>소개</h2></div>
-  <div class="grid about">
-    <h3 class="about-h rv">백엔드 개발에서 시작해<br>지금은 서버 운영과<br>장애 대응을 공부합니다.</h3>
-    <p class="about-lede rv">처음에는 웹 서비스 기능을 만드는 백엔드 프로젝트를 주로 했습니다. 만든 서비스를 직접 배포하면서 서버가 죽거나 요청이 몰릴 때의 동작을 확인할 일이 많아졌고, 지금은 Linux 서버와 AWS 구성을 직접 설정한 뒤 장애를 내서 복구되는지 확인하는 작업을 주로 합니다.</p>
-
-    <div class="tl rv" id="tl">
-      <div class="sub-h"><p class="lbl">지금까지 해 온 프로젝트</p><p class="tl-key" aria-hidden="true"><i>백엔드</i><i class="in">인프라</i></p></div>
-      <div class="tl-axis" aria-hidden="true"><span></span><span class="yrs"><span>2024</span><span>2025</span><span>2026</span></span></div>
-      <ol>
-      <li class="tl-row"><p class="tl-name"><span>BookRidge</span><span class="dt">2024.03.06 – 03.10</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:5.93%;width:0.46%"></b></span></li>
-      <li class="tl-row"><p class="tl-name"><a href="work/devhub/">DevHub</a><span class="dt">2024.06.13 – 07.12</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:14.96%;width:2.74%"></b></span></li>
-      <li class="tl-row"><p class="tl-name"><a href="work/deliverypro/">DeliveryPro</a><span class="dt">2025.01.05 – 02.07</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:33.76%;width:3.10%"></b></span></li>
-      <li class="tl-row"><p class="tl-name"><a href="work/safetynevi/">SafetyNevi</a><span class="dt">2025.08.31 – 12.14</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:55.47%;width:9.67%"></b></span></li>
-      <li class="tl-row"><p class="tl-name"><a href="work/polytalk/">polytalk</a><span class="dt">2026.05.04 – 06.02</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:77.92%;width:2.74%"></b></span></li>
-      <li class="tl-row"><p class="tl-name"><span>kopo-ecommerce</span><span class="dt">2026.05.11 – 06.06</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:78.56%;width:2.46%"></b></span></li>
-      <li class="tl-row i"><p class="tl-name"><a href="work/keep-nginx-alive/">keep-nginx-alive</a><span class="dt">2026.05.29 – 05.31</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:80.20%;width:0.27%"></b></span></li>
-      <li class="tl-row i"><p class="tl-name"><a href="work/ai-lunch-curator/">ai-lunch-curator</a><span class="dt">2026.06.08 – 06.09</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:81.11%;width:0.18%"></b></span></li>
-      <li class="tl-row i"><p class="tl-name"><a href="work/high-throughput-image-pipeline/">image-pipeline</a><span class="dt">2026.06.10 – 06.13</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:81.30%;width:0.36%"></b></span></li>
-      <li class="tl-row"><p class="tl-name"><a href="work/appintoss-meetup/">하모니</a><span class="dt">2026.06.19 – 06.26</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:82.12%;width:0.73%"></b></span></li>
-      <li class="tl-row"><p class="tl-name"><a href="work/sangkwon-platform-poly/">sangkwon</a><span class="dt">2026.07.03 – 07.14</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:83.39%;width:1.09%"></b></span></li>
-      <li class="tl-row i"><p class="tl-name"><a href="work/failstop/">failstop</a><span class="dt">2026.07.22 – 10.16</span></p><span class="tl-track" aria-hidden="true"><span></span><span></span><span></span><b style="left:85.13%;width:7.94%"></b></span></li>
-      </ol>
-    </div>
-
-    <div class="about-caps rv">
-      <p class="lbl sub-h">이렇게 일합니다</p>
-      <ol class="caps">
-        <li><span class="k">01</span><div><p class="t">Linux 서버를 직접 설정합니다</p><p class="d">계정과 권한, 로그, 방화벽, 디스크를 직접 설정했습니다. RAID1에서 디스크를 빼고 교체해 봤고, 디스크 용량을 일부러 채워 경보가 오는지 확인했습니다.</p></div></li>
-        <li><span class="k">02</span><div><p class="t">장애를 내서 복구를 확인합니다</p><p class="d">주 DB를 강제로 끄고, 예비 DB가 승격되는 동안 주문이 사라지는지 대조했습니다. 공격/방어 CTF에서는 경기 내내 채점 기준 다운이 한 번도 없었습니다.</p></div></li>
-        <li><span class="k">03</span><div><p class="t">관제와 배포를 자동화했습니다</p><p class="d">Prometheus와 Grafana로 지표를 보고, 경보가 울리면 AI가 원인을 정리해 Teams로 보고하게 했습니다. 배포는 GitHub Actions로 자동화했습니다.</p></div></li>
-        <li><span class="k">04</span><div><p class="t">백엔드도 개발합니다</p><p class="d">같은 주문이 두 번 들어올 때의 멱등 처리, 서버가 두 대일 때 요청 제한 카운터를 DB에서 공유하는 문제처럼 데이터가 어긋날 수 있는 부분을 테스트와 측정으로 확인하며 고쳤습니다.</p></div></li>
-      </ol>
-    </div>
-    <div class="about-stack rv">
-      <p class="lbl sub-h">주로 쓰는 기술</p>
-      <dl class="stack">
-        <div><dt>서버 운영</dt><dd>Linux · systemd · nftables · Docker · Nginx · HAProxy</dd></div>
-        <div><dt>클라우드</dt><dd>AWS EC2 · ALB · Auto Scaling · CloudFront · SSM · S3</dd></div>
-        <div><dt>관제·자동화</dt><dd>Prometheus · Grafana · Alertmanager · GitHub Actions</dd></div>
-        <div><dt>데이터</dt><dd>PostgreSQL · Patroni · Oracle · Redis</dd></div>
-        <div><dt>개발</dt><dd>Java · Spring Boot · Python · FastAPI · TypeScript</dd></div>
-      </dl>
-      <p class="lbl sub-h cred-h">학력 · 교육 · 자격</p>
-      <dl class="stack cred">
-        <div><dt>학력</dt><dd>인하공업전문대학교 정보통신공학과 졸업 · 학사(전공심화) 2026.02</dd></div>
-        <div><dt>교육</dt><dd>한국폴리텍대학 광명융합기술교육원 하이테크과정 데이터분석과 · 2026.03 – 12 수료 예정<br>인천일보아카데미 Java·Python 웹서비스 개발자 과정 896시간 · 2024<br>인천일보아카데미 빅데이터 데이터사이언티스트 과정 960시간 · 2024 – 2025</dd></div>
-        <div><dt>자격</dt><dd>정보처리기사 2026.09 · 네트워크관리사 2급 2024.10</dd></div>
-        <div><dt>수상</dt><dd>프로젝트작품 경진대회 은상, 한국폴리텍대학 광명융합기술교육원 2026.10<br>성적우수상(전체 교육기간 성적 1위), 인하공업전문대학교 2026.02</dd></div>
-      </dl>
-    </div>
-  </div>
-</section>
-
-<!-- 문서 -->
-<section class="sec wrap" id="docs" aria-labelledby="docs-h">
-  <div class="sec-head"><h2 class="sec-title" id="docs-h"><span class="no">04</span>문서로 보기</h2><p class="muted" style="font-size:15px">직무별로 15쪽 PDF 두 개로 정리했습니다.</p></div>
-  <ul class="docs">
-    <li class="doc"><a href="infra.pdf" download>
-      <span class="d-k">PDF</span>
-      <span class="d-t">인프라 포트폴리오</span>
-      <span class="d-d">failstop, keep-nginx-alive, image-pipeline, ai-lunch-curator, sangkwon</span>
-      <span class="d-f"><span class="tx">2.4 MB</span><span class="dl" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2v10M3.5 7.5 8 12l4.5-4.5M2.5 14.5h11"/></svg></span></span>
-    </a></li>
-    <li class="doc"><a href="backend.pdf" download>
-      <span class="d-k">PDF</span>
-      <span class="d-t">백엔드 포트폴리오</span>
-      <span class="d-d">failstop, SafetyNevi, sangkwon, DeliveryPro, 하모니, DevHub · polytalk</span>
-      <span class="d-f"><span class="tx">1.9 MB</span><span class="dl" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2v10M3.5 7.5 8 12l4.5-4.5M2.5 14.5h11"/></svg></span></span>
-    </a></li>
-  </ul>
-</section>
-
-</main>
-
-<!-- 연락 -->
-<footer class="foot wrap" id="contact">
-  <p class="say">연락은 이메일로 주세요.</p>
-  <a class="mail" href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a>
-  <div class="foot-meta">
-    <span>이상혁 · Lee Sang Hyeok</span>
-    <span class="links"><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="infra.pdf" download>인프라 PDF</a><a href="backend.pdf" download>백엔드 PDF</a><a href="#top">맨 위로</a></span>
-  </div>
-</footer>
-
-<div class="peek" aria-hidden="true"><img alt=""><p class="cap"></p></div>
-
-<script src="js/home.js"></script>
+  <section id="about" class="about">
+    <h2>소개</h2>
+    <p>처음에는 웹 서비스 기능을 만드는 백엔드 프로젝트를 주로 했습니다. 만든 서비스를 직접 배포하면서 서버가 죽거나 요청이 몰릴 때의 동작을 확인할 일이 많아졌고, 지금은 Linux 서버와 AWS 구성을 직접 설정한 뒤 장애를 내서 복구되는지 확인하는 작업을 주로 합니다.</p>
+    <dl class="kv">
+      <dt>서버 운영</dt><dd>Linux · systemd · nftables · Docker · Nginx · HAProxy</dd>
+      <dt>클라우드</dt><dd>AWS EC2 · ALB · Auto Scaling · CloudFront · SSM · S3</dd>
+      <dt>관제·자동화</dt><dd>Prometheus · Grafana · Alertmanager · GitHub Actions</dd>
+      <dt>데이터</dt><dd>PostgreSQL · Patroni · Oracle · Redis</dd>
+      <dt>개발</dt><dd>Java · Spring Boot · Python · FastAPI · TypeScript</dd>
+      <dt>학력</dt><dd>인하공업전문대학교 정보통신공학과 학사(전공심화) 2026.02</dd>
+      <dt>교육</dt><dd>한국폴리텍대학 광명융합기술교육원 하이테크과정 데이터분석과(2026.03–12 수료 예정)<br>인천일보아카데미 Java·Python 웹서비스 개발자 과정(2024) · 빅데이터 데이터사이언티스트 과정(2024–2025)</dd>
+      <dt>자격</dt><dd>정보처리기사 2026.09 · 네트워크관리사 2급 2024.10</dd>
+      <dt>수상</dt><dd>프로젝트작품 경진대회 은상, 한국폴리텍대학 광명융합기술교육원 2026.10<br>성적우수상(전체 교육기간 성적 1위), 인하공업전문대학교 2026.02</dd>
+    </dl>
+  </section>
+  <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
+</div>
+<script src="js/theme.js"></script>
 </body>
 </html>

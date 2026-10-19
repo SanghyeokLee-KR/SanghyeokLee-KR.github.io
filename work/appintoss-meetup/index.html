@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>하모니 · 이상혁</title>
 <meta name="description" content="친구가 녹음한 트랙 위에 내 트랙을 얹어 한 곡을 만드는 토스 미니앱입니다. 4인 팀의 팀장으로 출시 전 보안 문제 해결과 최종 승인을 맡았고, 일주일 만에 출시했습니다.">
@@ -38,8 +39,8 @@
 
 <header class="head">
   <div class="wrap">
-    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴">
+    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
       <a class="hide-m" href="https://github.com/Appintos-Harmony/appintoss-meetup">GitHub</a>
       <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
     </nav>
@@ -302,5 +303,6 @@ location /sessions {
 <script src="../../js/flow.js"></script>
 <script src="flows.js"></script>
 <script src="../../js/case.js"></script>
+<script src="../../js/theme.js"></script>
 </body>
 </html>

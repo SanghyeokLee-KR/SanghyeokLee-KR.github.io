@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>failstop · 이상혁</title>
 <meta name="description" content="직접 만든 모의 거래소를 AWS 서울 리전의 두 가용 영역에 올리고, 장애 시험과 DB 페일오버, AI 관제를 구성한 프로젝트입니다.">
@@ -19,8 +20,8 @@
 
 <header class="head">
   <div class="wrap">
-    <a class="back" href="../../#work"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴">
+    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
+    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
       <a class="hide-m" href="https://github.com/SanghyeokLee-KR/failstop">GitHub</a>
       <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
     </nav>
@@ -411,5 +412,6 @@ SELECT ...
 <script src="../../js/flow.js"></script>
 <script src="flows.js"></script>
 <script src="../../js/case.js"></script>
+<script src="../../js/theme.js"></script>
 </body>
 </html>
