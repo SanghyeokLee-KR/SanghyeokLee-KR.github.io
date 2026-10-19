@@ -49,7 +49,43 @@
 <!-- 작업 -->
 <section class="sec wrap" id="work" aria-labelledby="work-h">
   <div class="sec-head">
-    <h2 class="sec-title" id="work-h"><span class="no">01</span>작업<sup id="work-count">10</sup></h2>
+    <h2 class="sec-title" id="work-h"><span class="no">01</span>작업</h2>
+    <a class="feat-all" href="#all">전체 작업 10개 보기 <span aria-hidden="true">↓</span></a>
+  </div>
+
+  <p class="lbl feat-h">주요 프로젝트</p>
+  <div class="feat">
+    <a class="fcard" href="work/failstop/">
+      <span class="f-img f-dark"><img src="assets/img/failstop/aws-map.jpg" alt="AWS 운영 구성도" loading="lazy"></span>
+      <span class="f-body">
+        <span class="f-top"><span class="f-no">01</span><span class="f-tags"><i>AWS</i><i>Patroni</i><i>Linux</i></span></span>
+        <span class="f-t">모의 거래소의 AWS 이중화와 DB 페일오버 시험</span>
+        <span class="f-d">거래 서버와 DB를 두 가용 영역에 나눠 배치했습니다. 주 DB 전원을 끊었을 때 예비 DB가 23.0초 만에 승격됐고, 차단 직전 주문 196건 중 사라진 주문은 없었습니다.</span>
+        <span class="f-meta">failstop · 1인 프로젝트 · 2026.07 – 10</span>
+      </span>
+    </a>
+    <a class="fcard" href="work/keep-nginx-alive/">
+      <span class="f-img"><img src="assets/img/nginx/infra.jpg" alt="NLB 뒤 서버 세 대와 감시 흐름" loading="lazy"></span>
+      <span class="f-body">
+        <span class="f-top"><span class="f-no">02</span><span class="f-tags"><i>Linux</i><i>systemd</i><i>AWS NLB</i></span></span>
+        <span class="f-t">CTF에서 nginx 다층 자동 복구와 장애 노드 격리</span>
+        <span class="f-d">root 권한 공격자가 들어오는 서버에 복구 장치 다섯 가지를 두고, 헬스체크 503으로 오염된 서버가 NLB에서 빠지게 했습니다. 사흘간 채점 기준 다운 0회였습니다.</span>
+        <span class="f-meta">keep-nginx-alive · 3인 팀 조장 · 2026.05</span>
+      </span>
+    </a>
+    <a class="fcard" href="work/sangkwon-platform-poly/">
+      <span class="f-img"><img src="assets/img/sangkwon/infra.jpg" alt="두 가용 영역의 EC2와 로드밸런서" loading="lazy"></span>
+      <span class="f-body">
+        <span class="f-top"><span class="f-no">03</span><span class="f-tags"><i>AWS ALB</i><i>EC2</i><i>Oracle</i></span></span>
+        <span class="f-t">EC2 두 대 롤링 배포와 서버 상태 DB 이전</span>
+        <span class="f-d">서로 다른 가용 영역의 EC2 두 대를 ALB 뒤에 두고 한 대씩 교체하도록 배포했습니다. 세션, 스케줄러, 요청 제한 상태는 DB에서 함께 씁니다.</span>
+        <span class="f-meta">sangkwon-platform-poly · 4인 팀 팀장 · 2026.07</span>
+      </span>
+    </a>
+  </div>
+
+  <div class="sub-head" id="all">
+    <h3 class="sub-title">전체 작업<sup id="work-count">10</sup></h3>
     <div class="filter" role="group" aria-label="분야로 거르기">
       <button type="button" data-f="all" aria-pressed="true">전체<span class="c">10</span></button>
       <button type="button" data-f="infra" aria-pressed="false">인프라<span class="c">5</span></button>
