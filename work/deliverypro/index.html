@@ -2,260 +2,159 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DeliveryPro · 이상혁</title>
 <meta name="description" content="음식 주문부터 라이더 묶음배달까지 잇는 배달 플랫폼입니다. 5인 팀의 조장으로 묶음배달 방문 순서 계산과 서버 공통 규약, 소셜 로그인을 맡았습니다.">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../../assets/fonts/plex.css">
-<link rel="stylesheet" href="../../css/site.css">
+<link rel="stylesheet" href="../../css/blog.css">
+<link rel="stylesheet" href="../../css/flow.css">
 <style>
-  /* 이 페이지에만 필요한 규칙. 공통 css/site.css는 바꾸지 않는다 */
-  .hero-shot .plate { padding: clamp(10px, 1.6vw, 22px); }
-  /* 열한 글자 이름이 여는 부분의 8칸 안에서 한 줄로 들어가게 */
-  .case-title { font-size: clamp(56px, 9.6vw, 146px); }
-  .codes td:first-child { width: 4.5em; }
-  .codes code { white-space: nowrap; }
-  .shots3 .plate { aspect-ratio: 16 / 10; overflow: hidden; }
-  .shots3 .plate img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
-  @media (max-width: 760px) {
-    .case-title { font-size: clamp(44px, 14vw, 96px); }
-    .case-deck br { display: none; }
-  }
+  /* 이 페이지에만 필요한 규칙. 공통 css는 바꾸지 않는다 */
+  .body ul.items, .body ol.items { padding-left: 1.3em; }
+  .body .items li { margin-top: 10px; }
+  .body .items li > b { display: block; color: var(--fg); font-weight: 650; }
+  .body .nk { font-family: var(--mono); font-size: 12.5px; font-weight: 500; color: var(--accent); margin-left: 8px; }
+  .body .small { font-size: 13.5px; color: var(--fg-3); }
+  .body .vs + .vs { margin-top: 0; border-top-color: var(--line); }
+  .body .codes td:first-child { width: 5em; }
+  /* 화면 세 장: 넓은 화면은 한 줄, 휴대폰은 한 열 */
+  .shots3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+  .shots3 figure { margin: 0; min-width: 0; }
+  .shots3 img { aspect-ratio: 16 / 10; width: 100%; object-fit: cover; object-position: top left; }
+  @media (max-width: 640px) { .shots3 { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
-<a class="skip" href="#ch-intro">본문으로 건너뛰기</a>
+<div class="page">
+  <header class="top"><a class="home" href="../../">이상혁</a>
+    <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
+  <article>
+  <div class="post-head"><p class="m"><time datetime="2025-01">2025.01 – 02</time> · 5인 팀 조장 · 백엔드</p><h1>DeliveryPro</h1></div>
+  <div class="body">
+  <p class="lead">묶음배달 라이더의 방문 순서를 서버에서 계산하는 배달 플랫폼입니다.</p>
+  <dl class="facts-mini">
+    <dt>기간</dt><dd>2025년 1월 – 2월</dd>
+    <dt>형태</dt><dd>5인 팀 조장으로 묶음배달 경로 계산과 서버 공통 규약, 소셜 로그인, 화면을 맡았습니다.</dd>
+    <dt>기술</dt><dd>Java 21 · Spring Boot 3.4 · Spring MVC · Spring Data JPA · Spring Security · Thymeleaf · Oracle · H2 · Apache HttpClient · Kakao Map</dd>
+    <dt>자료</dt><dd><a href="https://github.com/SanghyeokLee-KR/DeliveryPro">GitHub 저장소</a> · <a href="../../backend.pdf" download>백엔드 PDF</a></dd>
+  </dl>
 
-<header class="head">
-  <div class="wrap">
-    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
-      <a class="hide-m" href="https://github.com/SanghyeokLee-KR">GitHub</a>
-      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
-    </nav>
-  </div>
-</header>
-
-<main>
-
-<!-- 여는 부분 -->
-<section class="case-open wrap" aria-labelledby="t">
-  <p class="crumb"><span class="bar" aria-hidden="true"></span><span>작업 <span class="mono">07 / 10</span></span><span>백엔드</span><span class="mono">2025</span></p>
-  <div class="grid case-row">
-    <div class="case-l">
-      <h1 class="case-title" id="t">DeliveryPro</h1>
-      <p class="case-deck">묶음배달 라이더의 방문 순서를 <br>서버에서 계산하는 배달 플랫폼입니다.</p>
-    </div>
-    <dl class="case-meta">
-      <div><dt>기간</dt><dd>2025년 1월 – 2월</dd></div>
-      <div><dt>형태</dt><dd>5인 팀 조장으로 묶음배달 경로 계산과 서버 공통 규약, 소셜 로그인, 화면을 맡았습니다.</dd></div>
-      <div><dt>분야</dt><dd>백엔드</dd></div>
-      <div><dt>기술</dt><dd>Java 21 · Spring Boot 3.4 · Spring MVC · Spring Data JPA · Spring Security · Thymeleaf · Oracle · H2 · Apache HttpClient · Kakao Map</dd></div>
-      <div><dt>자료</dt><dd class="lk"><a href="https://github.com/SanghyeokLee-KR/DeliveryPro">GitHub 저장소</a></dd></div>
-    </dl>
-  </div>
-  <figure class="hero-shot">
-    <div class="plate light"><img src="../../assets/img/delivery/route.jpg" width="1600" height="946" alt="배달지 5곳을 서버가 계산한 순서와 구간 경로로 그린 라이더 화면. 아래에 배달지 5곳, 총 14.58km, 약 38분, '방문 순서 정확해'라고 적혀 있습니다"></div>
-    <figcaption><b>라이더 화면</b> · 서버가 정한 순서대로 배달지 다섯 곳을 이어 그린 화면입니다.</figcaption>
+  <figure>
+    <img src="../../assets/img/delivery/route.jpg" width="1600" height="946" alt="배달지 5곳을 서버가 계산한 순서와 구간 경로로 그린 라이더 화면. 아래에 배달지 5곳, 총 14.58km, 약 38분, '방문 순서 정확해'라고 적혀 있습니다">
+    <figcaption>라이더 화면 · 서버가 정한 순서대로 배달지 다섯 곳을 이어 그린 화면입니다.</figcaption>
   </figure>
-</section>
 
-<nav class="chapters" aria-label="장 목록">
-  <div class="wrap">
-    <ol>
-      <li><a href="#ch-intro"><span class="n">01</span>개요</a></li>
-      <li><a href="#ch-route"><span class="n">02</span>경로 계산</a></li>
-      <li><a href="#ch-proof"><span class="n">03</span>테스트로 고정</a></li>
-      <li><a href="#ch-common"><span class="n">04</span>공통 규약</a></li>
-      <li><a href="#ch-login"><span class="n">05</span>로그인과 실행</a></li>
-      <li><a href="#ch-screens"><span class="n">06</span>서비스 화면</a></li>
-    </ol>
-    <span class="progress" aria-hidden="true"></span>
-  </div>
-</nav>
-
-<div class="case-body">
-
-<!-- 01 개요 -->
-<section class="chap wrap" id="ch-intro" aria-labelledby="h1">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">손님 · 사장님 · 라이더 · 관리자를 잇는 배달 플랫폼</h2>
-    <div class="prose">
-      <p>손님은 가게를 골라 주문하고, 사장님은 주문을 받아 메뉴를 관리합니다. 라이더는 배달을 맡고, 관리자는 회원과 가게, 라이더를 관리합니다. 이 네 역할을 한 서비스로 잇는 배달 플랫폼을 다섯 명이 만들었습니다.</p>
-      <p>조장인 저는 라이더 한 명이 여러 집을 어떤 순서로 돌지 서버가 계산하게 만들었고, 다섯 명이 짠 API가 같은 모양으로 응답하도록 공통 규약을 정했습니다. 소셜 로그인과 화면도 맡았습니다.</p>
-    </div>
-  </div>
-  <div class="facts mt-l rv">
-    <div class="fact"><p class="n">14.58<small>km</small></p><p class="l">배달지 5곳을 도는 경로</p><p class="c">데모용 격자 도로망에서 약 38분 걸리는 순서입니다.</p></div>
-    <div class="fact"><p class="n">1,876<small>m</small></p><p class="l">직선으로 208m인 두 집의 도로 거리</p><p class="c">건널 수 없는 길을 우회한 거리입니다.</p></div>
-  </div>
-</section>
-
-<!-- 02 경로 계산 -->
-<section class="chap wrap" id="ch-route" aria-labelledby="h2">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>02</b>묶음배달 경로 계산</p>
-    <h2 class="ch-h" id="h2">라이더가 어느 집부터 들러야 할지, 서버가 계산하게 했습니다</h2>
-    <div class="prose">
-      <p>직선거리로 순서를 정하면 일방통행도, 건널 수 없는 길도 알 수 없습니다. 그래서 도로망을 방향 그래프로 만들고, 그 위에서 정차지끼리 걸리는 시간을 구한 뒤 순서를 정했습니다. 도로망은 실제 지도가 아니라, 일방통행과 건널 수 없는 길을 넣은 25×21 데모용 격자입니다.</p>
-    </div>
+  <h2 id="ch-intro">손님 · 사장님 · 라이더 · 관리자를 잇는 배달 플랫폼</h2>
+  <p>손님은 가게를 골라 주문하고, 사장님은 주문을 받아 메뉴를 관리합니다. 라이더는 배달을 맡고, 관리자는 회원과 가게, 라이더를 관리합니다. 이 네 역할을 한 서비스로 잇는 배달 플랫폼을 다섯 명이 만들었습니다.</p>
+  <p>조장인 저는 라이더 한 명이 여러 집을 어떤 순서로 돌지 서버가 계산하게 만들었고, 다섯 명이 짠 API가 같은 모양으로 응답하도록 공통 규약을 정했습니다. 소셜 로그인과 화면도 맡았습니다.</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>항목</th><th>값</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>배달지 5곳을 도는 경로</td><td>14.58km</td><td>데모용 격자 도로망에서 약 38분 걸리는 순서입니다.</td></tr>
+      <tr><td>직선으로 208m인 두 집의 도로 거리</td><td>1,876m</td><td>건널 수 없는 길을 우회한 거리입니다.</td></tr>
+    </tbody>
+  </table>
   </div>
 
-  <div class="flow mt-l rv" data-flow="route" data-title="방문 순서를 계산하는 길"></div>
-
-  <ol class="chain mt-l rv">
-    <li><p class="nk">CSR graph</p><p class="nt">방향이 있는 도로망</p><p class="nd">교차로를 노드, 도로 구간을 간선으로 두고, 간선에는 거리 대신 도로 종류별 속도로 구한 소요 시간을 넣었습니다.</p></li>
-    <li><p class="nk">snap · 400m</p><p class="nt">가까운 교차로에 붙이기</p><p class="nd">배달지를 400m 격자 색인으로 가장 가까운 교차로에 붙이고, 1,500m 넘게 떨어지면 구역 밖으로 봅니다.</p></li>
-    <li><p class="nk">Dijkstra</p><p class="nt">정차지마다 한 번</p><p class="nd">정차지끼리 걸리는 시간표를 만듭니다. 다른 정차지를 모두 찾으면 탐색을 멈춥니다.</p></li>
-    <li><p class="nk">Held-Karp</p><p class="nt">방문 순서</p><p class="nd">12곳까지는 정확한 답을 구합니다. 그보다 많으면 최근접 이웃과 2-opt 근사로 바꾸고, 정확한 답인지 응답에 표시합니다.</p></li>
+  <h2 id="ch-route">라이더가 어느 집부터 들러야 할지, 서버가 계산하게 했습니다</h2>
+  <p>직선거리로 순서를 정하면 일방통행도, 건널 수 없는 길도 알 수 없습니다. 그래서 도로망을 방향 그래프로 만들고, 그 위에서 정차지끼리 걸리는 시간을 구한 뒤 순서를 정했습니다. 도로망은 실제 지도가 아니라, 일방통행과 건널 수 없는 길을 넣은 25×21 데모용 격자입니다.</p>
+  <div class="flow" data-flow="route" data-title="방문 순서를 계산하는 길"></div>
+  <ol class="items">
+    <li><b>방향이 있는 도로망<span class="nk">CSR graph</span></b>교차로를 노드, 도로 구간을 간선으로 두고, 간선에는 거리 대신 도로 종류별 속도로 구한 소요 시간을 넣었습니다.</li>
+    <li><b>가까운 교차로에 붙이기<span class="nk">snap · 400m</span></b>배달지를 400m 격자 색인으로 가장 가까운 교차로에 붙이고, 1,500m 넘게 떨어지면 구역 밖으로 봅니다.</li>
+    <li><b>정차지마다 한 번<span class="nk">Dijkstra</span></b>정차지끼리 걸리는 시간표를 만듭니다. 다른 정차지를 모두 찾으면 탐색을 멈춥니다.</li>
+    <li><b>방문 순서<span class="nk">Held-Karp</span></b>12곳까지는 정확한 답을 구합니다. 그보다 많으면 최근접 이웃과 2-opt 근사로 바꾸고, 정확한 답인지 응답에 표시합니다.</li>
   </ol>
+  <ul class="items">
+    <li><b>순서와 경로를 한 번에</b>계산한 순서는 DB에 저장하고 구간 좌표와 함께 돌려줘, 화면의 경로와 저장된 순서가 어긋나지 않게 했습니다.</li>
+    <li><b>같은 교차로에 붙은 두 집</b>교차로까지 걸어가는 거리를 도보 속도로 바꿔 구간 양 끝에 더했습니다. 그래야 같은 교차로에 붙은 두 집 사이가 0초로 나오지 않습니다.</li>
+  </ul>
 
-  <div class="grid mt-l">
-    <ol class="notes cols inset rv">
-      <li><span class="t">순서와 경로를 한 번에</span><span class="d">계산한 순서는 DB에 저장하고 구간 좌표와 함께 돌려줘, 화면의 경로와 저장된 순서가 어긋나지 않게 했습니다.</span></li>
-      <li><span class="t">같은 교차로에 붙은 두 집</span><span class="d">교차로까지 걸어가는 거리를 도보 속도로 바꿔 구간 양 끝에 더했습니다. 그래야 같은 교차로에 붙은 두 집 사이가 0초로 나오지 않습니다.</span></li>
-    </ol>
+  <h2 id="ch-proof">일방통행이 반영되는지 확인한 테스트</h2>
+  <p>그래프 계산은 우회해야 하는 두 집으로 확인했습니다. 건널 수 없는 길 양쪽에 있어서, 직선으로는 가깝지만 도로로는 한참 돌아가야 하는 곳입니다. 같은 두 집이라도 가는 방향에 따라 시간이 달라야 일방통행이 비용에 들어갔다고 할 수 있습니다.</p>
+  <div class="vs">
+    <div><p class="vk">직선으로 재면</p><p class="vn">208<small>m</small></p><p class="vd">두 집을 곧게 이은 거리입니다.</p></div>
+    <div><p class="vk">도로를 따라가면</p><p class="vn">1,876<small>m</small></p><p class="vd">건널 수 없는 길을 피해 돌아가는 우회로입니다.</p></div>
   </div>
-</section>
+  <div class="vs">
+    <div><p class="vk">갈 때</p><p class="vn">247.7<small>초</small></p><p class="vd">한쪽 방향으로 갈 때 걸리는 시간입니다.</p></div>
+    <div><p class="vk">올 때</p><p class="vn">97.6<small>초</small></p><p class="vd">반대 방향은 두 배 넘게 빠릅니다.</p></div>
+  </div>
+  <p>이 값을 테스트의 기댓값으로 넣었습니다. 도로망 데이터가 바뀌면 이 테스트가 실패합니다. 방문 순서도 모든 순서를 다 따져 본 답과 같은지 테스트로 확인합니다.</p>
 
-<!-- 03 테스트로 고정: 큰 숫자가 이어지는 장이라 남색 띠로 감싼다 -->
-<div class="dark">
-<section class="chap wrap" id="ch-proof" aria-labelledby="h3">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>03</b>테스트로 고정</p>
-    <h2 class="ch-h" id="h3">일방통행이 반영되는지 확인한 테스트</h2>
-    <div class="prose">
-      <p>그래프 계산은 우회해야 하는 두 집으로 확인했습니다. 건널 수 없는 길 양쪽에 있어서, 직선으로는 가깝지만 도로로는 한참 돌아가야 하는 곳입니다. 같은 두 집이라도 가는 방향에 따라 시간이 달라야 일방통행이 비용에 들어갔다고 할 수 있습니다.</p>
-    </div>
+  <h2 id="ch-common">다섯 명이 만든 API가 같은 모양으로 응답하게 맞췄습니다</h2>
+  <p>처음에는 API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 그래서 응답은 ApiResponse 하나로 감싸고, 실패는 오류 코드 여덟 개와 BusinessException 하나로 알리게 정리했습니다.</p>
+  <div class="tbl-wrap">
+  <table class="codes">
+    <thead><tr><th>상태</th><th>오류 코드</th></tr></thead>
+    <tbody>
+      <tr><td>400</td><td><code>BAD_REQUEST</code></td></tr>
+      <tr><td>400</td><td><code>VALIDATION_ERROR</code></td></tr>
+      <tr><td>401</td><td><code>UNAUTHORIZED</code></td></tr>
+      <tr><td>403</td><td><code>FORBIDDEN</code></td></tr>
+      <tr><td>404</td><td><code>NOT_FOUND</code></td></tr>
+      <tr><td>405</td><td><code>METHOD_NOT_ALLOWED</code></td></tr>
+      <tr><td>409</td><td><code>CONFLICT</code></td></tr>
+      <tr><td>500</td><td><code>INTERNAL_SERVER_ERROR</code></td></tr>
+    </tbody>
+  </table>
   </div>
-  <div class="split mt-l">
-    <div class="a7 rv">
-      <div class="vs">
-        <div><p class="vk">직선으로 재면</p><p class="vn">208<small>m</small></p><p class="vd">두 집을 곧게 이은 거리입니다.</p></div>
-        <div><p class="vk">도로를 따라가면</p><p class="vn">1,876<small>m</small></p><p class="vd">건널 수 없는 길을 피해 돌아가는 우회로입니다.</p></div>
-      </div>
-      <div class="vs mt-m">
-        <div><p class="vk">갈 때</p><p class="vn">247.7<small>초</small></p><p class="vd">한쪽 방향으로 갈 때 걸리는 시간입니다.</p></div>
-        <div><p class="vk">올 때</p><p class="vn">97.6<small>초</small></p><p class="vd">반대 방향은 두 배 넘게 빠릅니다.</p></div>
-      </div>
-    </div>
-    <div class="b5 rv">
-      <p class="lede-s mt-m">이 값을 테스트의 기댓값으로 넣었습니다. 도로망 데이터가 바뀌면 이 테스트가 실패합니다. 방문 순서도 모든 순서를 다 따져 본 답과 같은지 테스트로 확인합니다.</p>
-    </div>
-  </div>
-</section>
-</div>
-
-<!-- 04 공통 규약 -->
-<section class="chap wrap" id="ch-common" aria-labelledby="h4">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>04</b>서버 공통 규약</p>
-    <h2 class="ch-h" id="h4">다섯 명이 만든 API가 같은 모양으로 응답하게 맞췄습니다</h2>
-    <div class="prose">
-      <p>처음에는 API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 그래서 응답은 ApiResponse 하나로 감싸고, 실패는 오류 코드 여덟 개와 BusinessException 하나로 알리게 정리했습니다.</p>
-    </div>
-  </div>
-  <div class="split mt-l">
-    <div class="a5 rv">
-      <table class="tbl codes">
-        <thead><tr><th>상태</th><th>오류 코드</th></tr></thead>
-        <tbody>
-          <tr><td><span class="st">400</span></td><td><code>BAD_REQUEST</code></td></tr>
-          <tr><td><span class="st">400</span></td><td><code>VALIDATION_ERROR</code></td></tr>
-          <tr><td><span class="st">401</span></td><td><code>UNAUTHORIZED</code></td></tr>
-          <tr><td><span class="st">403</span></td><td><code>FORBIDDEN</code></td></tr>
-          <tr><td><span class="st">404</span></td><td><code>NOT_FOUND</code></td></tr>
-          <tr><td><span class="st">405</span></td><td><code>METHOD_NOT_ALLOWED</code></td></tr>
-          <tr><td><span class="st">409</span></td><td><code>CONFLICT</code></td></tr>
-          <tr><td><span class="st">500</span></td><td><code>INTERNAL_SERVER_ERROR</code></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="b7 rv">
-      <ol class="notes">
-        <li><span class="t">기존 핸들러와의 충돌 방지</span><span class="d">이름이 같은 예전 핸들러가 남아 있어서, 새 핸들러는 이름을 따로 주고 <code>@RestController</code>에만 걸리도록 범위를 좁혔습니다.</span></li>
-        <li><span class="t">트랜잭션은 서비스에서</span><span class="d">트랜잭션 경계를 서비스 계층으로 옮기고 조회에는 readOnly를 붙였습니다. open-in-view를 꺼서 지연 로딩이 화면까지 새어 나가지 않게 했습니다.</span></li>
-      </ol>
-      <pre class="code mt-m">@RestControllerAdvice(<b>name = "restGlobalExceptionHandler"</b>,
-                      <b>annotations = RestController.class</b>)
+  <ul class="items">
+    <li><b>기존 핸들러와의 충돌 방지</b>이름이 같은 예전 핸들러가 남아 있어서, 새 핸들러는 이름을 따로 주고 <code>@RestController</code>에만 걸리도록 범위를 좁혔습니다.</li>
+    <li><b>트랜잭션은 서비스에서</b>트랜잭션 경계를 서비스 계층으로 옮기고 조회에는 readOnly를 붙였습니다. open-in-view를 꺼서 지연 로딩이 화면까지 새어 나가지 않게 했습니다.</li>
+  </ul>
+<pre><code>@RestControllerAdvice(<span class="hl">name = "restGlobalExceptionHandler"</span>,
+                      <span class="hl">annotations = RestController.class</span>)
 public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     ... ApiResponse.fail(errorCode, ex.getMessage())
-}</pre>
-    </div>
-  </div>
-</section>
+}</code></pre>
 
-<!-- 05 로그인과 실행 -->
-<section class="chap wrap" id="ch-login" aria-labelledby="h5">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>05</b>로그인과 실행</p>
-    <h2 class="ch-h" id="h5">소셜 로그인 3사 연동과 로컬 실행</h2>
-  </div>
-  <div class="panels mt-l rv">
-    <div class="panel">
-      <p class="k">소셜 로그인 3사<span>Apache HttpClient</span></p>
-      <p class="d">네이버 · 구글 · 카카오의 인가 코드 교환과 프로필 조회를 직접 호출합니다. 카카오만 응답 구조가 달라 따로 읽고, 비밀번호는 BCrypt로 저장합니다.</p>
-    </div>
-    <div class="panel">
-      <p class="k">Oracle 없이도 실행<span>h2 프로파일</span></p>
-      <p class="d">H2를 Oracle 호환 모드로 띄우고 데모 데이터를 넣습니다. 데모 데이터는 이 프로파일에서만 들어갑니다.</p>
-    </div>
-    <div class="panel">
-      <p class="k">지도 키 없이 경로 표시<span>SVG</span></p>
-      <p class="d">키가 없으면 서버가 계산한 경로를 SVG로 그립니다. 외부 키 없이도 경로 계산 결과를 확인할 수 있습니다.</p>
-    </div>
-  </div>
-  <div class="grid mt-l">
-    <div class="inset rv">
-      <pre class="code">./gradlew bootRun --args='--spring.profiles.active=h2'
-<i class="ko">Oracle과 외부 API 키 없이, H2 메모리 DB와 데모 데이터로 뜹니다</i></pre>
-    </div>
-  </div>
-</section>
+  <h2 id="ch-login">소셜 로그인 3사 연동과 로컬 실행</h2>
+  <ul class="items">
+    <li><b>소셜 로그인 3사<span class="nk">Apache HttpClient</span></b>네이버 · 구글 · 카카오의 인가 코드 교환과 프로필 조회를 직접 호출합니다. 카카오만 응답 구조가 달라 따로 읽고, 비밀번호는 BCrypt로 저장합니다.</li>
+    <li><b>Oracle 없이도 실행<span class="nk">h2 프로파일</span></b>H2를 Oracle 호환 모드로 띄우고 데모 데이터를 넣습니다. 데모 데이터는 이 프로파일에서만 들어갑니다.</li>
+    <li><b>지도 키 없이 경로 표시<span class="nk">SVG</span></b>키가 없으면 서버가 계산한 경로를 SVG로 그립니다. 외부 키 없이도 경로 계산 결과를 확인할 수 있습니다.</li>
+  </ul>
+<pre><code>./gradlew bootRun --args='--spring.profiles.active=h2'
+<span class="c">Oracle과 외부 API 키 없이, H2 메모리 DB와 데모 데이터로 뜹니다</span></code></pre>
 
-<!-- 06 서비스 화면 -->
-<section class="chap wrap" id="ch-screens" aria-labelledby="h6">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>06</b>서비스 화면</p>
-    <h2 class="ch-h" id="h6">손님, 라이더, 관리자 화면</h2>
+  <h2 id="ch-screens">손님, 라이더, 관리자 화면</h2>
+  <div class="shots3">
+    <figure><img src="../../assets/img/delivery/store-list.jpg" width="1600" height="946" loading="lazy" alt="카테고리별 가게 목록 화면"><figcaption>주문 · 카테고리별 가게 목록</figcaption></figure>
+    <figure><img src="../../assets/img/delivery/rider.jpg" width="1600" height="946" loading="lazy" alt="라이더 배차 화면: 묶음 배달과 한집 배달 카드, 지도"><figcaption>라이더 · 묶음배달 배차와 진행 상황</figcaption></figure>
+    <figure><img src="../../assets/img/delivery/admin.jpg" width="1440" height="900" loading="lazy" alt="관리자 가게 관리 화면: 승인된 가게 목록"><figcaption>관리자 · 가게 승인과 관리</figcaption></figure>
   </div>
-  <div class="shots3 mt-l rv">
-    <figure><div class="plate light"><img src="../../assets/img/delivery/store-list.jpg" width="1600" height="946" loading="lazy" alt="카테고리별 가게 목록 화면"></div><figcaption><b>주문</b> · 카테고리별 가게 목록</figcaption></figure>
-    <figure><div class="plate light"><img src="../../assets/img/delivery/rider.jpg" width="1600" height="946" loading="lazy" alt="라이더 배차 화면: 묶음 배달과 한집 배달 카드, 지도"></div><figcaption><b>라이더</b> · 묶음배달 배차와 진행 상황</figcaption></figure>
-    <figure><div class="plate light"><img src="../../assets/img/delivery/admin.jpg" width="1440" height="900" loading="lazy" alt="관리자 가게 관리 화면: 승인된 가게 목록"></div><figcaption><b>관리자</b> · 가게 승인과 관리</figcaption></figure>
-  </div>
-  <p class="note-s">화면은 모두 데모 데이터로 띄웠습니다.</p>
-  <div class="grid mt-l">
-    <p class="inset links-row rv"><a href="https://github.com/SanghyeokLee-KR/DeliveryPro">GitHub 저장소 <span class="arrow" aria-hidden="true">→</span></a><a href="../../backend.pdf" download>백엔드 PDF <span class="arrow" aria-hidden="true">→</span></a></p>
-  </div>
-</section>
+  <p class="small">화면은 모두 데모 데이터로 띄웠습니다.</p>
 
+  </div>
+  <div class="post-nav"><a href="../safetynevi/"><span class="k">← 이전 작업</span>SafetyNevi</a><a href="../appintoss-meetup/"><span class="k">다음 작업 →</span>하모니</a></div>
+  </article>
+  <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
 </div>
-
-<section class="wrap next" aria-label="다음 작업">
-  <a href="../appintoss-meetup/">
-    <span class="k">다음 작업 <span class="mono">08</span></span>
-    <span class="t">하모니 <span class="arrow" aria-hidden="true">→</span></span>
-    <span class="d">트랙을 겹쳐 합주하는 토스 미니앱, 출시 전 보안 문제 해결</span>
-  </a>
-</section>
-
-</main>
-
-<footer class="foot slim wrap">
-  <div class="foot-meta">
-    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
-    <span class="links"><a href="../../">전체 작업</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="../../infra.pdf" download>인프라 PDF</a><a href="../../backend.pdf" download>백엔드 PDF</a></span>
-  </div>
-</footer>
-
 <script src="../../js/flow.js"></script>
 <script src="flows.js"></script>
-<script src="../../js/case.js"></script>
+<script>
+/* case.js는 옛 머리 막대(.head)를 찾다 멈추므로, 구성도 재생만 여기서 한다: 화면에 들어오면 첫 장면을 한 번 재생 */
+(function () {
+  var specs = window.FLOW_SPECS || {};
+  Array.prototype.forEach.call(document.querySelectorAll('.flow[data-flow]'), function (root) {
+    var spec = specs[root.getAttribute('data-flow')];
+    if (!spec || !window.Flow) return;
+    var f = new window.Flow(root, spec);
+    if ('IntersectionObserver' in window) {
+      var o = new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { o.disconnect(); if (f.token === 0) f.play(0); }
+      }, { threshold: 0.35 });
+      o.observe(root);
+    } else f.play(0);
+  });
+})();
+</script>
 <script src="../../js/theme.js"></script>
 </body>
 </html>

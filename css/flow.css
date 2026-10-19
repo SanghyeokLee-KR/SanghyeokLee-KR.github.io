@@ -1,0 +1,145 @@
+/* 블로그형 프로젝트 글에서 쓰는 부품: 눌러 보는 구성도(js/flow.js), 칸 그림, 둘 비교, 펼쳐 보기.
+   site.css에서 떼어 왔고, 색 이름은 blog.css 변수에 맞춰 다시 잇는다. */
+:root { --ink: var(--fg); --ink-2: var(--fg-2); --ink-3: var(--fg-3); --ink-4: #8C959F; --rule: var(--line); --rule-2: var(--line-2);
+  --paper: var(--bg); --paper-2: var(--bg-2); --white: var(--bg); --accent-deep: #116329; --accent-wash: #DAFBE1; --gap: 16px; --ease: cubic-bezier(.2, .7, .1, 1); }
+:root.dark { --ink-4: #6E7681; --accent-deep: #56D364; --accent-wash: rgba(63, 185, 80, .14); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.lbl { font-size: 13px; color: var(--fg-3); }
+.tabs { display: flex; gap: 20px; flex-wrap: wrap; }
+.tabs button { font: inherit; background: none; border: 0; cursor: pointer; position: relative; font-size: 14.5px; padding: 4px 0 10px; color: var(--ink-3); }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--ink); }
+.body .flow, .body .vs, .body .cells, .body .more { margin-top: 18px; }
+.flow button, .more summary { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.flow ol, .flow ul { list-style: none; margin: 0; padding: 0; }
+.body .flow svg text { font-family: var(--sans); }
+@keyframes dash { to { stroke-dashoffset: -16; } }
+
+.vs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+.vs > div { padding: 18px 22px 4px 0; }
+.vs > div + div { padding-left: 22px; border-left: 1px solid var(--rule); }
+.vs .vk { font-size: 14.5px; color: var(--ink-3); }
+.vs .vn { margin-top: 10px; font-size: clamp(38px, 3.6vw, 52px); line-height: 1; font-weight: 680; letter-spacing: -0.045em; }
+.vs .vn small { font-size: .38em; font-weight: 560; margin-left: .15em; letter-spacing: -0.01em; color: var(--ink-3); }
+.vs .on .vn { color: var(--accent); }
+.vs .vd { margin-top: 10px; font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+
+/* 칸 그림: 칸 하나가 한 건. data-total 칸 가운데 data-lost 칸이 비어 간다(case.js가 채움) */
+.cells { display: grid; grid-template-columns: repeat(var(--cols, 61), minmax(0, 1fr)); gap: 2px; margin-top: 16px; }
+.cells i { aspect-ratio: 1; background: var(--rule-2); box-shadow: inset 0 0 0 1px transparent; transition: background-color .35s var(--ease), box-shadow .35s var(--ease); }
+.cells.on i { background: var(--ink-3); }
+.cells.gone i.lost { background: transparent; box-shadow: inset 0 0 0 1px var(--ink-3); }
+.cells-key { display: flex; gap: 16px; margin-top: 10px; font-size: 13px; color: var(--ink-3); }
+.cells-key i { font-style: normal; display: inline-flex; align-items: center; gap: 7px; }
+.cells-key i::before { content: ''; width: 8px; height: 8px; background: var(--ink-3); }
+.cells-key i.lost::before { background: transparent; box-shadow: inset 0 0 0 1px var(--ink-3); }
+
+.inv { border-top: 1px solid var(--ink); }
+.inv li { position: relative; padding: 11px 0 11px 22px; border-bottom: 1px solid var(--rule); font-size: 16px; }
+.inv li::before { content: ''; position: absolute; left: 2px; top: 1.15em; width: 9px; height: 5px; border-left: 1.5px solid var(--accent); border-bottom: 1.5px solid var(--accent); transform: rotate(-45deg); }
+
+.sub-chap { padding-top: clamp(24px, 4vw, 56px); }
+.foot.slim { padding-top: clamp(56px, 7vw, 96px); }
+/* 펼쳐 보기: 세부 목록·표를 접어 두어 긴 글에 숨 쉴 곳을 만든다 */
+.more { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.more summary { list-style: none; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 16px 0; cursor: pointer; }
+.more summary::-webkit-details-marker { display: none; }
+.more summary .t { font-size: 17px; font-weight: 640; letter-spacing: -0.018em; }
+.more summary .n { display: inline-flex; align-items: baseline; gap: 2px; font-size: 14px; color: var(--ink-3); white-space: nowrap; }
+.more summary .n::after { content: '+'; margin-left: 12px; font-size: 18px; line-height: 1; color: var(--ink); transition: transform .35s var(--ease); }
+.more[open] summary .n::after { transform: rotate(45deg); }
+.more summary:hover .t { color: var(--accent); }
+.more > :not(summary) { border-top-color: var(--rule); }
+.more .fixes li:last-child { border-bottom: 0; }
+
+/* =========================================================
+   눌러 보는 구성도(js/flow.js)
+   ========================================================= */
+.flow { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--white); }
+.flow-top { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px; padding: 10px clamp(14px, 1.6vw, 22px) 0; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+.flow-top .ttl { display: flex; align-items: baseline; gap: 12px; font-size: 15px; font-weight: 620; padding-bottom: 10px; }
+.flow-top .ttl .lbl { color: var(--accent); }
+.flow-top .tabs { gap: 20px; }
+.flow-top .tabs button { padding: 4px 0 10px; font-size: 14.5px; }
+.stagebox { position: relative; padding: clamp(10px, 1.6vw, 22px); }
+.stagebox svg { display: block; width: 100%; height: auto; overflow: visible; }
+.clock { position: absolute; left: clamp(14px, 1.6vw, 22px); bottom: clamp(12px, 1.4vw, 20px); display: none; align-items: baseline; gap: 10px; background: var(--white); padding: 8px 12px; border: 1px solid var(--ink); }
+.clock.on { display: inline-flex; }
+.clock .v { font-size: 28px; font-weight: 680; letter-spacing: -0.04em; line-height: 1; }
+.clock .v small { font-size: .5em; margin-left: 2px; }
+.clock .l { font-size: 12.5px; color: var(--ink-3); line-height: 1.35; max-width: 11em; }
+.flow-bot { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); border-top: 1px solid var(--rule); }
+.flow-sum { grid-column: 1 / span 4; padding: 18px clamp(14px, 1.6vw, 22px); border-right: 1px solid var(--rule); display: flex; flex-direction: column; gap: 10px; }
+.flow-sum .h { font-size: 19px; font-weight: 650; letter-spacing: -0.025em; line-height: 1.4; }
+.flow-sum .r { font-size: 14.5px; color: var(--ink-2); line-height: 1.6; }
+.flow-sum .ctrl { margin-top: auto; display: flex; gap: 12px; align-items: center; padding-top: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; padding: 7px 14px; border: 1px solid var(--ink); transition: background .25s, color .25s; }
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn svg { width: 14px; height: 14px; }
+.stepc { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.steps { grid-column: 5 / span 8; padding: 10px clamp(14px, 1.6vw, 22px) 12px 0; }
+.steps li + li { border-top: 1px solid var(--rule-2); }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 74px 1fr; gap: 10px; padding: 9px 0; font-size: 15px; line-height: 1.6; color: var(--ink-4); transition: color .35s; }
+.steps button .tm { font-family: var(--mono); font-size: 12px; padding-top: 3px; letter-spacing: .02em; }
+.steps button.done { color: var(--ink-2); }
+.steps button.cur { color: var(--ink); }
+.steps button.cur .tm { color: var(--accent); }
+.steps button:hover { color: var(--ink); }
+
+/* SVG 안쪽 */
+.fd .zone rect { fill: none; stroke: var(--ink-4); stroke-width: 1; stroke-dasharray: 4 4; }
+.fd .zone.solid rect { stroke: var(--rule); stroke-dasharray: none; fill: var(--paper-2); fill-opacity: .55; }
+.fd .zone text.r { text-anchor: end; }
+.fd .zone text { font-family: var(--sans); font-size: 13px; font-weight: 600; fill: var(--ink-2); }
+.fd .zone text .s { font-family: var(--sans); font-size: 12px; font-weight: 450; fill: var(--ink-3); }
+.fd .edge { fill: none; stroke: var(--ink-4); stroke-width: 1.2; transition: stroke .4s, stroke-width .4s; }
+.fd .edge.dash { stroke-dasharray: 4 4; }
+.fd .edge.lit { stroke: var(--ink); stroke-width: 1.6; }
+.fd .edge.ghost { stroke: var(--ink-3); stroke-dasharray: 2 5; stroke-width: 1.4; }
+.fd .edge.hide { opacity: 0; }
+.fd .trace { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.fd .elabel { font-family: var(--sans); font-size: 12px; fill: var(--ink-3); }
+.fd .node rect.box { fill: var(--white); stroke: var(--ink-3); stroke-width: 1; transition: fill .4s, stroke .4s, stroke-width .4s; }
+.fd .node .lb { font-family: var(--sans); font-size: 15px; font-weight: 650; fill: var(--ink); letter-spacing: -0.01em; transition: fill .4s; }
+.fd .node .sb { font-family: var(--sans); font-size: 12px; fill: var(--ink-3); transition: fill .4s; }
+.fd .node.actor rect.box { fill: var(--paper); stroke: var(--ink-4); }
+.fd .node.layer rect.box { fill: var(--paper-2); stroke: var(--ink-4); }
+.fd .node.layer .lb { font-size: 14.5px; }
+.fd .node.small .lb { font-size: 13px; font-family: var(--mono); font-weight: 500; }
+.fd .node.on rect.box { stroke: var(--ink); stroke-width: 1.6; }
+.fd .node.ok rect.box { stroke: var(--accent); stroke-width: 2; fill: var(--accent-wash); }
+.fd .node.ok .lb { fill: var(--accent-deep); }
+.fd .node.down rect.box { fill: var(--rule-2); stroke: var(--ink-4); stroke-dasharray: 3 3; }
+.fd .node.down .lb, .fd .node.down .sb { fill: var(--ink-4); }
+.fd .node.off rect.box { stroke-dasharray: 4 4; stroke: var(--ink-4); fill: var(--paper); }
+.fd .node.off .lb { fill: var(--ink-3); }
+.fd .node.pending rect.box { stroke: var(--accent); stroke-dasharray: 4 4; stroke-width: 1.6; animation: dash 1s linear infinite; }
+.fd .node.block rect.box { stroke: var(--ink); stroke-width: 2; }
+.fd .node .xmark { stroke: var(--ink); stroke-width: 2; display: none; }
+.fd .node.block .xmark { display: block; }
+.fd .badge rect { fill: var(--ink); }
+.fd .badge text { font-family: var(--sans); font-size: 11.5px; font-weight: 600; fill: var(--paper); }
+.fd .badge.accent rect { fill: var(--accent); }
+.fd .badge { transition: opacity .3s; }
+.fd .pkt { fill: var(--accent); stroke: var(--white); stroke-width: 2; }
+.flow { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.btn { border-radius: 4px; background: none; }
+@media (max-width: 760px) {
+  .vs { grid-template-columns: 1fr; }
+  .vs > div, .vs > div + div { padding: 16px 0 14px; border-left: 0; border-bottom: 1px solid var(--rule); }
+  .pan { overflow-x: auto; overscroll-behavior-x: contain; }
+  .flow-top { padding: 8px 14px 0; }
+  .flow-top .tabs { width: 100%; gap: 16px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .flow-top .tabs button { font-size: 14px; white-space: nowrap; }
+  .flow-bot { grid-template-columns: 1fr; }
+  .flow-sum { grid-column: 1; border-right: 0; border-bottom: 1px solid var(--rule); padding: 14px; }
+  .steps { grid-column: 1; padding: 6px 14px 10px; }
+  .steps button { grid-template-columns: 62px 1fr; font-size: 14.5px; }
+  .clock { position: static; margin-top: 10px; }
+  .clock .v { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .fd .node.pending rect.box { animation: none; } }
+/* 넓은 화면에서는 구성도만 글 폭보다 넓게 펼쳐 안쪽 글자를 읽을 수 있게 한다 */
+@media (min-width: 1000px) {
+  .body .flow { width: min(1120px, calc(100vw - 64px)); position: relative; left: 50%; transform: translateX(-50%); }
+}

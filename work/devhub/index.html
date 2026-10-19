@@ -2,159 +2,103 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DevHub · 이상혁</title>
 <meta name="description" content="개발자들이 UI와 코드를 공유하는 커뮤니티입니다. 4인 팀의 PM으로 인증과 보안, 결제창 연동, 실시간 채팅, 챗봇을 맡았고, 프로젝트가 끝난 뒤 Spring Security를 다시 켜고 포인트 버그를 고친 뒤 테스트 17건을 붙였습니다.">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../../assets/fonts/plex.css">
-<link rel="stylesheet" href="../../css/site.css">
+<link rel="stylesheet" href="../../css/blog.css">
+<link rel="stylesheet" href="../../css/flow.css">
 <style>
-  /* 이 페이지에만 필요한 규칙. 공통 css/site.css는 바꾸지 않는다 */
-  #ch-test .tbl td:first-child { white-space: nowrap; }
-  .who { grid-column: 4 / -1; }
-  .who .tbl td:first-child { width: 30%; }
-  .who .me td { color: var(--ink); font-weight: 600; }
-  .who .me td:last-child { font-weight: 450; }
-  .tag { display: inline-block; font-size: 12px; color: var(--accent); border-bottom: 1px solid var(--accent); margin-left: 8px; font-weight: 500; }
-  .more .notes { border-top: 0; }
-  .more .notes li:last-child { border-bottom: 0; }
-  @media (max-width: 760px) {
-    .who { grid-column: 1 / -1; }
-    .case-deck br { display: none; }
-  }
+  /* 이 페이지에만 필요한 규칙. 공통 css는 바꾸지 않는다 */
+  .body ul.items, .body ol.items { padding-left: 1.3em; }
+  .body .items li { margin-top: 10px; }
+  .body .items li > b { display: block; color: var(--fg); font-weight: 650; }
+  .body .kk { display: inline-block; margin-right: 8px; padding: 0 7px; font-size: 12.5px; font-weight: 500; color: var(--fg-3); border: 1px solid var(--line); border-radius: 4px; line-height: 1.6; vertical-align: 1px; }
+  .body .small { font-size: 13.5px; color: var(--fg-3); }
+  .body .tag { display: inline-block; margin-left: 6px; font-size: 12px; font-weight: 500; color: var(--accent); }
+  .body tr.me td { color: var(--fg); }
+  .body tr.me td:first-child { font-weight: 600; }
+  .body table.rules td:first-child { white-space: nowrap; }
+  .body .more .items { margin: 0 0 16px; }
+  .body .more .items li:first-child { margin-top: 0; }
+  /* 그림 두 장 나란히, 휴대폰은 한 열 */
+  .fig2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+  .body .fig2 figure { margin: 0; min-width: 0; }
+  @media (max-width: 640px) { .fig2 { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
-<a class="skip" href="#ch-intro">본문으로 건너뛰기</a>
+<div class="page">
+  <header class="top"><a class="home" href="../../">이상혁</a>
+    <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
+  <article>
+  <div class="post-head"><p class="m"><time datetime="2024-06">2024.06 – 07</time> · 4인 팀 PM · 백엔드 · 인증과 보안</p><h1>DevHub</h1></div>
+  <div class="body">
+  <p class="lead">개발자들이 UI와 코드를 공유하는 커뮤니티입니다. 프로젝트가 끝난 뒤 보안과 포인트 로직을 고치고 테스트를 붙였습니다.</p>
+  <dl class="facts-mini">
+    <dt>기간</dt><dd>2024년 6월 – 7월, 한 달</dd>
+    <dt>형태</dt><dd>4인 팀의 PM입니다. ERD를 설계하고 인증과 보안, 카카오페이 결제창 연동, 실시간 채팅, 챗봇을 맡았습니다.</dd>
+    <dt>기술</dt><dd>Java 21 · Spring Boot 3.3 · Spring Security 6 · JPA · Oracle · H2 · WebSocket(STOMP) · Thymeleaf</dd>
+    <dt>자료</dt><dd><a href="https://github.com/SanghyeokLee-KR/DevHub">GitHub 저장소</a></dd>
+  </dl>
 
-<header class="head">
-  <div class="wrap">
-    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
-      <a class="hide-m" href="https://github.com/SanghyeokLee-KR/DevHub">GitHub</a>
-      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
-    </nav>
-  </div>
-</header>
-
-<main>
-
-<!-- 여는 부분 -->
-<section class="case-open wrap" aria-labelledby="t">
-  <p class="crumb"><span class="bar" aria-hidden="true"></span><span>작업 <span class="mono">09 / 10</span></span><span>백엔드 · 개발자 커뮤니티</span><span class="mono">2024</span></p>
-  <div class="grid case-row">
-    <div class="case-l">
-      <h1 class="case-title" id="t">DevHub</h1>
-      <p class="case-deck">개발자들이 UI와 코드를 공유하는 커뮤니티입니다. <br>프로젝트가 끝난 뒤 보안과 포인트 로직을 고치고 테스트를 붙였습니다.</p>
-    </div>
-    <dl class="case-meta">
-      <div><dt>기간</dt><dd>2024년 6월 – 7월, 한 달</dd></div>
-      <div><dt>형태</dt><dd>4인 팀의 PM입니다. ERD를 설계하고 인증과 보안, 카카오페이 결제창 연동, 실시간 채팅, 챗봇을 맡았습니다.</dd></div>
-      <div><dt>분야</dt><dd>백엔드 · 인증과 보안</dd></div>
-      <div><dt>기술</dt><dd>Java 21 · Spring Boot 3.3 · Spring Security 6 · JPA · Oracle · H2 · WebSocket(STOMP) · Thymeleaf</dd></div>
-      <div><dt>자료</dt><dd class="lk"><a href="https://github.com/SanghyeokLee-KR/DevHub">GitHub 저장소</a></dd></div>
-    </dl>
-  </div>
-  <figure class="hero-shot">
-    <div class="plate light"><img src="../../assets/img/devhub/cover.jpg" width="1280" height="803" alt="DevHub에서 제가 맡은 네 기능: 인증과 보안의 로그인 화면, 실시간 채팅, 카카오페이 결제창, 출석과 포인트"></div>
-    <figcaption><b>제가 맡은 부분</b> · 로그인과 보안, 실시간 채팅, 카카오페이 결제창, 출석과 포인트입니다. 화면은 Bootstrap 템플릿을 바탕으로 팀이 함께 꾸몄습니다.</figcaption>
+  <figure>
+    <img src="../../assets/img/devhub/cover.jpg" width="1280" height="803" alt="DevHub에서 제가 맡은 네 기능: 인증과 보안의 로그인 화면, 실시간 채팅, 카카오페이 결제창, 출석과 포인트">
+    <figcaption>제가 맡은 부분 · 로그인과 보안, 실시간 채팅, 카카오페이 결제창, 출석과 포인트입니다. 화면은 Bootstrap 템플릿을 바탕으로 팀이 함께 꾸몄습니다.</figcaption>
   </figure>
-</section>
 
-<nav class="chapters" aria-label="장 목록">
-  <div class="wrap">
-    <ol>
-      <li><a href="#ch-intro"><span class="n">01</span>개요</a></li>
-      <li><a href="#ch-tour"><span class="n">02</span>맡은 기능</a></li>
-      <li><a href="#ch-fix"><span class="n">03</span>다시 고친 것</a></li>
-      <li><a href="#ch-arch"><span class="n">04</span>구조</a></li>
-      <li><a href="#ch-test"><span class="n">05</span>테스트</a></li>
-    </ol>
-    <span class="progress" aria-hidden="true"></span>
+  <h2 id="ch-intro">개발자 UI · 코드 공유 커뮤니티</h2>
+  <p>DevHub는 게시판과 코드 스니펫, 팀 모집, 포인트 충전과 출석, 실시간 채팅, AI 챗봇이 있는 개발자 커뮤니티입니다. Spring Boot와 Thymeleaf로 서버에서 화면을 그립니다.</p>
+  <p>프로젝트가 끝난 뒤 코드를 다시 열었습니다. 꺼 두었던 Spring Security를 다시 켜고, 포인트 계산 버그를 고치고, 외부 키 없이도 앱이 뜨게 바꿨습니다. 지금은 Oracle 없이 명령 한 줄로 실행됩니다.</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>항목</th><th>값</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>ERD로 설계한 테이블</td><td>15개</td><td>테이블마다 JPA 엔티티가 하나씩 있습니다.</td></tr>
+      <tr><td>끝난 뒤 붙인 테스트</td><td>17건</td><td>인증, 포인트, 출석, 검색 규칙을 확인합니다.</td></tr>
+    </tbody>
+  </table>
   </div>
-</nav>
-
-<div class="case-body">
-
-<!-- 01 개요 -->
-<section class="chap wrap" id="ch-intro" aria-labelledby="h1">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">개발자 UI · 코드 공유 커뮤니티</h2>
-    <div class="prose">
-      <p>DevHub는 게시판과 코드 스니펫, 팀 모집, 포인트 충전과 출석, 실시간 채팅, AI 챗봇이 있는 개발자 커뮤니티입니다. Spring Boot와 Thymeleaf로 서버에서 화면을 그립니다.</p>
-      <p>프로젝트가 끝난 뒤 코드를 다시 열었습니다. 꺼 두었던 Spring Security를 다시 켜고, 포인트 계산 버그를 고치고, 외부 키 없이도 앱이 뜨게 바꿨습니다. 지금은 Oracle 없이 명령 한 줄로 실행됩니다.</p>
-    </div>
-  </div>
-  <div class="facts mt-l rv">
-    <div class="fact"><p class="n">15<small>개</small></p><p class="l">ERD로 설계한 테이블</p><p class="c">테이블마다 JPA 엔티티가 하나씩 있습니다.</p></div>
-    <div class="fact"><p class="n">17<small>건</small></p><p class="l">끝난 뒤 붙인 테스트</p><p class="c">인증, 포인트, 출석, 검색 규칙을 확인합니다.</p></div>
-  </div>
-  <div class="grid mt-l">
-    <div class="who rv">
-      <p class="subk">누가 무엇을 맡았나</p>
-      <table class="tbl">
-        <thead><tr><th>역할</th><th>맡은 일</th></tr></thead>
-        <tbody>
-          <tr class="me"><td>PM <span class="tag">저</span></td><td>ERD 설계, 인증과 보안(Spring Security), 카카오페이 결제창 연동, 실시간 채팅(WebSocket), AI 챗봇(Dialogflow)</td></tr>
-          <tr><td>팀원</td><td>Bootstrap 템플릿 기반 페이지 구성, 이름 규칙, 랜딩 · 소개 · 문의 페이지</td></tr>
-          <tr><td>팀원</td><td>UI 컴포넌트 공유 페이지(HTML/CSS 컴포넌트와 미리보기)</td></tr>
-          <tr><td>팀원</td><td>게시판(목록 · 작성 · 상세 · 댓글), 팀 모집과 이력서</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- 02 맡은 기능 -->
-<div class="dark">
-<section class="chap wrap" id="ch-tour" aria-labelledby="h2">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>02</b>맡은 기능</p>
-    <h2 class="ch-h" id="h2">팀 프로젝트에서 맡은 인증 · 결제창 · 실시간 채팅 · 챗봇</h2>
-  </div>
-  <div class="two mt-l rv">
-    <figure><div class="plate"><img src="../../assets/img/devhub/chatbot.jpg" width="800" height="450" loading="lazy" alt="DevHub 안내 챗봇 대화창"></div><figcaption><b>AI 챗봇</b> · 사이트 이용을 안내하는 챗봇입니다.</figcaption></figure>
-    <figure><div class="plate"><img src="../../assets/img/devhub/point.jpg" width="800" height="450" loading="lazy" alt="포인트 충전 화면: 충전 금액과 결제 수단 선택"></div><figcaption><b>포인트 충전</b> · 금액과 결제 수단을 고르면 iamport로 카카오페이 결제창이 뜹니다.</figcaption></figure>
-  </div>
-  <div class="grid mt-l">
-    <ol class="notes cols inset rv">
-      <li><span class="t">회원가입과 세션 로그인</span><span class="d">이메일 인증을 거치는 3단계 가입 화면부터 서버까지 만들었습니다. 없는 아이디와 틀린 비밀번호에는 같은 문구를 보여 줘, 계정이 있는지 드러나지 않게 했습니다.</span></li>
-      <li><span class="t">실시간 채팅</span><span class="d"><code>/ws</code>로 접속하고, <code>/app/chat.sendMessage</code>로 받은 메시지를 <code>/topic/public</code>으로 뿌립니다.</span></li>
-      <li><span class="t">결제창 연동</span><span class="d">결제가 끝나면 <code>/charge</code>로 포인트를 적립하고, 구매 내역 저장과 안내 메일 발송까지 한 번에 처리합니다.</span></li>
-      <li><span class="t">AI 챗봇</span><span class="d">사용자 메시지를 Dialogflow로 보내 의도를 분석하고 답하는 안내 챗봇입니다. 인증 키는 저장소에 올리지 않습니다.</span></li>
-    </ol>
-  </div>
-</section>
-</div>
-
-<!-- 03 다시 고친 것 -->
-<section class="chap wrap" id="ch-fix" aria-labelledby="h3">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>03</b>끝난 뒤 다시 고친 것</p>
-    <h2 class="ch-h" id="h3">꺼 두었던 Spring Security를 다시 켜고, 포인트와 기동 오류를 고쳤습니다</h2>
-    <div class="prose">
-      <p>로그인은 세션에 아이디를 담는 커스텀 방식이라, Spring Security는 로그인한 사용자가 누구인지 몰랐습니다. 켜면 로그인한 사용자까지 막혀서 팀 프로젝트 때는 꺼 두었고, 그동안 프레임워크 수준의 인가는 없었습니다. 프로젝트가 끝난 뒤 요청마다 세션의 아이디를 SecurityContext에 올려 주는 필터를 넣고, 민감한 경로만 로그인을 요구하게 했습니다.</p>
-    </div>
+  <h3>누가 무엇을 맡았나</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>역할</th><th>맡은 일</th></tr></thead>
+    <tbody>
+      <tr class="me"><td>PM <span class="tag">저</span></td><td>ERD 설계, 인증과 보안(Spring Security), 카카오페이 결제창 연동, 실시간 채팅(WebSocket), AI 챗봇(Dialogflow)</td></tr>
+      <tr><td>팀원</td><td>Bootstrap 템플릿 기반 페이지 구성, 이름 규칙, 랜딩 · 소개 · 문의 페이지</td></tr>
+      <tr><td>팀원</td><td>UI 컴포넌트 공유 페이지(HTML/CSS 컴포넌트와 미리보기)</td></tr>
+      <tr><td>팀원</td><td>게시판(목록 · 작성 · 상세 · 댓글), 팀 모집과 이력서</td></tr>
+    </tbody>
+  </table>
   </div>
 
-  <div class="flow mt-l rv" data-flow="devhub" data-title="요청 하나가 지나가는 길"></div>
+  <h2 id="ch-tour">팀 프로젝트에서 맡은 인증 · 결제창 · 실시간 채팅 · 챗봇</h2>
+  <div class="fig2">
+    <figure><img src="../../assets/img/devhub/chatbot.jpg" width="800" height="450" loading="lazy" alt="DevHub 안내 챗봇 대화창"><figcaption>AI 챗봇 · 사이트 이용을 안내하는 챗봇입니다.</figcaption></figure>
+    <figure><img src="../../assets/img/devhub/point.jpg" width="800" height="450" loading="lazy" alt="포인트 충전 화면: 충전 금액과 결제 수단 선택"><figcaption>포인트 충전 · 금액과 결제 수단을 고르면 iamport로 카카오페이 결제창이 뜹니다.</figcaption></figure>
+  </div>
+  <ul class="items">
+    <li><b>회원가입과 세션 로그인</b>이메일 인증을 거치는 3단계 가입 화면부터 서버까지 만들었습니다. 없는 아이디와 틀린 비밀번호에는 같은 문구를 보여 줘, 계정이 있는지 드러나지 않게 했습니다.</li>
+    <li><b>실시간 채팅</b><code>/ws</code>로 접속하고, <code>/app/chat.sendMessage</code>로 받은 메시지를 <code>/topic/public</code>으로 뿌립니다.</li>
+    <li><b>결제창 연동</b>결제가 끝나면 <code>/charge</code>로 포인트를 적립하고, 구매 내역 저장과 안내 메일 발송까지 한 번에 처리합니다.</li>
+    <li><b>AI 챗봇</b>사용자 메시지를 Dialogflow로 보내 의도를 분석하고 답하는 안내 챗봇입니다. 인증 키는 저장소에 올리지 않습니다.</li>
+  </ul>
 
-  <div class="split mt-l">
-    <div class="a7 rv">
-      <ol class="fixes">
-        <li><span class="k">Security</span><div><p class="a">Security를 켜면 모든 요청이 막혔습니다</p><p class="r">세션 로그인 정보를 요청마다 SecurityContext에 올려 주는 <code>OncePerRequestFilter</code>를 넣고, 회원 수정 · 글쓰기 · 결제 · 출석 같은 경로만 <code>authenticated()</code>로 묶었습니다. 로그인하지 않았으면 <code>/login</code>으로 보냅니다.</p></div></li>
-        <li><span class="k">포인트</span><div><p class="a">음수를 빼면 포인트가 오히려 늘었습니다</p><p class="r">잔액에서 차감액을 빼는 식에 음수가 들어가면 오히려 더해졌고, 잔액이 차감액 이상인지 보는 조건도 늘 통과했습니다. 0 이하 차감은 거부하고 잔액이 충분할 때만 빼도록 고쳤고, 트랜잭션은 서비스 계층에 두었습니다.</p></div></li>
-        <li><span class="k">챗봇 키</span><div><p class="a">챗봇 키 파일이 없으면 앱이 뜨지 않았습니다</p><p class="r">키 파일은 <code>.gitignore</code> 대상이라 새로 클론하면 없는데, 기동할 때 챗봇 클라이언트를 무조건 만들고 있었습니다. 키 파일이 있을 때만 빈을 만들고, 서비스는 <code>ObjectProvider.getIfAvailable()</code>로 받아 키가 없으면 안내 문구를 돌려줍니다.</p></div></li>
-      </ol>
-    </div>
-    <div class="b5 rv">
-      <pre class="code"><i>// SessionAuthenticationFilter · </i><i class="ko">요청마다 세션의 아이디를 인증 주체로</i>
-HttpSession session = request.getSession(<b>false</b>);
+  <h2 id="ch-fix">꺼 두었던 Spring Security를 다시 켜고, 포인트와 기동 오류를 고쳤습니다</h2>
+  <p>로그인은 세션에 아이디를 담는 커스텀 방식이라, Spring Security는 로그인한 사용자가 누구인지 몰랐습니다. 켜면 로그인한 사용자까지 막혀서 팀 프로젝트 때는 꺼 두었고, 그동안 프레임워크 수준의 인가는 없었습니다. 프로젝트가 끝난 뒤 요청마다 세션의 아이디를 SecurityContext에 올려 주는 필터를 넣고, 민감한 경로만 로그인을 요구하게 했습니다.</p>
+  <div class="flow" data-flow="devhub" data-title="요청 하나가 지나가는 길"></div>
+  <ul class="items">
+    <li><b><span class="kk">Security</span>Security를 켜면 모든 요청이 막혔습니다</b>세션 로그인 정보를 요청마다 SecurityContext에 올려 주는 <code>OncePerRequestFilter</code>를 넣고, 회원 수정 · 글쓰기 · 결제 · 출석 같은 경로만 <code>authenticated()</code>로 묶었습니다. 로그인하지 않았으면 <code>/login</code>으로 보냅니다.</li>
+    <li><b><span class="kk">포인트</span>음수를 빼면 포인트가 오히려 늘었습니다</b>잔액에서 차감액을 빼는 식에 음수가 들어가면 오히려 더해졌고, 잔액이 차감액 이상인지 보는 조건도 늘 통과했습니다. 0 이하 차감은 거부하고 잔액이 충분할 때만 빼도록 고쳤고, 트랜잭션은 서비스 계층에 두었습니다.</li>
+    <li><b><span class="kk">챗봇 키</span>챗봇 키 파일이 없으면 앱이 뜨지 않았습니다</b>키 파일은 <code>.gitignore</code> 대상이라 새로 클론하면 없는데, 기동할 때 챗봇 클라이언트를 무조건 만들고 있었습니다. 키 파일이 있을 때만 빈을 만들고, 서비스는 <code>ObjectProvider.getIfAvailable()</code>로 받아 키가 없으면 안내 문구를 돌려줍니다.</li>
+  </ul>
+<pre><code><span class="c">// SessionAuthenticationFilter · 요청마다 세션의 아이디를 인증 주체로</span>
+HttpSession session = request.getSession(<span class="hl">false</span>);
 if (session != null
-    &amp;&amp; session.getAttribute(<b class="g">"loginId"</b>) != null) {
+    &amp;&amp; session.getAttribute(<span class="p">"loginId"</span>) != null) {
   var auth = new UsernamePasswordAuthenticationToken(
       loginId, null, List.of(ROLE_USER));
   SecurityContextHolder.getContext()
@@ -162,110 +106,82 @@ if (session != null
 }
 chain.doFilter(request, response);
 
-<i>// OrderService.deductPoints · </i><i class="ko">0 이하 차감 거부</i>
-if (MPoint <b>&lt;= 0</b>) return 0;
-if (currentPoints <b>&gt;=</b> MPoint) { ... }</pre>
-      <p class="note-s">줄인 코드입니다. 전체는 저장소의 <code>config/SessionAuthenticationFilter.java</code>와 <code>service/OrderService.java</code>에 있습니다.</p>
-    </div>
-  </div>
+<span class="c">// OrderService.deductPoints · 0 이하 차감 거부</span>
+if (MPoint <span class="hl">&lt;= 0</span>) return 0;
+if (currentPoints <span class="hl">&gt;=</span> MPoint) { ... }</code></pre>
+  <p class="small">줄인 코드입니다. 전체는 저장소의 <code>config/SessionAuthenticationFilter.java</code>와 <code>service/OrderService.java</code>에 있습니다.</p>
+  <details class="more">
+    <summary><span class="t">그 밖에 정리한 것</span><span class="n">5건 더 보기</span></summary>
+    <ul class="items">
+      <li><b>키와 비밀번호를 설정에서 뺐습니다</b>별도 설정 파일로 옮기고 <code>.gitignore</code>에 넣었습니다.</li>
+      <li><b>업로드 경로를 바깥으로 뺐습니다</b>방금 올린 프로필 사진이 바로 보이지 않던 문제였습니다. 저장과 제공 위치를 외부 <code>uploads</code> 폴더로 맞추니 바로 뜨고, JAR로 묶어도 동작합니다.</li>
+      <li><b>접속 위치 조회 토큰을 서버로 옮겼습니다</b>조회 토큰이 브라우저에 보이지 않게 서버가 대신 조회하고, 기록하는 IP도 요청에서 직접 뽑습니다.</li>
+      <li><b>데모 데이터와 한 줄 실행</b>H2 프로파일에서 회원 · 게시글 · 구매 · 출석 데모 데이터가 자동으로 들어가, 외부 키 없이 바로 둘러볼 수 있습니다.</li>
+      <li><b>테스트 17건과 빌드 CI</b>GitHub Actions가 JDK 21에서 빌드와 테스트를 돌립니다.</li>
+    </ul>
+  </details>
 
-  <div class="grid mt-l">
-    <div class="inset rv">
-      <details class="more">
-        <summary><span class="t">그 밖에 정리한 것</span><span class="n"><span class="mono">5</span>건 더 보기</span></summary>
-        <ol class="notes">
-          <li><span class="t">키와 비밀번호를 설정에서 뺐습니다</span><span class="d">별도 설정 파일로 옮기고 <code>.gitignore</code>에 넣었습니다.</span></li>
-          <li><span class="t">업로드 경로를 바깥으로 뺐습니다</span><span class="d">방금 올린 프로필 사진이 바로 보이지 않던 문제였습니다. 저장과 제공 위치를 외부 <code>uploads</code> 폴더로 맞추니 바로 뜨고, JAR로 묶어도 동작합니다.</span></li>
-          <li><span class="t">접속 위치 조회 토큰을 서버로 옮겼습니다</span><span class="d">조회 토큰이 브라우저에 보이지 않게 서버가 대신 조회하고, 기록하는 IP도 요청에서 직접 뽑습니다.</span></li>
-          <li><span class="t">데모 데이터와 한 줄 실행</span><span class="d">H2 프로파일에서 회원 · 게시글 · 구매 · 출석 데모 데이터가 자동으로 들어가, 외부 키 없이 바로 둘러볼 수 있습니다.</span></li>
-          <li><span class="t">테스트 17건과 빌드 CI</span><span class="d">GitHub Actions가 JDK 21에서 빌드와 테스트를 돌립니다.</span></li>
-        </ol>
-      </details>
-    </div>
-  </div>
-</section>
-
-<!-- 04 구조 -->
-<section class="chap wrap" id="ch-arch" aria-labelledby="h4">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>04</b>구조</p>
-    <h2 class="ch-h" id="h4">Security · 컨트롤러 · 서비스 · 리포지터리 계층 구조</h2>
-    <div class="prose">
-      <p>트랜잭션 경계는 서비스에 두고, 챗봇 · 결제 · 위치 조회 같은 외부 API도 서비스에서 부릅니다. 채팅만 WebSocket(STOMP)으로 따로 들어옵니다. DB는 운영에서 Oracle, 데모에서 H2를 씁니다.</p>
-    </div>
-  </div>
-  <figure class="mt-l rv">
-    <div class="plate light pan"><img src="../../assets/img/devhub/architecture.jpg" width="1600" height="785" loading="lazy" alt="브라우저, Spring Security, Controller, Service, Repository, Oracle과 H2, 외부 API로 이어지는 계층 구조"></div>
-    <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-    <figcaption><b>계층 구조</b> · 요청은 인증, 비즈니스 로직, 영속성을 거쳐 DB로 갑니다. 점선은 바깥 REST 연동입니다.</figcaption>
+  <h2 id="ch-arch">Security · 컨트롤러 · 서비스 · 리포지터리 계층 구조</h2>
+  <p>트랜잭션 경계는 서비스에 두고, 챗봇 · 결제 · 위치 조회 같은 외부 API도 서비스에서 부릅니다. 채팅만 WebSocket(STOMP)으로 따로 들어옵니다. DB는 운영에서 Oracle, 데모에서 H2를 씁니다.</p>
+  <figure>
+    <img src="../../assets/img/devhub/architecture.jpg" width="1600" height="785" loading="lazy" alt="브라우저, Spring Security, Controller, Service, Repository, Oracle과 H2, 외부 API로 이어지는 계층 구조">
+    <figcaption>계층 구조 · 요청은 인증, 비즈니스 로직, 영속성을 거쳐 DB로 갑니다. 점선은 바깥 REST 연동입니다.</figcaption>
   </figure>
-  <div class="grid mt-l">
-    <div class="inset rv">
-      <table class="tbl">
-        <thead><tr><th>분류</th><th>기술</th><th>쓰임</th></tr></thead>
-        <tbody>
-          <tr><td>언어 · 프레임워크</td><td>Java 21 · Spring Boot 3.3 · Spring Security 6</td><td>인증과 인가</td></tr>
-          <tr><td>저장</td><td>Spring Data JPA · Hibernate · Oracle · H2</td><td>운영은 Oracle, 데모는 H2</td></tr>
-          <tr><td>실시간</td><td>WebSocket · STOMP · SockJS</td><td>공개 채팅방</td></tr>
-          <tr><td>바깥 API</td><td>Dialogflow · iamport(카카오페이) · ipinfo · Spring Mail</td><td>챗봇, 결제창, 접속 위치, 안내 메일</td></tr>
-          <tr><td>화면</td><td>Thymeleaf · jQuery · Bootstrap · CodeMirror · Quill</td><td>서버에서 그리는 화면, 코드 편집</td></tr>
-          <tr><td>빌드 · 테스트</td><td>Gradle · JUnit 5 · Spring Boot Test · GitHub Actions</td><td>테스트와 빌드 CI</td></tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>분류</th><th>기술</th><th>쓰임</th></tr></thead>
+    <tbody>
+      <tr><td>언어 · 프레임워크</td><td>Java 21 · Spring Boot 3.3 · Spring Security 6</td><td>인증과 인가</td></tr>
+      <tr><td>저장</td><td>Spring Data JPA · Hibernate · Oracle · H2</td><td>운영은 Oracle, 데모는 H2</td></tr>
+      <tr><td>실시간</td><td>WebSocket · STOMP · SockJS</td><td>공개 채팅방</td></tr>
+      <tr><td>바깥 API</td><td>Dialogflow · iamport(카카오페이) · ipinfo · Spring Mail</td><td>챗봇, 결제창, 접속 위치, 안내 메일</td></tr>
+      <tr><td>화면</td><td>Thymeleaf · jQuery · Bootstrap · CodeMirror · Quill</td><td>서버에서 그리는 화면, 코드 편집</td></tr>
+      <tr><td>빌드 · 테스트</td><td>Gradle · JUnit 5 · Spring Boot Test · GitHub Actions</td><td>테스트와 빌드 CI</td></tr>
+    </tbody>
+  </table>
   </div>
-</section>
 
-<!-- 05 테스트 -->
-<section class="chap wrap" id="ch-test" aria-labelledby="h5">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>05</b>테스트로 묶은 규칙</p>
-    <h2 class="ch-h" id="h5">인증 · 포인트 · 출석 · 검색 규칙을 테스트 17건으로 고정했습니다</h2>
+  <h2 id="ch-test">인증 · 포인트 · 출석 · 검색 규칙을 테스트 17건으로 고정했습니다</h2>
+  <div class="tbl-wrap">
+  <table class="rules">
+    <thead><tr><th>무엇을</th><th>확인하는 규칙</th><th>건수</th></tr></thead>
+    <tbody>
+      <tr><td>세션 로그인</td><td>비밀번호가 맞으면 세션과 접속 이력이 남고, 틀리면 세션을 만들지 않습니다. 없는 아이디도 같은 문구로 답합니다.</td><td>3</td></tr>
+      <tr><td>포인트 차감</td><td>음수 차감은 거부하고, 잔액보다 큰 금액은 빼지 않으며, 잔액이 충분하면 그만큼만 뺍니다.</td><td>3</td></tr>
+      <tr><td>출석 적립</td><td>같은 날 두 번 출석해도 한 번만 쌓이고, 적립 포인트(일요일 100, 평일 10)는 서버가 정합니다.</td><td>2</td></tr>
+      <tr><td>AI 챗봇 경로</td><td>인증 키가 없어도 500 대신 안내 문구를 돌려줍니다.</td><td>1</td></tr>
+      <tr><td>앱 기동</td><td>외부 키 없이 애플리케이션 컨텍스트가 올라옵니다.</td><td>1</td></tr>
+      <tr><td>게시판 검색</td><td>제목 · 작성자 검색은 맞는 글만, 없는 키워드는 빈 목록을 돌려줍니다.</td><td>3</td></tr>
+      <tr><td>접속 IP 조회</td><td>토큰이 없으면 외부 조회 없이 IP만 남기는 등, 접속 이력에 남길 값을 정합니다.</td><td>4</td></tr>
+    </tbody>
+  </table>
   </div>
-  <div class="split mt-l">
-    <div class="a7 rv">
-      <table class="tbl">
-        <thead><tr><th>무엇을</th><th>확인하는 규칙</th><th class="num">건수</th></tr></thead>
-        <tbody>
-          <tr><td>세션 로그인</td><td>비밀번호가 맞으면 세션과 접속 이력이 남고, 틀리면 세션을 만들지 않습니다. 없는 아이디도 같은 문구로 답합니다.</td><td class="num">3</td></tr>
-          <tr><td>포인트 차감</td><td>음수 차감은 거부하고, 잔액보다 큰 금액은 빼지 않으며, 잔액이 충분하면 그만큼만 뺍니다.</td><td class="num">3</td></tr>
-          <tr><td>출석 적립</td><td>같은 날 두 번 출석해도 한 번만 쌓이고, 적립 포인트(일요일 100, 평일 10)는 서버가 정합니다.</td><td class="num">2</td></tr>
-          <tr><td>AI 챗봇 경로</td><td>인증 키가 없어도 500 대신 안내 문구를 돌려줍니다.</td><td class="num">1</td></tr>
-          <tr><td>앱 기동</td><td>외부 키 없이 애플리케이션 컨텍스트가 올라옵니다.</td><td class="num">1</td></tr>
-          <tr><td>게시판 검색</td><td>제목 · 작성자 검색은 맞는 글만, 없는 키워드는 빈 목록을 돌려줍니다.</td><td class="num">3</td></tr>
-          <tr><td>접속 IP 조회</td><td>토큰이 없으면 외부 조회 없이 IP만 남기는 등, 접속 이력에 남길 값을 정합니다.</td><td class="num">4</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="b5 rv">
-      <p class="quote">기존 세션 로그인 흐름은 그대로 두고, 필터 하나를 추가해 Spring Security 인가를 붙였습니다.</p>
-      <p class="links-row mt-m"><a href="https://github.com/SanghyeokLee-KR/DevHub">GitHub 저장소 <span class="arrow" aria-hidden="true">→</span></a></p>
-    </div>
-  </div>
-</section>
+  <div class="note">기존 세션 로그인 흐름은 그대로 두고, 필터 하나를 추가해 Spring Security 인가를 붙였습니다.</div>
 
+  </div>
+  <div class="post-nav"><a href="../appintoss-meetup/"><span class="k">← 이전 작업</span>하모니</a><a href="../polytalk/"><span class="k">다음 작업 →</span>polytalk</a></div>
+  </article>
+  <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
 </div>
-
-<section class="wrap next" aria-label="다음 작업">
-  <a href="../polytalk/">
-    <span class="k">다음 작업 <span class="mono">10</span></span>
-    <span class="t">polytalk <span class="arrow" aria-hidden="true">→</span></span>
-    <span class="d">Java TCP 소켓 기반 1:1 종단 간 암호화 채팅</span>
-  </a>
-</section>
-
-</main>
-
-<footer class="foot slim wrap">
-  <div class="foot-meta">
-    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
-    <span class="links"><a href="../../">전체 작업</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="../../infra.pdf" download>인프라 PDF</a><a href="../../backend.pdf" download>백엔드 PDF</a></span>
-  </div>
-</footer>
-
 <script src="../../js/flow.js"></script>
 <script src="flows.js"></script>
-<script src="../../js/case.js"></script>
+<script>
+/* case.js는 옛 머리 막대(.head)를 찾다 멈추므로, 구성도 재생만 여기서 한다: 화면에 들어오면 첫 장면을 한 번 재생 */
+(function () {
+  var specs = window.FLOW_SPECS || {};
+  Array.prototype.forEach.call(document.querySelectorAll('.flow[data-flow]'), function (root) {
+    var spec = specs[root.getAttribute('data-flow')];
+    if (!spec || !window.Flow) return;
+    var f = new window.Flow(root, spec);
+    if ('IntersectionObserver' in window) {
+      var o = new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { o.disconnect(); if (f.token === 0) f.play(0); }
+      }, { threshold: 0.35 });
+      o.observe(root);
+    } else f.play(0);
+  });
+})();
+</script>
 <script src="../../js/theme.js"></script>
 </body>
 </html>

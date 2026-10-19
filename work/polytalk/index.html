@@ -2,243 +2,160 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>polytalk · 이상혁</title>
 <meta name="description" content="Java TCP 소켓으로 만든 1:1 종단 간 암호화 채팅입니다. 서버는 회원 인증과 방 관리, 암호문 저장과 전달만 하고, 메시지 평문은 서버에 남지 않습니다.">
+<script>try{var t=localStorage.getItem('theme');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark')}catch(e){}</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="../../assets/fonts/plex.css">
-<link rel="stylesheet" href="../../css/site.css">
+<link rel="stylesheet" href="../../css/blog.css">
+<link rel="stylesheet" href="../../css/flow.css">
 <style>
-  /* 이 페이지에만 필요한 규칙. 공통 css/site.css는 바꾸지 않는다 */
-  .hero-shot .plate.light { padding: clamp(16px, 3vw, 48px); }
-  #ch-test .tbl td:first-child { white-space: nowrap; }
-  @media (max-width: 760px) {
-    .case-deck br { display: none; }
-  }
+  /* 이 페이지에만 필요한 규칙. 공통 css는 바꾸지 않는다 */
+  .body ul.items, .body ol.items { padding-left: 1.3em; }
+  .body .items li { margin-top: 10px; }
+  .body .items li > b { display: block; color: var(--fg); font-weight: 650; }
+  .body .small { font-size: 13.5px; color: var(--fg-3); }
+  /* 마지막 작업이라 이전 링크만 있다: 왼쪽에 둔다 */
+  .post-nav a:only-child { margin-left: 0; text-align: left; }
 </style>
 </head>
 <body>
-<a class="skip" href="#ch-intro">본문으로 건너뛰기</a>
+<div class="page">
+  <header class="top"><a class="home" href="../../">이상혁</a>
+    <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
+  <article>
+  <div class="post-head"><p class="m"><time datetime="2026-05">2026.05</time> · 자바 심화 과제 · 백엔드 · 네트워크 · 암호</p><h1>polytalk</h1></div>
+  <div class="body">
+  <p class="lead">Java TCP 소켓으로 만든 1:1 종단 간 암호화 채팅입니다. 서버에는 암호문만 저장됩니다.</p>
+  <dl class="facts-mini">
+    <dt>기간</dt><dd>2026년 5월</dd>
+    <dt>형태</dt><dd>광명융합기술교육원 자바 심화 과제입니다.</dd>
+    <dt>기술</dt><dd>Java 21 · TCP Socket · ExecutorService · ECDH · AES-128-GCM · PBKDF2 · BCrypt · Jackson · JUnit 5</dd>
+    <dt>자료</dt><dd><a href="https://github.com/SanghyeokLee-KR/polytalk">GitHub 저장소</a></dd>
+  </dl>
 
-<header class="head">
-  <div class="wrap">
-    <a class="back" href="../../#all"><span class="arrow" aria-hidden="true">←</span> 이상혁 · 전체 작업</a>
-    <nav class="nav" aria-label="주 메뉴"><button class="theme-btn" type="button">어둡게</button>
-      <a class="hide-m" href="https://github.com/SanghyeokLee-KR/polytalk">GitHub</a>
-      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
-    </nav>
-  </div>
-</header>
-
-<main>
-
-<!-- 여는 부분 -->
-<section class="case-open wrap" aria-labelledby="t">
-  <p class="crumb"><span class="bar" aria-hidden="true"></span><span>작업 <span class="mono">10 / 10</span></span><span>백엔드 · 보안 채팅</span><span class="mono">2026</span></p>
-  <div class="grid case-row">
-    <div class="case-l">
-      <h1 class="case-title" id="t">polytalk</h1>
-      <p class="case-deck">Java TCP 소켓으로 만든 1:1 종단 간 암호화 채팅입니다. <br>서버에는 암호문만 저장됩니다.</p>
-    </div>
-    <dl class="case-meta">
-      <div><dt>기간</dt><dd>2026년 5월</dd></div>
-      <div><dt>형태</dt><dd>광명융합기술교육원 자바 심화 과제입니다.</dd></div>
-      <div><dt>분야</dt><dd>백엔드 · 네트워크 · 암호</dd></div>
-      <div><dt>기술</dt><dd>Java 21 · TCP Socket · ExecutorService · ECDH · AES-128-GCM · PBKDF2 · BCrypt · Jackson · JUnit 5</dd></div>
-      <div><dt>자료</dt><dd class="lk"><a href="https://github.com/SanghyeokLee-KR/polytalk">GitHub 저장소</a></dd></div>
-    </dl>
-  </div>
-  <figure class="hero-shot">
-    <div class="plate light pan"><img src="../../assets/img/polytalk/architecture.jpg" width="1600" height="906" alt="두 Java 클라이언트와 채팅 서버의 런타임 구성: 로그인과 핸드셰이크, 공개키 교환, 암호문 전송과 저장"></div>
-    <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-    <figcaption><b>런타임 구성</b> · Peer 키와 평문은 두 클라이언트에만 있고, 서버는 암호문을 받아 저장하고 다시 보냅니다.</figcaption>
+  <figure>
+    <img src="../../assets/img/polytalk/architecture.jpg" width="1600" height="906" alt="두 Java 클라이언트와 채팅 서버의 런타임 구성: 로그인과 핸드셰이크, 공개키 교환, 암호문 전송과 저장">
+    <figcaption>런타임 구성 · Peer 키와 평문은 두 클라이언트에만 있고, 서버는 암호문을 받아 저장하고 다시 보냅니다.</figcaption>
   </figure>
-</section>
 
-<nav class="chapters" aria-label="장 목록">
-  <div class="wrap">
-    <ol>
-      <li><a href="#ch-intro"><span class="n">01</span>개요</a></li>
-      <li><a href="#ch-e2ee"><span class="n">02</span>키 교환</a></li>
-      <li><a href="#ch-gcm"><span class="n">03</span>암호화와 저장</a></li>
-      <li><a href="#ch-thread"><span class="n">04</span>동시 접속</a></li>
-      <li><a href="#ch-test"><span class="n">05</span>기술과 테스트</a></li>
-    </ol>
-    <span class="progress" aria-hidden="true"></span>
-  </div>
-</nav>
-
-<div class="case-body">
-
-<!-- 01 개요 -->
-<section class="chap wrap" id="ch-intro" aria-labelledby="h1">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>01</b>개요</p>
-    <h2 class="ch-h" id="h1">암호화와 복호화는 클라이언트에서만 합니다</h2>
-    <div class="prose">
-      <p>보통의 채팅 서버는 메시지 평문을 받아 처리하고 저장합니다. 그러면 서버의 로그나 저장 파일이 새어 나갈 때 대화도 그대로 드러납니다. polytalk는 Java TCP 소켓으로 만든 콘솔 1:1 채팅입니다. 암호화와 복호화는 클라이언트에서만 하고, 서버는 회원 인증과 방 관리, 암호문을 저장하고 전달하는 일만 합니다.</p>
-      <p>메시지를 푸는 키는 두 클라이언트가 각자 계산하고, 서버로 보내지 않습니다.</p>
-    </div>
-  </div>
-  <div class="facts mt-l rv">
-    <div class="fact"><p class="n">0<small>건</small></p><p class="l">서버에 남는 평문 메시지</p><p class="c">저장 파일의 채팅 본문은 모두 암호문입니다.</p></div>
-    <div class="fact"><p class="n">256<small>비트</small></p><p class="l">기기에서 만드는 EC 키쌍</p><p class="c">개인키는 서버로 보내지 않습니다.</p></div>
-  </div>
-</section>
-
-<!-- 02 키 교환 -->
-<div class="dark">
-<section class="chap wrap" id="ch-e2ee" aria-labelledby="h2">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>02</b>키 교환</p>
-    <h2 class="ch-h" id="h2">서버는 공개키만 전하고, Peer 키는 두 클라이언트가 각자 계산합니다</h2>
-    <div class="prose">
-      <p>방에 들어가면 서버가 두 사람의 공개키를 서로에게 전해 주고, 각 클라이언트는 자기 개인키와 상대 공개키로 ECDH를 계산합니다. 두 사람이 따로 계산해도 결과는 같은 Peer 키입니다.</p>
-    </div>
+  <h2 id="ch-intro">암호화와 복호화는 클라이언트에서만 합니다</h2>
+  <p>보통의 채팅 서버는 메시지 평문을 받아 처리하고 저장합니다. 그러면 서버의 로그나 저장 파일이 새어 나갈 때 대화도 그대로 드러납니다. polytalk는 Java TCP 소켓으로 만든 콘솔 1:1 채팅입니다. 암호화와 복호화는 클라이언트에서만 하고, 서버는 회원 인증과 방 관리, 암호문을 저장하고 전달하는 일만 합니다.</p>
+  <p>메시지를 푸는 키는 두 클라이언트가 각자 계산하고, 서버로 보내지 않습니다.</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>항목</th><th>값</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>서버에 남는 평문 메시지</td><td>0건</td><td>저장 파일의 채팅 본문은 모두 암호문입니다.</td></tr>
+      <tr><td>기기에서 만드는 EC 키쌍</td><td>256비트</td><td>개인키는 서버로 보내지 않습니다.</td></tr>
+    </tbody>
+  </table>
   </div>
 
-  <div class="flow mt-l rv" data-flow="e2ee" data-title="키 교환과 암호문 전달"></div>
-
-  <figure class="mt-l rv">
-    <div class="plate light pan"><img src="../../assets/img/polytalk/e2ee.jpg" width="1600" height="878" loading="lazy" alt="방 입장, 공개키 중계, 양쪽 ECDH, 암호문 전송과 저장으로 이어지는 시퀀스 그림"></div>
-    <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-    <figcaption><b>키 교환 순서</b> · ROOM_JOIN, PUBLIC_KEY 중계, 양쪽 ECDH, 암호문 CHAT 순으로 오갑니다.</figcaption>
+  <h2 id="ch-e2ee">서버는 공개키만 전하고, Peer 키는 두 클라이언트가 각자 계산합니다</h2>
+  <p>방에 들어가면 서버가 두 사람의 공개키를 서로에게 전해 주고, 각 클라이언트는 자기 개인키와 상대 공개키로 ECDH를 계산합니다. 두 사람이 따로 계산해도 결과는 같은 Peer 키입니다.</p>
+  <div class="flow" data-flow="e2ee" data-title="키 교환과 암호문 전달"></div>
+  <figure>
+    <img src="../../assets/img/polytalk/e2ee.jpg" width="1600" height="878" loading="lazy" alt="방 입장, 공개키 중계, 양쪽 ECDH, 암호문 전송과 저장으로 이어지는 시퀀스 그림">
+    <figcaption>키 교환 순서 · ROOM_JOIN, PUBLIC_KEY 중계, 양쪽 ECDH, 암호문 CHAT 순으로 오갑니다.</figcaption>
   </figure>
-</section>
-</div>
 
-<!-- 03 암호화와 저장 -->
-<section class="chap wrap" id="ch-gcm" aria-labelledby="h3">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>03</b>암호화와 저장</p>
-    <h2 class="ch-h" id="h3">AES-128-GCM 암호화와 암호문 저장</h2>
-    <div class="prose">
-      <p>메시지는 AES-128-GCM으로 암호화합니다. GCM은 인증 태그를 같이 만들어서, 중간에 내용이 바뀌면 복호화 단계에서 걸러 냅니다. IV는 메시지마다 12바이트로 새로 만들기 때문에 같은 문장을 두 번 보내도 암호문이 달라집니다. 서버는 받은 <code>data</code>를 풀지 않고 <code>ChatLog.encryptedData</code>에 그대로 넣습니다.</p>
-    </div>
-  </div>
-  <div class="split mt-l">
-    <figure class="a7 rv">
-      <div class="plate light pan"><img src="../../assets/img/polytalk/aesgcm.jpg" width="1600" height="916" loading="lazy" alt="AES-GCM 암호화와 복호화: 평문, 키, IV를 넣어 암호문과 태그를 만들고, 복호화 때 태그를 검증"></div>
-      <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-      <figcaption><b>AES-GCM</b> · 암호문은 <span class="mono">Base64(IV):Base64(암호문+태그)</span> 형태로 오갑니다.</figcaption>
-    </figure>
-    <div class="b5 rv">
-      <pre class="code"><i>// AesGcmUtil.encrypt · </i><i class="ko">메시지마다 새 IV</i>
-byte[] iv = new byte[<b>12</b>];
+  <h2 id="ch-gcm">AES-128-GCM 암호화와 암호문 저장</h2>
+  <p>메시지는 AES-128-GCM으로 암호화합니다. GCM은 인증 태그를 같이 만들어서, 중간에 내용이 바뀌면 복호화 단계에서 걸러 냅니다. IV는 메시지마다 12바이트로 새로 만들기 때문에 같은 문장을 두 번 보내도 암호문이 달라집니다. 서버는 받은 <code>data</code>를 풀지 않고 <code>ChatLog.encryptedData</code>에 그대로 넣습니다.</p>
+  <figure>
+    <img src="../../assets/img/polytalk/aesgcm.jpg" width="1600" height="916" loading="lazy" alt="AES-GCM 암호화와 복호화: 평문, 키, IV를 넣어 암호문과 태그를 만들고, 복호화 때 태그를 검증">
+    <figcaption>AES-GCM · 암호문은 <code>Base64(IV):Base64(암호문+태그)</code> 형태로 오갑니다.</figcaption>
+  </figure>
+<pre><code><span class="c">// AesGcmUtil.encrypt · 메시지마다 새 IV</span>
+byte[] iv = new byte[<span class="hl">12</span>];
 new SecureRandom().nextBytes(iv);
 Cipher c = Cipher.getInstance(
-    <b class="g">"AES/GCM/NoPadding"</b>);
+    <span class="p">"AES/GCM/NoPadding"</span>);
 c.init(ENCRYPT_MODE, key,
-    new GCMParameterSpec(<b>128</b>, iv));
+    new GCMParameterSpec(<span class="hl">128</span>, iv));
 
-<i>// ServerChatService · </i><i class="ko">풀지 않고 그대로 저장</i>
+<span class="c">// ServerChatService · 풀지 않고 그대로 저장</span>
 ChatLog log = ChatLog.builder()
     .roomId(msg.getRoomId())
-    .encryptedData(<b class="g">msg.getData()</b>)
+    .encryptedData(<span class="p">msg.getData()</span>)
     .build();
 chatLogRepository.save(log);
-clientManager.broadcastRoom(...);</pre>
-      <p class="note-s">줄인 코드입니다.</p>
-    </div>
-  </div>
-  <div class="split mt-l">
-    <figure class="a6 rv">
-      <div class="plate light pan"><img src="../../assets/img/polytalk/datamodel.jpg" width="1600" height="862" loading="lazy" alt="Member, ChatRoom, ChatLog 세 엔티티와 JSON 파일 저장: 채팅 로그 본문은 암호문으로만 저장"></div>
-      <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-      <figcaption><b>데이터 모델</b> · 회원, 채팅방, 채팅 로그를 JSON 파일 세 개에 나눠 저장합니다.</figcaption>
-    </figure>
-    <ol class="notes b6 rv">
-      <li><span class="t">채팅 로그의 본문은 암호문뿐입니다</span><span class="d"><code>chat_logs.json</code>을 열어 봐도 <code>encryptedData</code>에는 암호문만 있습니다.</span></li>
-      <li><span class="t">비밀번호는 해시로만</span><span class="d">회원 비밀번호와 방 비밀번호는 BCrypt 해시로 저장합니다.</span></li>
-      <li><span class="t">서버가 아는 키는 공개키뿐입니다</span><span class="d">회원 정보에는 ECDH 공개키만 남고, 개인키는 각자 기기의 <code>client_keys/</code>에만 있습니다.</span></li>
-    </ol>
-  </div>
-</section>
+clientManager.broadcastRoom(...);</code></pre>
+  <p class="small">줄인 코드입니다.</p>
+  <figure>
+    <img src="../../assets/img/polytalk/datamodel.jpg" width="1600" height="862" loading="lazy" alt="Member, ChatRoom, ChatLog 세 엔티티와 JSON 파일 저장: 채팅 로그 본문은 암호문으로만 저장">
+    <figcaption>데이터 모델 · 회원, 채팅방, 채팅 로그를 JSON 파일 세 개에 나눠 저장합니다.</figcaption>
+  </figure>
+  <ul class="items">
+    <li><b>채팅 로그의 본문은 암호문뿐입니다</b><code>chat_logs.json</code>을 열어 봐도 <code>encryptedData</code>에는 암호문만 있습니다.</li>
+    <li><b>비밀번호는 해시로만</b>회원 비밀번호와 방 비밀번호는 BCrypt 해시로 저장합니다.</li>
+    <li><b>서버가 아는 키는 공개키뿐입니다</b>회원 정보에는 ECDH 공개키만 남고, 개인키는 각자 기기의 <code>client_keys/</code>에만 있습니다.</li>
+  </ul>
 
-<!-- 04 동시 접속 -->
-<section class="chap wrap" id="ch-thread" aria-labelledby="h4">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>04</b>동시 접속</p>
-    <h2 class="ch-h" id="h4">연결을 받는 스레드와 처리하는 스레드 풀</h2>
-    <div class="prose">
-      <p>서버의 메인 스레드는 <code>ServerSocket.accept()</code>만 하고, 접속이 들어올 때마다 <code>ClientHandler</code>를 크기 10의 스레드 풀에 넘깁니다. 클라이언트도 입력과 수신을 다른 스레드로 나눠, 상대 메시지를 기다리는 동안에도 계속 입력할 수 있습니다.</p>
-    </div>
-  </div>
-  <div class="grid mt-l"><figure class="inset rv">
-    <div class="plate light pan"><img src="../../assets/img/polytalk/threadmodel.jpg" width="1600" height="804" loading="lazy" alt="서버의 accept 스레드와 크기 10의 스레드 풀 위 ClientHandler, 클라이언트의 입력 스레드와 수신 스레드"></div>
-    <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-    <figcaption><b>스레드 모델</b> · 서버의 accept 스레드와 스레드 풀, 클라이언트의 입력 · 수신 스레드입니다.</figcaption>
-  </figure></div>
-  <div class="split mt-l">
-    <ol class="notes a5 rv">
-      <li><span class="t">함께 쓰는 자료는 동시성 컬렉션으로</span><span class="d">접속자 목록은 <code>ConcurrentHashMap.newKeySet()</code>, 핸드셰이크 세션은 <code>ConcurrentHashMap</code>에 둡니다. JSON 파일 저장소는 <code>synchronized</code>로 보호합니다.</span></li>
-      <li><span class="t">메시지 종류별 서비스 분기</span><span class="d"><code>ServerMessageRouter</code>가 메시지 종류를 보고 인증, 방, 채팅, 핸드셰이크 서비스에 넘깁니다.</span></li>
-      <li><span class="t">핸드셰이크를 마친 연결만 채팅</span><span class="d"><code>CIPHER_SUITE_REQUEST</code> 한 번으로 암호 방식을 고르고 세션 키까지 만듭니다. 세션 키는 PBKDF2로 얻고, 이 과정을 마친 연결만 <code>CHAT</code>을 보낼 수 있습니다.</span></li>
-    </ol>
-    <figure class="b7 rv">
-      <div class="plate light pan"><img src="../../assets/img/polytalk/handshake.jpg" width="1600" height="1066" loading="lazy" alt="로그인 뒤 한 번 주고받는 세션 키 핸드셰이크: 클라이언트 공개키, 서버 공개키와 암호화된 SEED, 양쪽 PBKDF2"></div>
-      <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
-      <figcaption><b>한 번 왕복하는 핸드셰이크</b> · 양쪽이 같은 SEED에서 같은 세션 키를 만듭니다.</figcaption>
-    </figure>
-  </div>
-</section>
+  <h2 id="ch-thread">연결을 받는 스레드와 처리하는 스레드 풀</h2>
+  <p>서버의 메인 스레드는 <code>ServerSocket.accept()</code>만 하고, 접속이 들어올 때마다 <code>ClientHandler</code>를 크기 10의 스레드 풀에 넘깁니다. 클라이언트도 입력과 수신을 다른 스레드로 나눠, 상대 메시지를 기다리는 동안에도 계속 입력할 수 있습니다.</p>
+  <figure>
+    <img src="../../assets/img/polytalk/threadmodel.jpg" width="1600" height="804" loading="lazy" alt="서버의 accept 스레드와 크기 10의 스레드 풀 위 ClientHandler, 클라이언트의 입력 스레드와 수신 스레드">
+    <figcaption>스레드 모델 · 서버의 accept 스레드와 스레드 풀, 클라이언트의 입력 · 수신 스레드입니다.</figcaption>
+  </figure>
+  <ul class="items">
+    <li><b>함께 쓰는 자료는 동시성 컬렉션으로</b>접속자 목록은 <code>ConcurrentHashMap.newKeySet()</code>, 핸드셰이크 세션은 <code>ConcurrentHashMap</code>에 둡니다. JSON 파일 저장소는 <code>synchronized</code>로 보호합니다.</li>
+    <li><b>메시지 종류별 서비스 분기</b><code>ServerMessageRouter</code>가 메시지 종류를 보고 인증, 방, 채팅, 핸드셰이크 서비스에 넘깁니다.</li>
+    <li><b>핸드셰이크를 마친 연결만 채팅</b><code>CIPHER_SUITE_REQUEST</code> 한 번으로 암호 방식을 고르고 세션 키까지 만듭니다. 세션 키는 PBKDF2로 얻고, 이 과정을 마친 연결만 <code>CHAT</code>을 보낼 수 있습니다.</li>
+  </ul>
+  <figure>
+    <img src="../../assets/img/polytalk/handshake.jpg" width="1600" height="1066" loading="lazy" alt="로그인 뒤 한 번 주고받는 세션 키 핸드셰이크: 클라이언트 공개키, 서버 공개키와 암호화된 SEED, 양쪽 PBKDF2">
+    <figcaption>한 번 왕복하는 핸드셰이크 · 양쪽이 같은 SEED에서 같은 세션 키를 만듭니다.</figcaption>
+  </figure>
 
-<!-- 05 기술과 테스트 -->
-<section class="chap wrap" id="ch-test" aria-labelledby="h5">
-  <div class="grid ch-head">
-    <p class="ch-no"><b>05</b>기술과 테스트</p>
-    <h2 class="ch-h" id="h5">사용 기술과 암호 단위 테스트</h2>
+  <h2 id="ch-test">사용 기술과 암호 단위 테스트</h2>
+  <h3>테스트로 확인하는 것</h3>
+  <ul>
+    <li>서로 다른 두 키쌍에서 ECDH로 같은 AES 키가 나온다 · <code>EcdhUtilTest</code></li>
+    <li>암호화한 뒤 복호화하면 원래 문장이 돌아온다 · <code>AesGcmUtilTest</code></li>
+    <li>같은 평문을 두 번 암호화하면 암호문이 서로 다르다 · <code>AesGcmUtilTest</code></li>
+  </ul>
+  <p class="small">GitHub Actions가 JDK 21에서 <code>./gradlew test</code>를 돌립니다.</p>
+  <h3>사용 기술</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>분류</th><th>기술</th></tr></thead>
+    <tbody>
+      <tr><td>언어 · 빌드</td><td>Java 21 · Gradle</td></tr>
+      <tr><td>네트워크</td><td>java.net Socket(TCP) · ExecutorService · 포트 5000</td></tr>
+      <tr><td>암호</td><td>JCA의 EC/ECDH · AES/GCM/NoPadding · PBKDF2WithHmacSHA256 · jBCrypt</td></tr>
+      <tr><td>저장 · 직렬화</td><td>JSON 파일 · Jackson</td></tr>
+      <tr><td>로그 · 테스트</td><td>SLF4J · Logback · JUnit 5 · AssertJ · Mockito</td></tr>
+    </tbody>
+  </table>
   </div>
-  <div class="split mt-l">
-    <div class="a6 rv">
-      <p class="subk">테스트로 확인하는 것</p>
-      <ul class="inv">
-        <li>서로 다른 두 키쌍에서 ECDH로 같은 AES 키가 나온다 · <span class="mono">EcdhUtilTest</span></li>
-        <li>암호화한 뒤 복호화하면 원래 문장이 돌아온다 · <span class="mono">AesGcmUtilTest</span></li>
-        <li>같은 평문을 두 번 암호화하면 암호문이 서로 다르다 · <span class="mono">AesGcmUtilTest</span></li>
-      </ul>
-      <p class="note-s">GitHub Actions가 JDK 21에서 <code>./gradlew test</code>를 돌립니다.</p>
-    </div>
-    <div class="b6 rv">
-      <table class="tbl">
-        <thead><tr><th>분류</th><th>기술</th></tr></thead>
-        <tbody>
-          <tr><td>언어 · 빌드</td><td>Java 21 · Gradle</td></tr>
-          <tr><td>네트워크</td><td>java.net Socket(TCP) · ExecutorService · 포트 5000</td></tr>
-          <tr><td>암호</td><td>JCA의 EC/ECDH · AES/GCM/NoPadding · PBKDF2WithHmacSHA256 · jBCrypt</td></tr>
-          <tr><td>저장 · 직렬화</td><td>JSON 파일 · Jackson</td></tr>
-          <tr><td>로그 · 테스트</td><td>SLF4J · Logback · JUnit 5 · AssertJ · Mockito</td></tr>
-        </tbody>
-      </table>
-      <p class="links-row mt-m"><a href="https://github.com/SanghyeokLee-KR/polytalk">GitHub 저장소 <span class="arrow" aria-hidden="true">→</span></a></p>
-    </div>
-  </div>
-</section>
 
+  </div>
+  <div class="post-nav"><a href="../devhub/"><span class="k">← 이전 작업</span>DevHub</a></div>
+  </article>
+  <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
 </div>
-
-<section class="wrap next" aria-label="다음 작업">
-  <a href="../failstop/">
-    <span class="k">다음 작업 <span class="mono">01</span></span>
-    <span class="t">failstop <span class="arrow" aria-hidden="true">→</span></span>
-    <span class="d">AWS 두 가용 영역에 올린 모의 거래소와 장애 시험</span>
-  </a>
-</section>
-
-</main>
-
-<footer class="foot slim wrap">
-  <div class="foot-meta">
-    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
-    <span class="links"><a href="../../">전체 작업</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="../../infra.pdf" download>인프라 PDF</a><a href="../../backend.pdf" download>백엔드 PDF</a></span>
-  </div>
-</footer>
-
 <script src="../../js/flow.js"></script>
 <script src="flows.js"></script>
-<script src="../../js/case.js"></script>
+<script>
+/* case.js는 옛 머리 막대(.head)를 찾다 멈추므로, 구성도 재생만 여기서 한다: 화면에 들어오면 첫 장면을 한 번 재생 */
+(function () {
+  var specs = window.FLOW_SPECS || {};
+  Array.prototype.forEach.call(document.querySelectorAll('.flow[data-flow]'), function (root) {
+    var spec = specs[root.getAttribute('data-flow')];
+    if (!spec || !window.Flow) return;
+    var f = new window.Flow(root, spec);
+    if ('IntersectionObserver' in window) {
+      var o = new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { o.disconnect(); if (f.token === 0) f.play(0); }
+      }, { threshold: 0.35 });
+      o.observe(root);
+    } else f.play(0);
+  });
+})();
+</script>
 <script src="../../js/theme.js"></script>
 </body>
 </html>
