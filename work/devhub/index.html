@@ -20,7 +20,7 @@
   .body .small { font-size: 13.5px; color: var(--fg-3); }
   .body .tag { display: inline-block; margin-left: 6px; font-size: 12px; font-weight: 500; color: var(--accent); }
   .body tr.me td { color: var(--fg); }
-  .body tr.me td:first-child { font-weight: 600; }
+  .body tr.me td:first-child { font-weight: 600; white-space: nowrap; }
   .body table.rules td:first-child { white-space: nowrap; }
   .body .more .items { margin: 0 0 16px; }
   .body .more .items li:first-child { margin-top: 0; }
@@ -50,6 +50,7 @@
     <figcaption>제가 맡은 부분 · 로그인과 보안, 실시간 채팅, 카카오페이 결제창, 출석과 포인트입니다. 화면은 Bootstrap 템플릿을 바탕으로 팀이 함께 꾸몄습니다.</figcaption>
   </figure>
 
+  <p class="kick">개요</p>
   <h2 id="ch-intro">개발자 UI · 코드 공유 커뮤니티</h2>
   <p>DevHub는 게시판과 코드 스니펫, 팀 모집, 포인트 충전과 출석, 실시간 채팅, AI 챗봇이 있는 개발자 커뮤니티입니다. Spring Boot와 Thymeleaf로 서버에서 화면을 그립니다.</p>
   <p>프로젝트가 끝난 뒤 코드를 다시 열었습니다. 꺼 두었던 Spring Security를 다시 켜고, 포인트 계산 버그를 고치고, 외부 키 없이도 앱이 뜨게 바꿨습니다. 지금은 Oracle 없이 명령 한 줄로 실행됩니다.</p>
@@ -75,6 +76,7 @@
   </table>
   </div>
 
+  <p class="kick">맡은 기능</p>
   <h2 id="ch-tour">팀 프로젝트에서 맡은 인증 · 결제창 · 실시간 채팅 · 챗봇</h2>
   <div class="fig2">
     <figure><img src="../../assets/img/devhub/chatbot.jpg" width="800" height="450" loading="lazy" alt="DevHub 안내 챗봇 대화창"><figcaption>AI 챗봇 · 사이트 이용을 안내하는 챗봇입니다.</figcaption></figure>
@@ -87,6 +89,7 @@
     <li><b>AI 챗봇</b>사용자 메시지를 Dialogflow로 보내 의도를 분석하고 답하는 안내 챗봇입니다. 인증 키는 저장소에 올리지 않습니다.</li>
   </ul>
 
+  <p class="kick">끝난 뒤 다시 고친 것</p>
   <h2 id="ch-fix">꺼 두었던 Spring Security를 다시 켜고, 포인트와 기동 오류를 고쳤습니다</h2>
   <p>로그인은 세션에 아이디를 담는 커스텀 방식이라, Spring Security는 로그인한 사용자가 누구인지 몰랐습니다. 켜면 로그인한 사용자까지 막혀서 팀 프로젝트 때는 꺼 두었고, 그동안 프레임워크 수준의 인가는 없었습니다. 프로젝트가 끝난 뒤 요청마다 세션의 아이디를 SecurityContext에 올려 주는 필터를 넣고, 민감한 경로만 로그인을 요구하게 했습니다.</p>
   <div class="flow" data-flow="devhub" data-title="요청 하나가 지나가는 길"></div>
@@ -121,6 +124,7 @@ if (currentPoints <span class="hl">&gt;=</span> MPoint) { ... }</code></pre>
     </ul>
   </details>
 
+  <p class="kick">구조</p>
   <h2 id="ch-arch">Security · 컨트롤러 · 서비스 · 리포지터리 계층 구조</h2>
   <p>트랜잭션 경계는 서비스에 두고, 챗봇 · 결제 · 위치 조회 같은 외부 API도 서비스에서 부릅니다. 채팅만 WebSocket(STOMP)으로 따로 들어옵니다. DB는 운영에서 Oracle, 데모에서 H2를 씁니다.</p>
   <figure>
@@ -141,6 +145,7 @@ if (currentPoints <span class="hl">&gt;=</span> MPoint) { ... }</code></pre>
   </table>
   </div>
 
+  <p class="kick">테스트로 묶은 규칙</p>
   <h2 id="ch-test">인증 · 포인트 · 출석 · 검색 규칙을 테스트 17건으로 고정했습니다</h2>
   <div class="tbl-wrap">
   <table class="rules">

@@ -47,6 +47,7 @@
     <figcaption>라이더 화면 · 서버가 정한 순서대로 배달지 다섯 곳을 이어 그린 화면입니다.</figcaption>
   </figure>
 
+  <p class="kick">개요</p>
   <h2 id="ch-intro">손님 · 사장님 · 라이더 · 관리자를 잇는 배달 플랫폼</h2>
   <p>손님은 가게를 골라 주문하고, 사장님은 주문을 받아 메뉴를 관리합니다. 라이더는 배달을 맡고, 관리자는 회원과 가게, 라이더를 관리합니다. 이 네 역할을 한 서비스로 잇는 배달 플랫폼을 다섯 명이 만들었습니다.</p>
   <p>조장인 저는 라이더 한 명이 여러 집을 어떤 순서로 돌지 서버가 계산하게 만들었고, 다섯 명이 짠 API가 같은 모양으로 응답하도록 공통 규약을 정했습니다. 소셜 로그인과 화면도 맡았습니다.</p>
@@ -60,6 +61,7 @@
   </table>
   </div>
 
+  <p class="kick">묶음배달 경로 계산</p>
   <h2 id="ch-route">라이더가 어느 집부터 들러야 할지, 서버가 계산하게 했습니다</h2>
   <p>직선거리로 순서를 정하면 일방통행도, 건널 수 없는 길도 알 수 없습니다. 그래서 도로망을 방향 그래프로 만들고, 그 위에서 정차지끼리 걸리는 시간을 구한 뒤 순서를 정했습니다. 도로망은 실제 지도가 아니라, 일방통행과 건널 수 없는 길을 넣은 25×21 데모용 격자입니다.</p>
   <div class="flow" data-flow="route" data-title="방문 순서를 계산하는 길"></div>
@@ -74,6 +76,7 @@
     <li><b>같은 교차로에 붙은 두 집</b>교차로까지 걸어가는 거리를 도보 속도로 바꿔 구간 양 끝에 더했습니다. 그래야 같은 교차로에 붙은 두 집 사이가 0초로 나오지 않습니다.</li>
   </ul>
 
+  <p class="kick">테스트로 고정</p>
   <h2 id="ch-proof">일방통행이 반영되는지 확인한 테스트</h2>
   <p>그래프 계산은 우회해야 하는 두 집으로 확인했습니다. 건널 수 없는 길 양쪽에 있어서, 직선으로는 가깝지만 도로로는 한참 돌아가야 하는 곳입니다. 같은 두 집이라도 가는 방향에 따라 시간이 달라야 일방통행이 비용에 들어갔다고 할 수 있습니다.</p>
   <div class="vs">
@@ -86,6 +89,7 @@
   </div>
   <p>이 값을 테스트의 기댓값으로 넣었습니다. 도로망 데이터가 바뀌면 이 테스트가 실패합니다. 방문 순서도 모든 순서를 다 따져 본 답과 같은지 테스트로 확인합니다.</p>
 
+  <p class="kick">서버 공통 규약</p>
   <h2 id="ch-common">다섯 명이 만든 API가 같은 모양으로 응답하게 맞췄습니다</h2>
   <p>처음에는 API마다 응답 모양이 달랐고, 실패를 null이나 true/false로 알리는 곳도 있었습니다. 그래서 응답은 ApiResponse 하나로 감싸고, 실패는 오류 코드 여덟 개와 BusinessException 하나로 알리게 정리했습니다.</p>
   <div class="tbl-wrap">
@@ -114,6 +118,7 @@ public class GlobalExceptionHandler {
     ... ApiResponse.fail(errorCode, ex.getMessage())
 }</code></pre>
 
+  <p class="kick">로그인과 실행</p>
   <h2 id="ch-login">소셜 로그인 3사 연동과 로컬 실행</h2>
   <ul class="items">
     <li><b>소셜 로그인 3사<span class="nk">Apache HttpClient</span></b>네이버 · 구글 · 카카오의 인가 코드 교환과 프로필 조회를 직접 호출합니다. 카카오만 응답 구조가 달라 따로 읽고, 비밀번호는 BCrypt로 저장합니다.</li>
@@ -123,6 +128,7 @@ public class GlobalExceptionHandler {
 <pre><code>./gradlew bootRun --args='--spring.profiles.active=h2'
 <span class="c">Oracle과 외부 API 키 없이, H2 메모리 DB와 데모 데이터로 뜹니다</span></code></pre>
 
+  <p class="kick">서비스 화면</p>
   <h2 id="ch-screens">손님, 라이더, 관리자 화면</h2>
   <div class="shots3">
     <figure><img src="../../assets/img/delivery/store-list.jpg" width="1600" height="946" loading="lazy" alt="카테고리별 가게 목록 화면"><figcaption>주문 · 카테고리별 가게 목록</figcaption></figure>

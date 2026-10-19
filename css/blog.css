@@ -177,3 +177,7 @@ h2 a { font-size: 14px; font-weight: 400; }
   .posts li:has(.cat) { grid-template-columns: 1fr auto; }
   .posts li:has(.cat) a { grid-column: 1 / -1; grid-row: 2; }
 }
+
+/* 장 위의 작은 분류 줄 */
+.body .kick { margin: 44px 0 0; font-size: 13.5px; color: var(--fg-3); }
+.body .kick + h2, .body .kick + h3 { margin-top: 2px; }

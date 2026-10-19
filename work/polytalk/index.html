@@ -41,6 +41,7 @@
     <figcaption>런타임 구성 · Peer 키와 평문은 두 클라이언트에만 있고, 서버는 암호문을 받아 저장하고 다시 보냅니다.</figcaption>
   </figure>
 
+  <p class="kick">개요</p>
   <h2 id="ch-intro">암호화와 복호화는 클라이언트에서만 합니다</h2>
   <p>보통의 채팅 서버는 메시지 평문을 받아 처리하고 저장합니다. 그러면 서버의 로그나 저장 파일이 새어 나갈 때 대화도 그대로 드러납니다. polytalk는 Java TCP 소켓으로 만든 콘솔 1:1 채팅입니다. 암호화와 복호화는 클라이언트에서만 하고, 서버는 회원 인증과 방 관리, 암호문을 저장하고 전달하는 일만 합니다.</p>
   <p>메시지를 푸는 키는 두 클라이언트가 각자 계산하고, 서버로 보내지 않습니다.</p>
@@ -54,6 +55,7 @@
   </table>
   </div>
 
+  <p class="kick">키 교환</p>
   <h2 id="ch-e2ee">서버는 공개키만 전하고, Peer 키는 두 클라이언트가 각자 계산합니다</h2>
   <p>방에 들어가면 서버가 두 사람의 공개키를 서로에게 전해 주고, 각 클라이언트는 자기 개인키와 상대 공개키로 ECDH를 계산합니다. 두 사람이 따로 계산해도 결과는 같은 Peer 키입니다.</p>
   <div class="flow" data-flow="e2ee" data-title="키 교환과 암호문 전달"></div>
@@ -62,6 +64,7 @@
     <figcaption>키 교환 순서 · ROOM_JOIN, PUBLIC_KEY 중계, 양쪽 ECDH, 암호문 CHAT 순으로 오갑니다.</figcaption>
   </figure>
 
+  <p class="kick">암호화와 저장</p>
   <h2 id="ch-gcm">AES-128-GCM 암호화와 암호문 저장</h2>
   <p>메시지는 AES-128-GCM으로 암호화합니다. GCM은 인증 태그를 같이 만들어서, 중간에 내용이 바뀌면 복호화 단계에서 걸러 냅니다. IV는 메시지마다 12바이트로 새로 만들기 때문에 같은 문장을 두 번 보내도 암호문이 달라집니다. 서버는 받은 <code>data</code>를 풀지 않고 <code>ChatLog.encryptedData</code>에 그대로 넣습니다.</p>
   <figure>
@@ -94,6 +97,7 @@ clientManager.broadcastRoom(...);</code></pre>
     <li><b>서버가 아는 키는 공개키뿐입니다</b>회원 정보에는 ECDH 공개키만 남고, 개인키는 각자 기기의 <code>client_keys/</code>에만 있습니다.</li>
   </ul>
 
+  <p class="kick">동시 접속</p>
   <h2 id="ch-thread">연결을 받는 스레드와 처리하는 스레드 풀</h2>
   <p>서버의 메인 스레드는 <code>ServerSocket.accept()</code>만 하고, 접속이 들어올 때마다 <code>ClientHandler</code>를 크기 10의 스레드 풀에 넘깁니다. 클라이언트도 입력과 수신을 다른 스레드로 나눠, 상대 메시지를 기다리는 동안에도 계속 입력할 수 있습니다.</p>
   <figure>
@@ -110,6 +114,7 @@ clientManager.broadcastRoom(...);</code></pre>
     <figcaption>한 번 왕복하는 핸드셰이크 · 양쪽이 같은 SEED에서 같은 세션 키를 만듭니다.</figcaption>
   </figure>
 
+  <p class="kick">기술과 테스트</p>
   <h2 id="ch-test">사용 기술과 암호 단위 테스트</h2>
   <h3>테스트로 확인하는 것</h3>
   <ul>
