@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="assets/fonts/plex.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
-<body class="intro">
+<body>
 <a class="skip" href="#work">작업 목록으로 건너뛰기</a>
 
 <header class="head" id="top">
@@ -27,7 +27,7 @@
 
 <main id="main">
 
-<!-- 첫 화면: 누구인지 · 얼굴 · 가장 강한 근거 -->
+<!-- 첫 화면: 이름 · 사진 · 한 줄 소개 · 연락처 -->
 <section class="hero wrap" aria-labelledby="who">
   <p class="role fade"><span class="bar" aria-hidden="true"></span><b>System · Infra Engineer</b><span class="also">백엔드 개발도 합니다</span></p>
   <div class="grid hero-grid">
@@ -42,74 +42,8 @@
     </div>
     <figure class="portrait h-photo"><img src="assets/img/profile/photo.jpg" width="480" height="640" alt="이상혁 증명사진"></figure>
 
-    <div class="h-scene fade d3">
-      <div class="scene" id="scene">
-        <div class="sc-head">
-          <p class="lbl">대표 작업</p>
-          <h2>failstop</h2>
-          <a class="link-arrow" href="work/failstop/">자세히 보기 <span class="arrow" aria-hidden="true">→</span></a>
-          <p class="d">직접 만든 모의 거래소를 AWS에 올려 운영했습니다. 2026년 10월 서울 리전에서 주 DB 전원을 끊는 시험을 했습니다.</p>
-        </div>
-        <div class="sc-fig">
-          <svg class="sc wide" viewBox="0 0 444 236" role="img" aria-labelledby="sc-t sc-d">
-            <title id="sc-t">주 DB가 멈췄을 때 예비 DB가 이어받는 장면</title>
-            <desc id="sc-d">로드밸런서 뒤 두 데이터센터에 거래 서버와 DB가 한 대씩 있습니다. 주 DB의 전원을 끊자 23.0초 만에 예비 DB가 스스로 새 주 DB가 됐습니다. 끊기기 직전에 들어온 주문 196건을 하나씩 대조했고, 사라진 주문은 없었습니다.</desc>
-            <rect class="z" x="104" y="4" width="336" height="104"/>
-            <text class="zl" x="112" y="19">데이터센터 1 · AZ-a</text>
-            <rect class="z" x="104" y="128" width="336" height="104"/>
-            <text class="zl" x="112" y="143">데이터센터 2 · AZ-c</text>
-            <path class="ln" d="M80 118 H96 V52 H120"/>
-            <path class="ln" d="M96 118 V176 H120"/>
-            <path class="ln" d="M224 52 H296"/>
-            <path class="ln" d="M224 176 H262 V52"/>
-            <text class="jl" x="256" y="122" text-anchor="end">HAProxy</text>
-            <path class="rep" d="M364 74 V154"/>
-            <text class="rl" x="371" y="122">엄격 동기 복제</text>
-            <g class="pk-layer"></g>
-            <g class="n"><rect x="0.5" y="96" width="80" height="44"/><text class="nt" x="40.5" y="122.5" text-anchor="middle">로드밸런서</text></g>
-            <g class="n"><rect x="120" y="30" width="104" height="44"/><text class="nt" x="132" y="48">거래 서버 1</text><text class="ns" x="132" y="64">주문 체결·조회</text></g>
-            <g class="n"><rect x="120" y="154" width="104" height="44"/><text class="nt" x="132" y="172">거래 서버 2</text><text class="ns" x="132" y="188">주문 체결·조회</text></g>
-            <g class="n" data-db="1"><rect x="296" y="30" width="140" height="44"/><text class="nt" x="308" y="48">주 DB</text><text class="tg" x="428" y="48" text-anchor="end"></text><text class="ns" x="308" y="64">PostgreSQL · Patroni</text></g>
-            <g class="n" data-db="2"><rect x="296" y="154" width="140" height="44"/><text class="nt" x="308" y="172">예비 DB</text><text class="tg" x="428" y="172" text-anchor="end"></text><text class="ns" x="308" y="188">PostgreSQL · Patroni</text></g>
-          </svg>
-          <svg class="sc tall" viewBox="0 0 340 300" role="img" aria-labelledby="sc-t2">
-            <title id="sc-t2">주 DB가 멈췄을 때 예비 DB가 이어받는 장면</title>
-            <rect class="z" x="4" y="76" width="162" height="218"/>
-            <text class="zl" x="14" y="286">데이터센터 1 · AZ-a</text>
-            <rect class="z" x="174" y="76" width="162" height="218"/>
-            <text class="zl" x="326" y="286" text-anchor="end">데이터센터 2 · AZ-c</text>
-            <path class="ln" d="M170 40 V58 H85 V104"/>
-            <path class="ln" d="M170 58 H255 V104"/>
-            <path class="ln" d="M85 148 V220"/>
-            <path class="ln" d="M255 148 V184 H85"/>
-            <text class="jl" x="170" y="178" text-anchor="middle">HAProxy</text>
-            <path class="rep" d="M142 242 H198"/>
-            <text class="rl" x="170" y="262" text-anchor="middle">동기 복제</text>
-            <g class="pk-layer"></g>
-            <g class="n"><rect x="115" y="4" width="110" height="36"/><text class="nt" x="170" y="27" text-anchor="middle">로드밸런서</text></g>
-            <g class="n"><rect x="14" y="104" width="142" height="44"/><text class="nt" x="26" y="122">거래 서버 1</text><text class="ns" x="26" y="138">주문 체결·조회</text></g>
-            <g class="n"><rect x="184" y="104" width="142" height="44"/><text class="nt" x="196" y="122">거래 서버 2</text><text class="ns" x="196" y="138">주문 체결·조회</text></g>
-            <g class="n" data-db="1"><rect x="14" y="220" width="128" height="44"/><text class="nt" x="26" y="238">주 DB</text><text class="tg" x="134" y="238" text-anchor="end"></text><text class="ns" x="26" y="254">PostgreSQL·Patroni</text></g>
-            <g class="n" data-db="2"><rect x="198" y="220" width="128" height="44"/><text class="nt" x="210" y="238">예비 DB</text><text class="tg" x="318" y="238" text-anchor="end"></text><text class="ns" x="210" y="254">PostgreSQL·Patroni</text></g>
-          </svg>
-        </div>
-        <ol class="sc-log">
-          <li data-p="1"><span class="k">01</span><span>주 DB 전원을 끊습니다</span><span class="v">전원 차단</span></li>
-          <li data-p="2" class="g"><span class="k">02</span><span>예비 DB가 새 주 DB로 승격됩니다</span><span class="v">승격</span></li>
-          <li data-p="3" class="g"><span class="k">03</span><span>차단 직전 주문 196건을 대조합니다</span><span class="v">유실 0건</span></li>
-        </ol>
-        <div class="ticks" id="ticks" aria-hidden="true"></div>
-      </div>
-    </div>
   </div>
 
-  <div class="figs fade d3" role="list" aria-label="failstop의 숫자">
-    <p class="figs-k lbl"><span>failstop의 숫자</span></p>
-    <div class="fig" role="listitem"><p class="n">179<small>회</small></p><p class="l">일부러 낸 장애</p><p class="c">제 PC의 Docker에서 시험했고, 서버 이어받기와 DB 승격은 모두 30초 안이었습니다</p></div>
-    <div class="fig" role="listitem" id="fig-failover"><p class="n">23.0<small>초</small></p><p class="l">주 DB가 꺼지고 예비 DB가 넘겨받기까지</p><p class="c">AWS 서울 리전에서 잰 값입니다</p></div>
-    <div class="fig" role="listitem"><p class="n">4<small>분</small> 44<small>초</small></p><p class="l">CPU 경보부터 조회 서버 합류까지</p><p class="c">AI 제안을 승인하고 67초 뒤 조회 서버가 합류했습니다</p></div>
-    <div class="fig" role="listitem"><p class="n">36.7<small>만 원</small></p><p class="l">한 달 예상 운영비</p><p class="c">세금 포함, 예산 40만 원 이내입니다</p></div>
-  </div>
 </section>
 
 <!-- 작업 -->
@@ -126,7 +60,7 @@
   <ol class="index">
     <li class="work" data-kind="infra backend" data-img="assets/img/failstop/aws-map.jpg" data-cap="AWS 운영 구성도"><div class="w-in"><a href="work/failstop/">
       <span class="w-no">01</span>
-      <span class="w-main"><span class="w-title">failstop <span class="star">대표 작업</span></span><span class="w-line">모의 거래소의 AWS 이중화와 DB 페일오버 시험</span></span>
+      <span class="w-main"><span class="w-title">failstop</span><span class="w-line">모의 거래소의 AWS 이중화와 DB 페일오버 시험</span></span>
       <span class="w-role">혼자 진행<br>Claude·Codex와 함께<span class="w-kind"><span class="i">인프라</span> · 백엔드</span></span>
       <span class="w-year">2026<small>7–10월</small></span>
       <span class="w-thumb"><img src="assets/img/failstop/aws-map.jpg" alt="" loading="lazy"></span>
@@ -249,6 +183,13 @@
         <div><dt>관제·자동화</dt><dd>Prometheus · Grafana · Alertmanager · GitHub Actions</dd></div>
         <div><dt>데이터</dt><dd>PostgreSQL · Patroni · Oracle · Redis</dd></div>
         <div><dt>개발</dt><dd>Java · Spring Boot · Python · FastAPI · TypeScript</dd></div>
+      </dl>
+      <p class="lbl sub-h cred-h">학력 · 교육 · 자격</p>
+      <dl class="stack cred">
+        <div><dt>학력</dt><dd>인하공업전문대학교 정보통신공학과 졸업 · 학사(전공심화) 2026.02</dd></div>
+        <div><dt>교육</dt><dd>한국폴리텍대학 광명융합기술교육원 하이테크과정 데이터분석과 · 2026.03 – 12 수료 예정<br>인천일보아카데미 Java·Python 웹서비스 개발자 과정 896시간 · 2024<br>인천일보아카데미 빅데이터 데이터사이언티스트 과정 960시간 · 2024 – 2025</dd></div>
+        <div><dt>자격</dt><dd>정보처리기사 2026.09 · 네트워크관리사 2급 2024.10</dd></div>
+        <div><dt>수상</dt><dd>프로젝트작품 경진대회 은상, 한국폴리텍대학 광명융합기술교육원 2026.10<br>성적우수상(전체 교육기간 성적 1위), 인하공업전문대학교 2026.02</dd></div>
       </dl>
     </div>
   </div>

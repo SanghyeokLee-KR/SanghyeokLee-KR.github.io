@@ -779,3 +779,13 @@ figcaption b { color: var(--ink); font-weight: 600; }
   .intro .portrait img { clip-path: none; }
   .tl .tl-track b { transform: none; }
 }
+
+/* 표지를 줄인 뒤의 배치: 왼쪽 이름과 소개, 오른쪽 사진 */
+@media (min-width: 1081px) {
+  .h-id { grid-column: 1 / span 7; }
+  .h-photo { grid-column: 9 / span 4; }
+  .portrait.h-photo { align-self: end; aspect-ratio: 3 / 4; min-height: 0; max-width: 400px; justify-self: end; width: 100%; }
+}
+.hero { padding-bottom: clamp(24px, 3vw, 48px); }
+.cred-h { margin-top: 36px; }
+.stack.cred dd { line-height: 1.7; }
