@@ -19,7 +19,7 @@
   <header class="top"><a class="home" href="../../">이상혁</a>
     <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
   <article>
-  <div class="post-head"><p class="m"><time datetime="2026-09-28">2026.09.28</time> · 방화벽 · VM 실습망 · failstop</p><h1>서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</h1></div>
+  <div class="post-head"><p class="m"><time datetime="2026-09-28">2026.09.28</time> · 네트워크 · VM 실습망 · failstop</p><h1>서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</h1></div>
   <div class="body">
   <p class="lead">이틀 전 pfSense를 NAT 라우터(경계형)로 넣었을 때는 서버 여섯 대의 경로·DNS와 sshd·Nginx·인증서·앱 허용 주소를 모두 고쳐야 했습니다. 이번에는 pfSense를 브리지(투명) 방화벽으로 하나 더 두고, 서버 쪽 네트워크 설정은 한 줄도 바꾸지 않은 채 구역을 DMZ·APP·DATA·OPS로 나눴습니다. 작업 중에 브리지 MAC 학습 때문에 통신이 끊긴 일과, 그 사이 앱 리더가 넘어간 기록도 함께 정리했습니다.</p>
   <dl class="facts-mini">
@@ -40,6 +40,7 @@
 
   <h2>서버를 구역으로 옮긴 직후 통신이 끊겼다</h2>
   <p>서버 안의 IP·경로·DNS는 그대로 두고, VirtualBox에서 각 서버의 두 번째 NIC만 구역 내부망으로 옮겼습니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC</b><span>VirtualBox · PowerShell</span></div>
 <pre><code><span class="c">## 2026-09-28 22:57:22 KST  NIC2(enp0s8)를 구역 내부망으로. 서버 안 설정은 바꾸지 않는다</span>
 <span class="p">PS&gt;</span> VBoxManage controlvm EDGE01 nic2 intnet lab-dmz
 <span class="p">PS&gt;</span> VBoxManage controlvm APP01 nic2 intnet lab-app
@@ -65,6 +66,7 @@ TcpTestSucceeded : True</code></pre>
     <figcaption>옮긴 직후 MAC 일곱 개가 모두 em0에 고정되어 있었고, <code>flushall</code> 뒤 비워졌습니다.</figcaption>
   </figure>
   <p>끊긴 약 70초 동안 앱 서버에서 DB로 가는 연결도 막혔습니다. 리더였던 APP01은 리스 갱신에 실패해 리더십을 내려놓았고, DB에 다시 닿은 APP02가 리더로 승격했습니다. 리더십을 잃은 노드는 스스로 재승격하지 않도록 설계해 두었기 때문에 APP01은 재기동해서 대기 노드로 되돌렸습니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC → 앱 서버 APP01 · APP02</b><span>SSH · journalctl</span></div>
 <pre><code><span class="p">$</span> ssh app01 "sudo journalctl -u exchange-app --since '22:57:00' --until '22:59:30' | grep -E 'leader-lease|HaAvailability|…'"
 Sep 28 22:57:32 app01.lab … LeaderLeaseService : 리스 틱 실패: Failed to obtain JDBC Connection
 …
@@ -84,6 +86,7 @@ Sep 28 22:58:31 app02.lab … HaAvailability     : readiness 전이: ACCEPTING_T
 
   <h2>구역 간 규칙과 경로 확인</h2>
   <p>규칙은 웹 → 앱 8080, 앱 → DB 5432, 관제 → 각 구역 수집 포트만 열고 그 밖은 차단(기록)으로 두었습니다. 작업 PC에서 각 서버로 SSH를 넣어 <code>nc</code>로 확인했습니다. 웹 진입 서버에서 앱의 다른 포트(8081)는 L4에서, DB는 L3에서 막힙니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC → 각 서버</b><span>PowerShell · SSH · nc</span></div>
 <pre><code><span class="c"># 2026-09-29 01:04:38 KST  작업 PC</span>
 <span class="p">PS&gt;</span> function probe { param($from, $to, $port) ssh $from "nc -zv -w 3 $to $port 2&gt;&amp;1 | grep -oE 'Connected|TIMEOUT'" }
 <span class="p">PS&gt;</span> probe edge01 192.168.10.21 8080     # 웹 → 앱 8080
@@ -95,6 +98,7 @@ Connected
 <span class="p">PS&gt;</span> probe app01  192.168.10.31 5432     # 앱 → DB 5432
 Connected</code></pre>
   <p>NAT를 지운 뒤 예전 진입 주소는 응답하지 않고, 서버 주소로 바로 접속됩니다. 경로 추적에는 기존 라우터와 서버만 나오고 투명 방화벽은 보이지 않습니다. 서버 여섯 대의 주소·MAC·기본 경로·DNS는 작업 전후에 같은 명령으로 떠서 비교했고 차이가 없었습니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC</b><span>PowerShell</span></div>
 <pre><code><span class="c"># 2026-09-28 23:22:00 KST  작업 PC</span>
 <span class="p">PS&gt;</span> curl.exe -k -s -o NUL -w "%{http_code}`n" --max-time 5 https://192.168.56.10/   # 예전 NAT 진입 주소
 <span class="hl">000</span>

@@ -19,7 +19,7 @@
   <header class="top"><a class="home" href="../../">이상혁</a>
     <nav><a href="../../#projects">프로젝트</a><a href="../../log/">기록</a><a href="../../#about">소개</a><a href="../../infra.pdf">인프라 PDF</a><a href="../../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
   <article>
-  <div class="post-head"><p class="m"><time datetime="2026-09-29">2026.09.29</time> · 방화벽 · VM 실습망 · failstop</p><h1>nftables 규칙 중앙 관리와 90초 자동 되돌리기</h1></div>
+  <div class="post-head"><p class="m"><time datetime="2026-09-29">2026.09.29</time> · 네트워크 · VM 실습망 · failstop</p><h1>nftables 규칙 중앙 관리와 90초 자동 되돌리기</h1></div>
   <div class="body">
   <p class="lead">VM 실습망 여섯 대의 호스트 방화벽(nftables) 규칙을 저장소의 원본 파일 하나로 맞추는 도구를 만들었습니다. 원격 서버의 방화벽을 바꾸다 보면 SSH가 끊겨 되돌릴 방법이 없어지는 경우가 생깁니다. 그래서 적용 전에 VM 안에 되돌리기 타이머를 먼저 걸어 두고, 작업 PC의 확인이 오지 않으면 VM이 90초 뒤 스스로 원래 규칙으로 돌아가게 했습니다.</p>
   <dl class="facts-mini">
@@ -34,6 +34,7 @@
 
   <h2>파일 해시가 같아도 규칙은 다를 수 있다</h2>
   <p>파일만 비교하면 누군가 <code>nft add rule</code>로 커널에 직접 넣은 규칙은 보이지 않습니다. 그래서 VM의 파일을 빈 네트워크 이름공간에 실제로 올려 본 결과와 지금 커널 규칙을, 카운터를 뺀 형태(<code>nft -s list table inet vmlab</code>)로 글자 단위 비교합니다. 원본 디렉터리를 <code>/etc/vm-lab</code> 자리에 bind mount로 겹쳐 보이게 하므로 호스트의 파일과 규칙은 바뀌지 않습니다. 같은 방식으로 <code>--net</code> 없이 <code>nft -c</code>를 돌리면 새 원본 전체의 구문 검사가 됩니다.</p>
+<div class="where"><span class="k">코드</span><b>각 VM</b><span>nft-central-remote.sh</span></div>
 <pre><code><span class="c"># nft-central-remote.sh</span>
 in_view() {  <span class="c"># in_view &lt;원본 디렉터리&gt; &lt;명령&gt; [unshare 인자...]</span>
     local dir=$1 cmd=$2
@@ -53,6 +54,7 @@ live_text() { nft -s list table inet vmlab; }</code></pre>
   <h2>되돌리기를 먼저 예약하고 적용한다</h2>
   <p><code>-Apply</code>는 한 대씩 원본 검사 → VM 구문 검사 → 적용 전 확인 → 백업과 되돌리기 예약 → 설치·적재 → 적용 뒤 확인 순서로 진행합니다. 적용 전 확인에서 이미 실패하는 항목이 있으면 적용하지 않습니다. 적용 뒤 실패가 이번 변경 때문인지 원래 있던 문제인지 섞이지 않게 하려는 것입니다.</p>
   <p>핵심은 설치보다 예약이 먼저라는 점입니다. 지금 파일과 <code>nft list ruleset</code> 사본을 백업 디렉터리에 남긴 뒤 <code>systemd-run --on-active=90</code>으로 일회성 타이머 유닛을 겁니다. 스크립트는 <code>set -euo pipefail</code>로 돌기 때문에 예약이 실패하면 설치까지 가지 않습니다. 설치는 <code>nft -f</code> 한 번으로 하는데, 이 파일이 테이블 비우기와 새 규칙 적재를 한 트랜잭션에 담고 있어 규칙이 빈 순간이 생기지 않습니다.</p>
+<div class="where"><span class="k">코드</span><b>작업 PC · 각 VM</b><span>nft-central.ps1 · nft-central-remote.sh</span></div>
 <pre><code><span class="c"># nft-central.ps1</span>
 $RollbackSeconds = <span class="hl">90</span>
 
@@ -69,6 +71,7 @@ $RollbackSeconds = <span class="hl">90</span>
     …
     if $ok &amp;&amp; ! out=$(nft -f "$ETC/firewall.nft" 2&gt;&amp;1); then ok=false; fi</code></pre>
   <p>타이머가 실행하는 <code>rollback.sh</code>와 작업 PC가 보내는 확인(confirm)은 같은 백업 디렉터리 아래 <code>decided</code>를 <code>mkdir</code>로 만들려고 경쟁합니다. <code>mkdir</code>는 원자적이라 먼저 만든 쪽만 진행합니다. 확인이 타이머 만료와 거의 동시에 도착해도 되돌리기와 확인이 둘 다 실행되는 일은 없습니다.</p>
+<div class="where"><span class="k">코드</span><b>각 VM</b><span>rollback.sh</span></div>
 <pre><code><span class="c"># rollback.sh (적용 때마다 백업 디렉터리에 쓴다)</span>
 b=$1
 <span class="c"># 확인(confirm)과 되돌리기 가운데 decided 를 먼저 만든 쪽만 진행한다. mkdir 는 원자적이다.</span>
@@ -96,6 +99,7 @@ systemctl stop "nft-central-rollback-$NC_ID.timer" 2&gt; /dev/null || …</code>
     <img src="../../assets/img/log/nftables-central-rollback/02.jpg" width="1600" height="872" loading="lazy" alt="nft-central.ps1 -Apply -Vm edge01 실행 화면. 03:16:59 적용, 되돌리기 예약 03:18:28, 적용 뒤 확인에서 새 SSH 연결 실패와 파일과 커널 규칙 확인 불가로 4/6, 03:18:30 VM 기록 action=rollback result=ok label=ok, 되돌린 뒤 적용 전 파일과 같음">
     <figcaption>03:16:59 적용, 확인 4/6으로 예약 유지, 03:18:29 VM이 되돌림. 결과 줄의 종료 코드는 1입니다.</figcaption>
   </figure>
+<div class="where"><span class="k">로그</span><b>웹 진입 서버 EDGE01 · 작업 PC</b><span>적용 기록 · journald · 2초 관찰</span></div>
 <pre><code><span class="c"># EDGE01 적용 기록과 journald (03:20:07 조회)</span>
 2026-09-29T03:16:59+09:00 id=20260929-031658 action=apply result=pending … rollback_in=90s
 2026-09-29T<span class="hl">03:18:29</span>+09:00 id=20260929-031658 <span class="hl">action=rollback result=ok label=ok</span>

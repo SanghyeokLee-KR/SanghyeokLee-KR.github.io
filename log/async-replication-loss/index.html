@@ -33,6 +33,7 @@
   <h2>시험 방법</h2>
   <p>스크립트는 <code>harness/scale/failover_rpo_check.py</code>이고 배선은 <code>deploy/compose.node-data.yml</code> 그대로입니다. 쓰기 스레드가 한 트랜잭션에 한 행씩 <code>INSERT … RETURNING n</code>을 보내고, 서버가 값을 돌려준 번호만 ACK로 기록합니다. 동시에 다른 스레드가 20만 행 INSERT를 반복해 WAL을 만듭니다. 프로브만 돌리면 WAL이 거의 없어 복제가 밀리지 않기 때문입니다.</p>
   <p>회차는 두 개입니다. natural은 그대로 primary를 죽였고, lagged는 <code>docker pause</code>로 standby를 8초 얼린 뒤 죽였습니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC Docker</b><span>failover_rpo_check.py가 실행</span></div>
 <pre><code><span class="c"># 스크립트가 실행하는 장애 주입과 승격 순서</span>
 <span class="p">$</span> docker pause &lt;standby&gt;                 <span class="c"># lagged 회차만, 8초</span>
 <span class="p">$</span> docker update --restart=no &lt;primary&gt;   <span class="c"># 재시작 정책이 옛 primary를 되살리지 않게</span>
@@ -40,6 +41,7 @@
 <span class="p">$</span> docker unpause &lt;standby&gt;
 <span class="p">$</span> docker exec -u postgres &lt;standby&gt; pg_ctl promote -D /var/lib/postgresql/data</code></pre>
   <p>유실은 "ACK 받은 번호 중 승격한 노드에 없는 것"으로 셌습니다. 최댓값까지의 구간으로 세면 중간에 실패한 요청까지 유실로 잡히므로, ACK 번호 목록을 그대로 넘겨 대조했습니다.</p>
+<div class="where"><span class="k">실행</span><b>승격한 standby</b><span>유실 대조 SQL</span></div>
 <pre><code>SELECT count(*) FROM unnest(ARRAY[<span class="c">…ACK 받은 번호…</span>]::bigint[]) g
  WHERE NOT EXISTS (SELECT 1 FROM rpo_probe p WHERE p.n = g);</code></pre>
   <p>주행마다 프로브 테이블이 standby에 복제됐는지 먼저 확인하고, ACK가 0건이면 주행을 중단하게 했습니다. 처음에는 공식 이미지가 초기화 중 임시 서버를 한 번 내리는 사이에 테이블 생성 DDL이 조용히 실패했고, 테이블이 없는 채로 유실 0이 나온 적이 있었기 때문입니다.</p>
@@ -62,6 +64,7 @@
 
   <h3>옛 primary 재편입은 pg_rewind가 실패했습니다</h3>
   <p><code>wal_log_hints</code>는 <code>on</code>이었지만 되감기에 필요한 WAL이 이미 없었습니다.</p>
+<div class="where"><span class="k">로그</span><b>옛 primary</b><span>pg_rewind</span></div>
 <pre><code>pg_rewind: servers diverged at WAL location 0/2F1BFFF0 on timeline 1
 pg_rewind: error: could not open file ".../pg_wal/000000010000000000000021": No such file or directory
 pg_rewind: error: could not find previous WAL record at 0/21FFFFC0</code></pre>
@@ -79,6 +82,7 @@ pg_rewind: error: could not find previous WAL record at 0/21FFFFC0</code></pre>
 
   <h3>앱은 커밋이 멈추면 쓰기를 423으로 거절합니다</h3>
   <p>앱은 노드마다 1초에 한 번 <code>pg_logical_emit_message</code> 탐지 커밋을 보냅니다. 이 커밋이 2초 안에 끝나지 않고 원인이 <code>SyncRep</code> 대기로 확인되거나, <code>synchronous_standby_names</code>가 <code>'*'</code>이면 쓰기 가능 상태를 SUSPENDED로 바꿉니다. <code>WriteGateFilter</code>는 이 상태를 보고 쓰기 요청을 DB에 닿기 전에 거절합니다.</p>
+<div class="where"><span class="k">코드</span><b>server/app</b><span>WriteGateFilter.java</span></div>
 <pre><code><span class="c">// server/app/src/main/java/kr/exchange/api/common/WriteGateFilter.java (일부)</span>
 protected boolean shouldNotFilter(HttpServletRequest request) {
     String method = request.getMethod();

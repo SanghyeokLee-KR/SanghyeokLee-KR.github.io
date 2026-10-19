@@ -32,6 +32,7 @@
   <h2>백업을 어디에 둘지</h2>
   <p>DB 서버 디스크에만 백업을 두면 그 서버가 망가졌을 때 백업도 같이 잃습니다. 그래서 백업 도구는 관제 서버(OPS01)에, 보관 위치는 웹 진입 서버(EDGE01)에 두었습니다. DB01은 백업을 만들 데이터만 내주고, 파일은 다른 서버로 바로 나갑니다.</p>
   <p>Databasus 관리 화면은 OPS01의 루프백(127.0.0.1:4005)에만 열어 두고, 작업 PC에서는 SSH 터널(14005 → 4005)로 접속했습니다. 작업 전 상태는 아래와 같습니다. 보관 폴더는 비어 있고, DB01에는 백업용 계정 <code>databasus_ro</code>가 있습니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC → 관제 서버 OPS01 · 웹 진입 서버 EDGE01</b><span>PowerShell · SSH</span></div>
 <pre><code><span class="c"># 2026-09-26 22:31:07 KST  작업 PC</span>
 <span class="p">PS&gt;</span> ssh ops01 "sudo docker ps"
 CONTAINER ID   IMAGE                         COMMAND            CREATED         STATUS                   PORTS                      NAMES
@@ -45,6 +46,7 @@ drwxr-xr-x. 4 root     root     91 Sep 22 14:39 ..</code></pre>
 
   <h2>끊겨 있던 SFTP 경로 다시 열기</h2>
   <p>같은 날 pfSense를 경계형(NAT 라우터)으로 바꾸면서 OPS01의 host-only 주소가 없어졌습니다. EDGE01의 sshd는 <code>dbbackup@192.168.56.41</code>만 받도록 되어 있었고, nftables도 host-only 관리 대역의 22번만 열고 있어서 예행 때 만든 SFTP 경로가 끊긴 상태였습니다. 출발지를 OPS01의 lab-lan 주소로 바꾸고, 방화벽에는 그 주소의 22번만 따로 열었습니다. 네트워크에서는 OPS01의 22번만 허용하고, 어떤 계정으로 들어올 수 있는지는 sshd가 제한합니다.</p>
+<div class="where"><span class="k">파일</span><b>웹 진입 서버 EDGE01</b><span>sshd 설정</span></div>
 <pre><code><span class="c"># EDGE01 /etc/ssh/sshd_config.d/30-db-backup.conf</span>
 AllowUsers ops@192.168.56.0/24 <span class="hl">dbbackup@192.168.10.41</span>
 
@@ -76,6 +78,7 @@ add rule inet vmlab roles iifname "enp0s8" ip saddr 192.168.10.41 tcp dport 22 \
     <figcaption>Databasus 화면의 백업 성공 표시. 화면만으로는 파일이 실제로 어디에 있는지 알 수 없어서 EDGE01에서 따로 확인했습니다.</figcaption>
   </figure>
   <p>관리 화면의 성공 표시만 믿지 않고 EDGE01에서 파일과 sshd 로그를 직접 봤습니다. 22:58:13에 OPS01(192.168.10.41)에서 <code>internal-sftp</code>로 접속한 기록이 있고, 474,053바이트 백업 파일과 메타데이터가 보관 폴더에 들어와 있습니다. DB01 쪽 <code>/var/lib/pgsql/17/backups/</code>에는 아무것도 나오지 않았습니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC → 웹 진입 서버 EDGE01 · 주 DB DB01</b><span>PowerShell · SSH</span></div>
 <pre><code><span class="c"># 2026-09-26 22:59:00 KST</span>
 <span class="p">PS&gt;</span> ssh edge01 "sudo ls -la /srv/db-backup/databasus"
 -rw-r--r--. 1 dbbackup dbbackup <span class="hl">474053</span> Sep 26 22:58 거래_DB_(주_DB)-20260926-135813-….
@@ -93,6 +96,7 @@ Sep 26 22:58:13 edge01.lab sshd-session[1554]: Starting session: forced-command 
     <figcaption>23:12 수동 복원 검증 결과. 표 109개가 복원됐고 <code>pg_restore</code> 종료 코드는 0입니다.</figcaption>
   </figure>
   <p>검증 화면의 숫자를 원본 DB와 대조했습니다. DB01의 <code>public</code> 104개와 <code>harness</code> 5개를 합하면 109개로 맞고, 세 표의 행 수도 47·22·3으로 같습니다. 검증이 끝난 뒤 OPS01에는 Databasus 컨테이너만 남았습니다.</p>
+<div class="where"><span class="k">실행</span><b>작업 PC → 주 DB DB01</b><span>PowerShell · SSH</span></div>
 <pre><code><span class="c"># 2026-09-26 23:17:41 KST</span>
 <span class="p">PS&gt;</span> ssh db01 "sudo -u postgres psql -d exchange -c '\dt public.*' | tail -n 2"
 <span class="hl">(104 rows)</span>

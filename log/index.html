@@ -17,17 +17,28 @@
     <nav><a href="../#projects">프로젝트</a><a href="../log/">기록</a><a href="../#about">소개</a><a href="../infra.pdf">인프라 PDF</a><a href="../backend.pdf">백엔드 PDF</a><button class="theme-btn" type="button">어둡게</button></nav></header>
   <h1>기록</h1>
   <p class="sub">장애 진단, 장애 시험, 백업, 방화벽 작업을 실제 명령과 출력으로 정리했습니다.</p>
+    <div class="cats" role="group" aria-label="분류로 거르기"><button type="button" data-c="" aria-pressed="true">전체<span>7</span></button><button type="button" data-c="장애 대응" aria-pressed="false">장애 대응<span>2</span></button><button type="button" data-c="DB" aria-pressed="false">DB<span>2</span></button><button type="button" data-c="네트워크" aria-pressed="false">네트워크<span>2</span></button><button type="button" data-c="백업" aria-pressed="false">백업<span>1</span></button></div>
   <ul class="posts big">
-      <li><time datetime="2026-10-10">2026-10-10</time><a href="aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건<span class="s">개인 AWS에서 주 DB 전원을 끊고, 예비 DB 승격과 주문 재개까지의 시각을 기록했습니다.</span></a></li>
-      <li><time datetime="2026-09-29">2026-09-29</time><a href="nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기<span class="s">VM 여섯 대의 nftables 규칙을 원본 하나로 관리하고, 확인이 없으면 90초 뒤 스스로 되돌리게 했습니다.</span></a></li>
-      <li><time datetime="2026-09-28">2026-09-28</time><a href="pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환<span class="s">서버 주소와 경로를 그대로 둔 채 pfSense 브리지 방화벽으로 구역을 나눴습니다.</span></a></li>
-      <li><time datetime="2026-09-26">2026-09-26</time><a href="backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다<span class="s">Databasus 백업을 다른 서버로 보내 보관하고, 복원한 DB의 테이블 109개를 원본과 대조했습니다.</span></a></li>
-      <li><time datetime="2026-09-21">2026-09-21</time><a href="app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락<span class="s">학교 AWS 앱 서버가 /api에만 504를 낼 때 스레드 덤프로 원인을 찾았습니다.</span></a></li>
-      <li><time datetime="2026-09-12">2026-09-12</time><a href="async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다<span class="s">로컬 Docker에서 비동기 복제의 유실을 확인하고 Patroni 엄격 동기 복제로 바꿨습니다.</span></a></li>
-      <li><time datetime="2026-05-30">2026-05-30</time><a href="ctf-port80-hijack/">apache2에 80번 포트를 빼앗긴 2차 공격<span class="s">공격자가 apache2로 80번 포트를 차지했을 때 서버가 NLB에서 빠지고 다른 서버가 채점을 받은 기록입니다.</span></a></li>
+      <li data-c="DB"><time datetime="2026-10-10">2026-10-10</time><a href="aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건<span class="s">개인 AWS에서 주 DB 전원을 끊고, 예비 DB 승격과 주문 재개까지의 시각을 기록했습니다.</span></a><span class="cat">DB</span></li>
+      <li data-c="네트워크"><time datetime="2026-09-29">2026-09-29</time><a href="nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기<span class="s">VM 여섯 대의 nftables 규칙을 원본 하나로 관리하고, 확인이 없으면 90초 뒤 스스로 되돌리게 했습니다.</span></a><span class="cat">네트워크</span></li>
+      <li data-c="네트워크"><time datetime="2026-09-28">2026-09-28</time><a href="pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환<span class="s">서버 주소와 경로를 그대로 둔 채 pfSense 브리지 방화벽으로 구역을 나눴습니다.</span></a><span class="cat">네트워크</span></li>
+      <li data-c="백업"><time datetime="2026-09-26">2026-09-26</time><a href="backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다<span class="s">Databasus 백업을 다른 서버로 보내 보관하고, 복원한 DB의 테이블 109개를 원본과 대조했습니다.</span></a><span class="cat">백업</span></li>
+      <li data-c="장애 대응"><time datetime="2026-09-21">2026-09-21</time><a href="app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락<span class="s">학교 AWS 앱 서버가 /api에만 504를 낼 때 스레드 덤프로 원인을 찾았습니다.</span></a><span class="cat">장애 대응</span></li>
+      <li data-c="DB"><time datetime="2026-09-12">2026-09-12</time><a href="async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다<span class="s">로컬 Docker에서 비동기 복제의 유실을 확인하고 Patroni 엄격 동기 복제로 바꿨습니다.</span></a><span class="cat">DB</span></li>
+      <li data-c="장애 대응"><time datetime="2026-05-30">2026-05-30</time><a href="ctf-port80-hijack/">apache2에 80번 포트를 빼앗긴 2차 공격<span class="s">공격자가 apache2로 80번 포트를 차지했을 때 서버가 NLB에서 빠지고 다른 서버가 채점을 받은 기록입니다.</span></a><span class="cat">장애 대응</span></li>
   </ul>
   <footer class="foot"><span>이상혁 · kljl6773@gmail.com</span><span><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span></footer>
 </div>
 <script src="../js/theme.js"></script>
+<script>
+document.querySelectorAll('.cats button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var c = b.dataset.c;
+    document.querySelectorAll('.cats button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    document.querySelectorAll('.posts.big li').forEach(function (li) { li.hidden = !!c && li.dataset.c !== c; });
+  });
+});
+</script>
+
 </body>
 </html>

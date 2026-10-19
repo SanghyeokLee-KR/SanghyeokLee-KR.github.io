@@ -21,7 +21,8 @@
     <div>
       <h1>이상혁<small>Lee Sang Hyeok</small></h1>
       <p class="role">System · Infra Engineer · 백엔드 개발도 합니다</p>
-      <p class="desc">Linux 서버와 AWS를 직접 구성하고, 장애를 내서 복구를 확인합니다. 작업하면서 실행한 명령과 결과는 아래 기록에 정리하고 있습니다.</p>
+      <p class="desc">Linux 서버와 AWS를 직접 구성하고, 장애를 내서 복구를 확인합니다. 개인 AWS에서 주 DB 전원을 끊었을 때 예비 DB가 23.0초 만에 승격됐고, 차단 직전 주문 196건 중 사라진 주문은 없었습니다. CTF에서는 3인 팀 조장으로 root 권한 공격자가 들어오는 서버를 사흘간 채점 기준 다운 0회로 지켰습니다.</p>
+      <p class="desc">작업하면서 실행한 명령과 결과는 아래 기록에 정리하고 있습니다.</p>
       <div class="links"><a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a><a href="infra.pdf">인프라 PDF</a><a href="backend.pdf">백엔드 PDF</a></div>
     </div>
   </div>
@@ -38,13 +39,13 @@
   <section id="posts">
     <h2>기록 <a href="log/">전체 보기</a></h2>
     <ul class="posts">
-      <li><time datetime="2026-10-10">2026-10-10</time><a href="log/aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</a></li>
-      <li><time datetime="2026-09-29">2026-09-29</time><a href="log/nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기</a></li>
-      <li><time datetime="2026-09-28">2026-09-28</time><a href="log/pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a></li>
-      <li><time datetime="2026-09-26">2026-09-26</time><a href="log/backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</a></li>
-      <li><time datetime="2026-09-21">2026-09-21</time><a href="log/app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락</a></li>
-      <li><time datetime="2026-09-12">2026-09-12</time><a href="log/async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a></li>
-      <li><time datetime="2026-05-30">2026-05-30</time><a href="log/ctf-port80-hijack/">apache2에 80번 포트를 빼앗긴 2차 공격</a></li>
+      <li><time datetime="2026-10-10">2026-10-10</time><a href="log/aws-db-power-cut/">주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</a><span class="cat">DB</span></li>
+      <li><time datetime="2026-09-29">2026-09-29</time><a href="log/nftables-central-rollback/">nftables 규칙 중앙 관리와 90초 자동 되돌리기</a><span class="cat">네트워크</span></li>
+      <li><time datetime="2026-09-28">2026-09-28</time><a href="log/pfsense-transparent-firewall/">서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a><span class="cat">네트워크</span></li>
+      <li><time datetime="2026-09-26">2026-09-26</time><a href="log/backup-offsite-restore/">DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</a><span class="cat">백업</span></li>
+      <li><time datetime="2026-09-21">2026-09-21</time><a href="log/app-hang-hikaricp/">/api 504 진단: 가상 스레드와 HikariCP 라이브락</a><span class="cat">장애 대응</span></li>
+      <li><time datetime="2026-09-12">2026-09-12</time><a href="log/async-replication-loss/">비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a><span class="cat">DB</span></li>
+      <li><time datetime="2026-05-30">2026-05-30</time><a href="log/ctf-port80-hijack/">apache2에 80번 포트를 빼앗긴 2차 공격</a><span class="cat">장애 대응</span></li>
     </ul>
   </section>
 
