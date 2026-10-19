@@ -343,13 +343,13 @@ SELECT ...
       </ul>
     </div>
     <div class="b7 rv">
-      <p class="lede-s">이 검사를 돌리다가, 비동기 복제에서는 클라이언트에 확인해 준 주문도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+      <p class="lede-s">이 검사를 돌리다가, 비동기 복제에서는 커밋이 확인된 쓰기도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
       <div class="vs mt-m">
         <div><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p>
-          <div class="cells" data-total="122" data-lost="36" data-cols="31" role="img" aria-label="확인해 준 주문 122건 가운데 36건이 사라졌습니다"></div>
-          <p class="cells-key" aria-hidden="true"><i>남은 주문</i><i class="lost">사라진 주문</i></p>
-          <p class="vd">예비 DB를 8초 멈춰 두고 주 DB를 껐더니, 이미 확인해 준 주문이 사라졌습니다.</p></div>
-        <div class="on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험을 다시 했을 때 사라진 주문은 없었습니다. 두 시험 모두 제 PC에서 돌렸습니다.</p></div>
+          <div class="cells" data-total="122" data-lost="36" data-cols="31" role="img" aria-label="커밋이 확인된 쓰기 122건 가운데 36건이 사라졌습니다"></div>
+          <p class="cells-key" aria-hidden="true"><i>남은 쓰기</i><i class="lost">사라진 쓰기</i></p>
+          <p class="vd">예비 DB를 8초 멈춰 두고 주 DB를 껐더니, 커밋이 확인된 시험용 쓰기 122건 중 36건이 사라졌습니다.</p></div>
+        <div class="on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험을 다시 했을 때 사라진 쓰기는 없었습니다. 두 시험 모두 제 PC에서 돌렸습니다.</p></div>
       </div>
     </div>
   </div>

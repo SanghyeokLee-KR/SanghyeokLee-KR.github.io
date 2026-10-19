@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>apache2에 80번 포트를 빼앗긴 2차 공격 · 이상혁</title>
+<meta name="description" content="CTF 경기 중 공격자가 #1 서버에 apache2를 설치해 80번 포트를 차지했을 때, #1이 헬스체크에서 빠지고 NLB가 #2·#3으로 채점 요청을 보낸 과정과 정리 기록.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+<style>
+  .post-foot .to-next { margin-left: auto; text-align: right; }
+</style>
+</head>
+<body>
+<a class="skip" href="#post">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../../">처음으로</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<article class="post" id="post">
+  <p class="post-meta"><time datetime="2026-05-30">2026.05.30</time><span class="tag">장애 대응</span><span>CTF 경기용 AWS · keep-nginx-alive</span></p>
+  <h1>apache2에 80번 포트를 빼앗긴 2차 공격</h1>
+  <p class="lead">2026년 5월 30일 오전 7시 50분, 공격자(교수님)가 #1 서버에 apache2를 설치하고 nginx 대신 80번 포트를 차지했습니다. #1은 헬스체크를 통과하지 못해 대상 그룹에서 빠졌고, NLB는 채점 요청을 #2와 #3으로 보냈습니다. apache2는 팀원이 직접 정리했습니다. 남아 있는 명령 기록과 알림, 이때 관련된 스크립트를 순서대로 정리했습니다.</p>
+  <dl class="facts-mini">
+    <dt>환경</dt><dd>공격/방어 CTF 경기용 AWS. NLB 뒤에 EC2 3대(#1은 공격 대상, #2·#3은 #1의 AMI 복제본)</dd>
+    <dt>증상</dt><dd>#1의 80번 포트를 apache2가 점유해 채점 페이지의 h1이 사라짐</dd>
+    <dt>결과</dt><dd>#1이 대상 그룹에서 빠지고 #2·#3이 응답. 경기 전체 기준 채점 다운 0회</dd>
+    <dt>역할</dt><dd>방어 스크립트·헬스체크·관제 화면은 제가 만들었고, apache2 정리는 팀원이 했습니다</dd>
+    <dt>관련 작업</dt><dd><a href="../../work/keep-nginx-alive/">keep-nginx-alive</a></dd>
+  </dl>
+
+  <h2>경기 조건과 구성</h2>
+  <p>챌린지는 금요일 오후 10시부터 일요일 오전 10시까지였습니다. 공격자는 #1에 SSH root로 들어와 프로세스를 죽이거나 특정 포트를 먼저 차지할 수 있었고, 방어 측은 공격자의 권한·접속·명령을 제한할 수 없었습니다. 채점은 5분 간격이고 연속 3회째 오류부터 감점입니다.</p>
+  <p>제출 주소는 NLB입니다. 80번 리스너 뒤의 대상 그룹 <code>tg-web</code>에 #1·#2·#3을 모두 넣고, 헬스체크는 HTTP <code>/healthz</code>로 했습니다. SSH는 #1에만 열고 #2·#3은 보안 그룹에서 22번을 막았습니다.</p>
+
+  <h2>공격자가 입력한 명령</h2>
+  <p>#1의 auditd가 잡은 execve 기록을 관제 화면에 띄우고 있었습니다. 2차 공격 구간을 오래된 순서로 옮기면 다음과 같습니다.</p>
+<pre><code><span class="c"># 관제 화면 명령 기록 · 공격자 · 2026-05-30 KST (화면은 최신순, 여기서는 오래된 순)</span>
+07:50:08  clear
+07:50:09  ll
+07:50:42  <span class="hl">sudo apt-get install apache2</span>
+07:50:47  sudo systemctl stop nginx; sudo systemctl disable nginx; <span class="hl">sudo fuser -k 80/tcp</span>; sudo systemctl start apache2
+07:57:34  sudo fuser -k -9 80/tcp; sudo pkill -9 -f nginx; sudo systemctl start apache2
+07:57:34  sudo systemctl disable nginx
+07:57:34  sudo ss -ltnp | grep ':80'
+07:57:34  sudo systemctl status apache2 --no-pager | head -10</code></pre>
+  <p>apache2를 설치한 뒤 nginx를 멈추고 자동 시작을 끄고, <code>fuser -k 80/tcp</code>로 80번을 쓰던 프로세스를 정리한 다음 apache2를 띄웠습니다. 7분쯤 뒤에는 <code>-9</code>로 한 번 더 80번을 비우고 nginx 프로세스까지 죽인 뒤, <code>ss</code>로 80번을 누가 잡고 있는지 확인했습니다. 07:57:34의 네 줄은 같은 초로 찍혀 있어서 화면에 표시된 순서를 그대로 따랐습니다.</p>
+
+  <figure>
+    <img src="../../assets/img/log/ctf-port80-hijack/attack2.jpg" width="1600" height="541" loading="lazy" alt="관제 화면의 명령 실행 로그. 교수님 표시가 붙은 여덟 줄이 07:50:08부터 07:57:34까지 최신순으로 나열되어 있다.">
+    <figcaption>관제 화면의 명령 실행 로그(공격자만 거른 화면). 접속 IP 칸은 검게 가렸습니다.</figcaption>
+  </figure>
+
+  <h2>#1이 먼저 알아챈 것</h2>
+  <p>#1에서는 <code>tamper-alert.sh</code>가 2초마다 <code>http://127.0.0.1:80/</code>을 요청해 응답 본문에 <code>&lt;h1&gt;NginX를 살려라&lt;/h1&gt;</code>가 있는지 봅니다. 정상에서 비정상으로 바뀌는 순간에만 Teams로 알림을 보내도록 만들었습니다. 이 구간에는 07:50:45, 07:50:50, 07:57:34 세 번 알림이 왔고, 감지된 h1은 모두 “h1 없음/응답이상”이었습니다.</p>
+  <p>바뀌는 순간에만 알리므로, 알림이 세 번 왔다는 것은 그 사이에 페이지가 적어도 두 번 정상으로 돌아왔다는 뜻입니다. 공격자가 07:57:34에 다시 80번을 비우고 nginx를 죽인 것도 그 전에 nginx가 80번을 되찾았기 때문으로 보입니다. 다만 그 사이 어느 복구 장치가 nginx를 다시 띄웠는지는 로그로 남기지 못했습니다.</p>
+
+  <figure>
+    <img src="../../assets/img/log/ctf-port80-hijack/alert-tamper.jpg" width="908" height="1220" loading="lazy" alt="Teams의 index.html 변조 감지 카드 세 장. 서버 ip-172-31-36-153(#1), 감지된 h1은 h1 없음/응답이상, 시각은 2026-05-30 07:50:45, 07:50:50, 07:57:34.">
+    <figcaption>Teams 변조 감지 알림. 카드 아래쪽의 “NLB가 #1을 격리합니다”는 알림에 고정된 문구이고, 실제 격리 여부를 확인해 쓴 값은 아닙니다.</figcaption>
+  </figure>
+
+  <h2>#1이 대상 그룹에서 빠진 경로</h2>
+  <p>평소의 자가격리는 <code>healthz-checker.sh</code>가 맡습니다. 2초마다 같은 기준으로 본문을 검사해 정상이면 <code>ok</code> 파일을 두고, 아니면 지웁니다. nginx는 <code>ok</code> 파일이 있으면 <code>/healthz</code>에 200을, 없으면 503을 돌려주고, NLB는 503을 낸 대상을 빼고 나머지로 요청을 보냅니다.</p>
+<pre><code><span class="c"># scripts/bin/healthz-checker.sh (발췌) · healthz-mon 서비스로 실행</span>
+NEEDLE='&lt;h1&gt;NginX를 살려라&lt;/h1&gt;'
+while true; do
+  if curl -s -m 3 http://127.0.0.1:80/ 2&gt;/dev/null | grep -qF "$NEEDLE"; then
+    [ -f /var/www/health/ok ] || echo "healthy" &gt; /var/www/health/ok   <span class="c"># 정상 → ok 보장</span>
+  else
+    rm -f /var/www/health/ok 2&gt;/dev/null                               <span class="c"># 오염 → ok 제거(503 유발)</span>
+  fi
+  sleep 2
+done</code></pre>
+  <p>2차 공격에서는 경로가 조금 달랐습니다. nginx가 멈추고 apache2가 80번을 잡았기 때문에, NLB가 보낸 <code>/healthz</code> 요청도 nginx가 아니라 apache2가 받았습니다. apache2 기본 설정에는 <code>/healthz</code>가 없으니 200이 나오지 않고, 헬스체크는 실패합니다. 503을 직접 내지는 않았지만 결과는 같아서, #1은 unhealthy로 빠지고 채점 요청은 #2·#3이 받았습니다. nginx가 다시 80번을 잡았는데 페이지가 오염된 경우에는 위 스크립트가 <code>ok</code>를 지워 503으로 빠지게 됩니다.</p>
+  <p>서버 안에서는 5초 주기의 감시 스크립트가 80번 포트를 nginx가 아닌 프로세스가 잡고 있으면 종료하고 nginx를 다시 띄우도록 되어 있었습니다.</p>
+<pre><code><span class="c"># scripts/bin/nginx-watchdog.sh (발췌) · 응답 본문이 비정상일 때만 실행</span>
+port_pid=$(ss -ltnp 2&gt;/dev/null | grep ':80 ' | grep -oP 'pid=\K[0-9]+' | head -1)
+if [ -n "$port_pid" ] &amp;&amp; ! ps -p "$port_pid" -o comm= 2&gt;/dev/null | grep -q nginx; then
+  …
+  kill -9 "$port_pid" 2&gt;/dev/null
+fi
+…
+recover_nginx   <span class="c"># flock으로 직렬화한 reset-failed + restart</span></code></pre>
+
+  <h2>#2에서 한 번 더 확인하는 tg-guardian</h2>
+  <p>NLB 헬스체크는 #1이 스스로 내는 <code>/healthz</code>를 그대로 믿습니다. 공격자가 #1 안에서 헬스체크를 조작하면 놓칠 수 있어서, 공격자가 들어올 수 없는 #2에서 <code>tg-guardian</code>이 #1과 #3의 응답을 3초마다 확인하게 했습니다. 변조나 다운을 감지하면 AWS CLI로 대상 그룹에서 빼고, 정상으로 돌아오면 다시 등록합니다.</p>
+  <figure>
+    <img src="../../assets/img/log/ctf-port80-hijack/isolation.jpg" width="1600" height="669" loading="lazy" alt="관제 화면의 서버별 이벤트 로그와 tg-guardian 자동 격리 로그. 19:53:11 #1 격리, 19:54:06 #1 재등록, 19:56:54 #3 격리, 19:57:36 #3 재등록.">
+    <figcaption>tg-guardian 자동 격리 기록. 2차 공격과는 다른 시각(오후 7시 53분~57분)의 화면이고 날짜는 화면에 남아 있지 않습니다. 2차 공격 때의 tg-guardian 기록은 남기지 못했습니다. 서버 공인 IP는 가렸습니다.</figcaption>
+  </figure>
+
+  <h2>팀원이 정리한 것</h2>
+  <p>apache2가 패키지로 설치되어 있는 한, 공격자는 언제든 다시 띄울 수 있습니다. 관제 화면과 알림을 보고 있던 팀원이 #1에 접속해 apache2를 수동으로 멈추고 <code>apt purge</code>로 지운 뒤, nginx를 다시 enable해서 80번을 nginx로 돌려놓았습니다. nginx가 정상 페이지를 내자 <code>/healthz</code>가 다시 200을 돌려줬고, #1은 대상 그룹에 healthy로 돌아왔습니다. 팀원이 입력한 명령 줄은 남아 있는 캡처에 없어서 싣지 않았고, 정리한 시각도 기록으로는 확인하지 못했습니다.</p>
+  <p>저는 헬스체크 자가격리, #2의 tg-guardian, auditd 명령 수집과 관제 화면, Teams 알림을 경기 전에 구성했습니다. 이번 공격은 서버 안의 자동 복구만으로 끝나지 않았고, 채점이 끊기지 않은 것은 #1이 빠진 동안 #2·#3이 응답했기 때문입니다.</p>
+
+  <div class="note">경기 전체에서 채점 기준 다운은 0회였습니다. 이 수치는 5분 간격 채점 기록 기준이며, 그 사이 짧은 중단까지 없었다는 뜻은 아닙니다. 경기 후 정리하면서 apache2 같은 패키지를 <code>apt-mark hold</code> 등으로 미리 막는 일은 남은 과제로 적어 두었습니다.</div>
+
+  <div class="post-foot">
+    <a class="to-next" href="../async-replication-loss/"><span class="k">다음 글 →</span>비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a>
+  </div>
+</article>
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

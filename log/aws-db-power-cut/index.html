@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주 DB 전원 차단 시험: 승격 23.0초, 유실 0건 · 이상혁</title>
+<meta name="description" content="개인 AWS 서울 리전의 Patroni 엄격 동기 두 노드에서 주 DB 전원을 즉시 끊고, 승격 시간과 직전 60초 커밋의 유실 여부, 거래 재개 시각을 기록했습니다.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+</head>
+<body>
+<a class="skip" href="#post">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../../">처음으로</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<article class="post" id="post">
+  <p class="post-meta"><time datetime="2026-10-10">2026.10.10</time><span class="tag">DB</span><span>개인 AWS · failstop</span></p>
+  <h1>주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</h1>
+  <p class="lead">개인 AWS 서울 리전의 Patroni 두 노드에서 주 DB 커널에 sysrq 전원 차단을 걸었습니다. 예비 DB가 23.0초 뒤 승격했고, 직전 60초 동안 커밋된 주문 196건과 체결 129건이 모두 새 주 DB에 있었습니다. 엄격 동기 복제라 옛 주 DB가 예비로 돌아온 뒤에야 주문이 다시 커밋됐고, 그 시각은 장애 후 70.1초였습니다.</p>
+  <dl class="facts-mini">
+    <dt>환경</dt><dd>개인 AWS 서울 리전. PostgreSQL + Patroni db-1·db-2(엄격 동기), etcd 3표. 시각은 서버 시계(UTC)</dd>
+    <dt>주입</dt><dd>주 DB db-2에서 <code>echo o &gt; /proc/sysrq-trigger</code>(종료 절차 없는 전원 차단)</dd>
+    <dt>결과</dt><dd>승격 +23.0초, 첫 주문 커밋 +70.1초, 주문 196/196·체결 129/129</dd>
+    <dt>관련 작업</dt><dd><a href="../../work/failstop/">failstop</a></dd>
+  </dl>
+
+  <h2>시험을 다시 설계한 이유</h2>
+  <p>이전에 적어 둔 승격·재개 시간은 원자료가 저장소에 남아 있지 않아서, 같은 날 두 회차를 다시 쟀습니다. 1회차는 주 DB db-1을 <code>aws ec2 stop-instances --force</code>로 껐습니다. 그런데 OS가 종료 절차를 밟으면서 02:03:17에 PostgreSQL과 Patroni를 먼저 내렸고, Patroni가 리더 키를 놓자 db-2가 1.07초 만에 승격했습니다. 정상 종료로 내려간 주 DB를 잰 셈이라, 갑작스러운 서버 장애를 보려면 다른 방법이 필요했습니다.</p>
+  <p>2회차는 주 DB(db-2)에서 커널에 전원 차단을 직접 걸었습니다. 주입 시각을 디스크에 먼저 적고 <code>sync</code>한 뒤 끊습니다. 명령은 SSM으로 보냈습니다.</p>
+<pre><code><span class="c"># db_failover_test2.sh가 db-2에 보내는 명령</span>
+date +%s.%N &gt; /var/tmp/failstop-t0 &amp;&amp; sync &amp;&amp; echo o &gt; /proc/sysrq-trigger</code></pre>
+  <p>이 서버의 <code>kernel.sysrq</code>는 16이지만, 이 값은 키보드 입력에만 적용되고 root가 <code>/proc/sysrq-trigger</code>에 쓰는 동작은 막지 않습니다. OS 종료 절차가 돌지 않으므로 Patroni는 리더 키를 놓지 못하고, 예비 DB는 키가 만료될 때까지 기다려야 합니다.</p>
+
+  <h2>유실을 센 방법</h2>
+  <p>주입 직전에 주 DB에서 최근 60초 동안 커밋이 보인 주문(<code>command_journal</code>의 NEW)과 체결(<code>trades</code>) 번호를 적어 두고, 장애 뒤 새 주 DB에 그 번호가 모두 있는지 셌습니다. 엄격 동기에서는 다른 세션에 보인 커밋이면 동기 예비가 이미 WAL을 받은 것입니다. DB 조회는 DB 서버에서 postgres 계정 peer 인증으로 했습니다.</p>
+<pre><code>SELECT json_build_object('t', extract(epoch FROM clock_timestamp()),
+  'orders', (SELECT coalesce(json_agg(seq), '[]') FROM (SELECT seq FROM command_journal
+             WHERE command_type = 'NEW' AND created_at &gt; now() - interval '60 seconds' …) o),
+  'trades', (SELECT coalesce(json_agg(id), '[]') FROM (SELECT id FROM trades
+             WHERE created_at &gt; now() - interval '60 seconds' …) t));</code></pre>
+
+  <h2>타임라인</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>시각(UTC)</th><th>일</th><th>T0 기준</th></tr></thead>
+    <tbody>
+      <tr><td>02:17:34.93</td><td>직전 60초 커밋 목록 기록(주문 196건, 체결 129건)</td><td>−4.1초</td></tr>
+      <tr><td>02:17:38.707</td><td>장애 전 마지막 주문 커밋</td><td>−0.3초</td></tr>
+      <tr><td>02:17:39.013</td><td>T0: db-2 전원 차단</td><td>0</td></tr>
+      <tr><td>02:17:42.631</td><td>공개 상태 API '거래 일시 중단'(database_unavailable)</td><td>+3.6초</td></tr>
+      <tr><td>02:18:02.041</td><td>db-1 승격(타임라인 9)</td><td>+23.0초</td></tr>
+      <tr><td>02:18:03.232</td><td>db-1 'No standbys available', 쓰기 보류(replication_unavailable)</td><td>+24.2초</td></tr>
+      <tr><td>약 02:18:07</td><td>db-2 인스턴스 stopped 확인 뒤 다시 켬</td><td>약 +28초</td></tr>
+      <tr><td>02:18:18.956</td><td>db-2 Patroni 기동, 02:18:21.6에 db-1 기준 <code>pg_rewind</code></td><td>+39.9초</td></tr>
+      <tr><td>02:18:44.659</td><td>공개 상태 API 첫 ACTIVE 응답</td><td>+65.6초</td></tr>
+      <tr><td>02:18:49.143</td><td>새 주 DB(db-1)에 장애 뒤 첫 주문 커밋</td><td>+70.1초</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>승격과 쓰기 보류</h2>
+  <p>db-1의 Patroni 로그입니다. 02:17:50까지는 db-2를 리더로 따르다가, 02:18:02에 리더 키를 얻어 승격했습니다.</p>
+<pre><code>02:17:50,347 INFO: no action. I am (db-1), a secondary, and following a leader (db-2)
+02:18:02,040 INFO: <span class="hl">promoted self to leader by acquiring session lock</span>
+02:18:02.042 UTC [2071] LOG:  received promote request
+02:18:03,231 WARNING: <span class="hl">No standbys available!</span>
+02:18:03,232 INFO: Assigning synchronous standby status to ['*']
+02:18:03,333 INFO: no action. I am (db-1), the leader with the lock</code></pre>
+  <p>승격까지 23.0초는 Patroni 설정 <code>ttl: 30</code>, <code>loop_wait: 10</code>에서 옛 리더 키가 만료되는 시점과 맞습니다. 승격 직후 동기 예비가 없으니 Patroni가 <code>synchronous_standby_names</code>를 <code>'*'</code>로 걸었고, 커밋은 예비가 붙을 때까지 기다립니다. 앱의 공개 상태 API도 이유를 database_unavailable에서 replication_unavailable로 바꿔 '거래 일시 중단'을 유지했습니다.</p>
+
+  <h2>재합류와 대조 결과</h2>
+  <p>db-2가 stopped가 된 것을 확인한 뒤 다시 켰습니다. Patroni가 기동하고 db-1을 기준으로 <code>pg_rewind</code>를 돌려 동기 예비로 돌아왔고, 그 뒤에 쓰기가 재개됐습니다.</p>
+<pre><code><span class="c"># patronictl list, 시험 전</span>
+| db-1   | 172.31.0.20  | Sync Standby | streaming |  8 |  6/330C90F0 |   0 | 6/330C90F0 |   0 |
+| db-2   | 172.31.32.20 | Leader       | running   |  8 |             |     |            |     |
+<span class="c"># 시험 뒤</span>
+| db-1   | 172.31.0.20  | Leader       | running   |  9 |             |     |            |     |
+| db-2   | 172.31.32.20 | Sync Standby | streaming |  9 |  6/38317978 |   0 | 6/38317978 |   0 |
+
+<span class="c"># 새 주 DB(db-1)에서 대조</span>
+{"orders_checked" : 196, "orders_present" : <span class="hl">196</span>, "trades_checked" : 129, "trades_present" : <span class="hl">129</span>, … "role" : "primary", "timeline" : 9}</code></pre>
+  <p>직전 60초 동안 커밋이 보인 주문 196건과 체결 129건이 모두 새 주 DB에 있었습니다. 1회차도 주문 211건과 체결 127건이 모두 있었습니다.</p>
+  <p>거래 재개 70.1초는 옛 주 DB를 승격 직후 다시 켰기 때문에 나온 값입니다. 엄격 동기에서는 동기 예비가 없으면 쓰기를 멈추므로, 옛 주 DB가 돌아오지 않으면 운영자가 새 예비를 붙이거나 엄격 모드를 풀 때까지 거래가 멈춥니다. 재개 시간은 옛 주 DB가 언제 돌아오는지에 달려 있습니다. 공개 상태 API의 ACTIVE(+65.6초)가 첫 주문 커밋보다 약 4.5초 앞서므로, 70.1초는 실제 커밋 시각을 기준으로 한 값입니다.</p>
+
+  <h3>1회차 재개 시간은 쓰지 않았습니다</h3>
+  <p>1회차는 시험 도구가 db-1이 아직 stopping일 때 <code>start-instances</code>를 보내 <code>IncorrectInstanceState</code>로 거절됐는데, 도구가 이 오류를 확인하지 않아 약 10분 뒤에야 다시 켰습니다. 그동안 거래가 일시 중단됐습니다(공개 상태 API 기준 11:03:17~11:14:20 KST). 2회차 도구는 stopped를 확인한 뒤 켜고, 성공 응답까지 확인하도록 고쳤습니다.</p>
+
+  <div class="note">대조 대상은 주입 직전 60초 동안 커밋이 보인 주문과 체결입니다. 목록을 적은 뒤 주입까지 약 4초 사이의 커밋은 대조에 들어가지 않았고, 클라이언트가 응답을 받은 주문을 하나하나 대조한 것도 아닙니다(로컬 시험의 ACK 기록기와 k6 대조는 개인 AWS에서 돌리지 않았습니다). 회차별 한 번의 값이라 반복 측정 분포는 없습니다.</div>
+
+  <div class="post-foot">
+    <a href="../nftables-central-rollback/"><span class="k">← 이전 글</span>nftables 규칙 중앙 관리와 90초 자동 되돌리기</a>
+  </div>
+</article>
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

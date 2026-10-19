@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nftables 규칙 중앙 관리와 90초 자동 되돌리기 · 이상혁</title>
+<meta name="description" content="VM 실습망 여섯 대의 nftables 규칙을 저장소 원본 하나로 관리하고, 적용 뒤 확인에 실패하면 VM이 systemd-run 타이머로 90초 뒤 스스로 되돌리게 만든 기록.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+<style>
+  .post-foot a + a { margin-left: auto; text-align: right; }
+</style>
+</head>
+<body>
+<a class="skip" href="#post">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../../">처음으로</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<article class="post" id="post">
+  <p class="post-meta"><time datetime="2026-09-29">2026.09.29</time><span class="tag">방화벽</span><span>VM 실습망 · failstop</span></p>
+  <h1>nftables 규칙 중앙 관리와 90초 자동 되돌리기</h1>
+  <p class="lead">VM 실습망 여섯 대의 호스트 방화벽(nftables) 규칙을 저장소의 원본 파일 하나로 맞추는 도구를 만들었습니다. 원격 서버의 방화벽을 바꾸다 보면 SSH가 끊겨 되돌릴 방법이 없어지는 경우가 생깁니다. 그래서 적용 전에 VM 안에 되돌리기 타이머를 먼저 걸어 두고, 작업 PC의 확인이 오지 않으면 VM이 90초 뒤 스스로 원래 규칙으로 돌아가게 했습니다.</p>
+  <dl class="facts-mini">
+    <dt>환경</dt><dd>VM 실습망 여섯 대(Rocky Linux 10.2, nftables 1.1.5, systemd 257, SELinux enforcing), 작업 PC의 PowerShell 7 + OpenSSH</dd>
+    <dt>도구</dt><dd><code>nft-central.ps1</code>(작업 PC) + <code>nft-central-remote.sh</code>(ssh로 보내 VM에서 root로 실행)</dd>
+    <dt>결과</dt><dd>파일 밖 커널 변경 탐지, 문법 오류 적용 거부, 확인 실패 적용은 VM이 91초 뒤 되돌림(그동안 웹 73회 모두 200)</dd>
+    <dt>관련 작업</dt><dd><a href="../../work/failstop/">failstop</a></dd>
+  </dl>
+
+  <h2>관리 대상</h2>
+  <p>각 VM의 방화벽은 <code>table inet vmlab</code> 하나입니다. <code>/etc/vm-lab/firewall.nft</code>가 테이블을 비우고 기본 체인(input·forward 기본 차단)을 만든 뒤, <code>firewall.d/*.nft</code>를 이름 순서로 불러 역할별 규칙을 붙입니다. 부팅 때는 <code>vm-lab-firewall.service</code>가 같은 파일을 올립니다. 도구는 이 파일들을 저장소의 <code>rules/&lt;vm&gt;/</code>에 원본으로 두고(여섯 대 28개 파일), 네 가지 동작을 제공합니다. <code>-Pull</code>은 기준선 가져오기, <code>-Audit</code>는 여섯 대 점검표, <code>-Plan</code>은 적용하면 바뀔 차이, <code>-Apply</code>는 한 대씩 배포입니다. pfSense와 OPS01의 Docker 테이블은 건드리지 않습니다.</p>
+
+  <h2>파일 해시가 같아도 규칙은 다를 수 있다</h2>
+  <p>파일만 비교하면 누군가 <code>nft add rule</code>로 커널에 직접 넣은 규칙은 보이지 않습니다. 그래서 VM의 파일을 빈 네트워크 이름공간에 실제로 올려 본 결과와 지금 커널 규칙을, 카운터를 뺀 형태(<code>nft -s list table inet vmlab</code>)로 글자 단위 비교합니다. 원본 디렉터리를 <code>/etc/vm-lab</code> 자리에 bind mount로 겹쳐 보이게 하므로 호스트의 파일과 규칙은 바뀌지 않습니다. 같은 방식으로 <code>--net</code> 없이 <code>nft -c</code>를 돌리면 새 원본 전체의 구문 검사가 됩니다.</p>
+<pre><code><span class="c"># nft-central-remote.sh</span>
+in_view() {  <span class="c"># in_view &lt;원본 디렉터리&gt; &lt;명령&gt; [unshare 인자...]</span>
+    local dir=$1 cmd=$2
+    shift 2
+    unshare --mount "$@" -- sh -c 'mount --bind "$1/firewall.nft" /etc/vm-lab/firewall.nft &amp;&amp;
+        mount --bind "$1/firewall.d" /etc/vm-lab/firewall.d &amp;&amp; eval "$2"' sh "$dir" "$cmd" &lt; /dev/null
+}
+check_syntax() { in_view "$1" 'nft -c -f /etc/vm-lab/firewall.nft'; }
+render_text() { in_view "$1" 'nft -f /etc/vm-lab/firewall.nft &amp;&amp; nft -s list table inet vmlab' <span class="hl">--net</span>; }
+live_text() { nft -s list table inet vmlab; }</code></pre>
+  <p>OPS01에서 파일을 거치지 않고 커널에만 카운터 규칙 하나를 넣어 봤습니다. 파일 sha256은 그대로인데 점검표는 OPS01의 커널 규칙을 '파일과 다름'으로 잡았습니다. 이어서 <code>-Apply -Vm ops01</code>로 원본대로 되돌렸습니다. 범위 밖 포트(<code>tcp dport 99999</code>)를 넣은 원본은 VM의 <code>nft -c</code>가 <code>Service out of range</code>로 실패해, 파일과 규칙을 건드리기 전에 멈췄습니다.</p>
+  <figure>
+    <img src="../../assets/img/log/nftables-central-rollback/01.jpg" width="1600" height="636" loading="lazy" alt="OPS01에 nft add rule로 tcp dport 9998 카운터 규칙을 넣은 뒤 -Audit 결과. ops01만 파일 일치 5개, 커널 규칙 파일과 다름, 18/46, 판정 어긋남">
+    <figcaption>커널에만 넣은 규칙. 파일은 '일치'인데 커널 규칙이 '파일과 다름'으로 나옵니다.</figcaption>
+  </figure>
+
+  <h2>되돌리기를 먼저 예약하고 적용한다</h2>
+  <p><code>-Apply</code>는 한 대씩 원본 검사 → VM 구문 검사 → 적용 전 확인 → 백업과 되돌리기 예약 → 설치·적재 → 적용 뒤 확인 순서로 진행합니다. 적용 전 확인에서 이미 실패하는 항목이 있으면 적용하지 않습니다. 적용 뒤 실패가 이번 변경 때문인지 원래 있던 문제인지 섞이지 않게 하려는 것입니다.</p>
+  <p>핵심은 설치보다 예약이 먼저라는 점입니다. 지금 파일과 <code>nft list ruleset</code> 사본을 백업 디렉터리에 남긴 뒤 <code>systemd-run --on-active=90</code>으로 일회성 타이머 유닛을 겁니다. 스크립트는 <code>set -euo pipefail</code>로 돌기 때문에 예약이 실패하면 설치까지 가지 않습니다. 설치는 <code>nft -f</code> 한 번으로 하는데, 이 파일이 테이블 비우기와 새 규칙 적재를 한 트랜잭션에 담고 있어 규칙이 빈 순간이 생기지 않습니다.</p>
+<pre><code><span class="c"># nft-central.ps1</span>
+$RollbackSeconds = <span class="hl">90</span>
+
+<span class="c"># nft-central-remote.sh, cmd_apply 중</span>
+    <span class="c"># 3. 되돌리기를 먼저 예약한다. 예약이 서지 않으면 set -e 로 여기서 멈추고 설치하지 않는다.</span>
+    <span class="hl">systemd-run</span> --quiet --unit="$unit" <span class="hl">--on-active="$NC_ROLLBACK_SEC"</span> \
+        --timer-property=AccuracySec=1s --timer-property=RemainAfterElapse=no \
+        --description="nft-central 자동 되돌리기 $NC_ID" /usr/bin/bash "$b/rollback.sh" "$b"
+    printf '@backup %s\n' "$b"
+    printf '@rollback-at %s\n' "$(date -d "+$NC_ROLLBACK_SEC sec" '+%F %T')"
+
+    <span class="c"># 4. 설치하고 flush 와 적재를 한 트랜잭션으로 올린다. 이미 맺은 연결의 conntrack 은 그대로라 established 는 끊기지 않는다.</span>
+    install_stage
+    …
+    if $ok &amp;&amp; ! out=$(nft -f "$ETC/firewall.nft" 2&gt;&amp;1); then ok=false; fi</code></pre>
+  <p>타이머가 실행하는 <code>rollback.sh</code>와 작업 PC가 보내는 확인(confirm)은 같은 백업 디렉터리 아래 <code>decided</code>를 <code>mkdir</code>로 만들려고 경쟁합니다. <code>mkdir</code>는 원자적이라 먼저 만든 쪽만 진행합니다. 확인이 타이머 만료와 거의 동시에 도착해도 되돌리기와 확인이 둘 다 실행되는 일은 없습니다.</p>
+<pre><code><span class="c"># rollback.sh (적용 때마다 백업 디렉터리에 쓴다)</span>
+b=$1
+<span class="c"># 확인(confirm)과 되돌리기 가운데 decided 를 먼저 만든 쪽만 진행한다. mkdir 는 원자적이다.</span>
+<span class="hl">mkdir "$b/decided" 2&gt; /dev/null || exit 0</span>
+ok=true
+rm -f -- /etc/vm-lab/firewall.d/*.nft || ok=false
+for f in "$b"/files/firewall.d/*.nft; do cp -p -- "$f" /etc/vm-lab/firewall.d/ || ok=false; done
+cp -p -- "$b/files/firewall.nft" /etc/vm-lab/firewall.nft || ok=false
+label=ok
+restorecon -F /etc/vm-lab/firewall.nft /etc/vm-lab/firewall.d/*.nft || label=fail
+if $ok &amp;&amp; nft -f /etc/vm-lab/firewall.nft; then result=ok; else result=fail; fi
+printf '%s id=%s action=rollback result=%s label=%s\n' … &gt;&gt; /var/log/vm-lab/nft-central.log
+
+<span class="c"># cmd_confirm: 확인이 모두 통과했을 때 작업 PC 가 부른다</span>
+if ! <span class="hl">mkdir "$b/decided"</span> 2&gt; /dev/null; then
+    echo '@confirm too-late'
+    …
+fi
+systemctl stop "nft-central-rollback-$NC_ID.timer" 2&gt; /dev/null || …</code></pre>
+  <p>SELinux enforcing 환경이라 되돌린 파일의 라벨은 <code>restorecon</code>으로 복구합니다. 라벨 복구가 실패해도 규칙은 되돌리고, 그 결과는 기록의 <code>label=</code>에 따로 남깁니다.</p>
+
+  <h2>EDGE01에서 확인을 일부러 실패시켰다</h2>
+  <p>웹 진입 서버(EDGE01)에 작업 PC(192.168.56.1)에서 오는 새 SSH만 <code>reject with tcp reset</code>하는 시험 규칙을 관리 SSH 허용보다 앞에 붙였습니다. 적용 뒤 확인 여섯 개 가운데 '새 SSH 연결'과 '파일과 커널 규칙'이 실패해 4/6이 되고, 도구는 예약을 취소하지 않고 기다립니다. 작업 PC가 VM에 새로 접속할 수 없는 상태에서도 VM은 예약 시각에 스스로 되돌렸습니다.</p>
+  <figure>
+    <img src="../../assets/img/log/nftables-central-rollback/02.jpg" width="1600" height="872" loading="lazy" alt="nft-central.ps1 -Apply -Vm edge01 실행 화면. 03:16:59 적용, 되돌리기 예약 03:18:28, 적용 뒤 확인에서 새 SSH 연결 실패와 파일과 커널 규칙 확인 불가로 4/6, 03:18:30 VM 기록 action=rollback result=ok label=ok, 되돌린 뒤 적용 전 파일과 같음">
+    <figcaption>03:16:59 적용, 확인 4/6으로 예약 유지, 03:18:29 VM이 되돌림. 결과 줄의 종료 코드는 1입니다.</figcaption>
+  </figure>
+<pre><code><span class="c"># EDGE01 적용 기록과 journald (03:20:07 조회)</span>
+2026-09-29T03:16:59+09:00 id=20260929-031658 action=apply result=pending … rollback_in=90s
+2026-09-29T<span class="hl">03:18:29</span>+09:00 id=20260929-031658 <span class="hl">action=rollback result=ok label=ok</span>
+2026-09-29T<span class="hl">03:16:58</span>+09:00 edge01.lab systemd[1]: Started nft-central-rollback-20260929-031658.timer - …
+2026-09-29T03:18:29+09:00 edge01.lab systemd[1]: Started nft-central-rollback-20260929-031658.service - …
+2026-09-29T03:18:29+09:00 edge01.lab systemd[1]: nft-central-rollback-20260929-031658.service: Deactivated successfully.
+
+<span class="c"># 같은 시간 작업 PC의 2초 관찰(03:16:44~03:20:06, 73회)</span>
+03:16:58 web=200 ssh=ok
+03:17:00 web=200 ssh=<span class="hl">FAIL</span> banner exchange: Connection to UNKNOWN port -1: Connection refused
+…  <span class="c"># 03:18:25까지 22회 연속 거절</span>
+03:18:29 web=200 ssh=ok</code></pre>
+  <p>시험 규칙은 새 연결(<code>ct state new</code>)만 막습니다. input 체인 앞쪽에 <code>ct state established,related accept</code>가 있고 규칙 적재로 conntrack 항목이 지워지지 않기 때문에, 적용 전에 열어 둔 SSH 세션은 차단 구간 안인 03:17:33과 03:18:03에도 명령에 응답했습니다. 그 사이 거절 규칙 카운터는 83에서 150으로 늘었고 관리 SSH 허용 카운터는 0이었습니다. 규칙 대상이 아닌 L7 입구 → 웹 443은 73회 모두 200이었습니다.</p>
+
+  <h2>시험하지 않은 것</h2>
+  <p>앱·DB를 포함한 여섯 대에 해가 없는 카운터 규칙을 한 대씩 올렸다가 지우는 적용은 두 번 모두 확인을 통과했고, 그동안 웹 진입·Prometheus 수집·원격 로그 수신·앱 리더 상태에 변화가 없었습니다. 하지만 앱·DB 네 대에서 확인이 실패해 되돌리는 경우는 시험하지 않았습니다. 앱 리더 전환은 설정값(리스 TTL 10초, 스스로 물러나는 시간 45초)과 09-28 관찰(약 54초)로 보아 90초보다 빠릅니다. DB01이나 앱 서버에 앱 → DB의 새 연결을 막는 규칙이 잘못 올라가면 되돌리기 전에 리더가 넘어갈 수 있습니다. 확인이 실패했는데 SSH가 닿는 경우에는 90초를 기다리지 않고 바로 되돌릴지는 아직 정하지 않았습니다.</p>
+  <p>예약 전 거절, 되돌리는 중의 새 적용 거절, 확인과 타이머 만료의 경합 같은 경로는 코드 검토로만 확인했고 VM에서 따로 일으켜 보지는 않았습니다. 역할·전환 스크립트가 VM의 <code>firewall.d</code>에 직접 쓰는 경로도 남아 있어서, 규칙을 바꾸는 길을 이 도구 하나로 모을지도 결정이 필요합니다.</p>
+
+  <div class="note">이 기록은 작업 PC 한 대에서 돌린 VM 실습망 결과이며 학교 AWS·개인 AWS 검증 결과가 아닙니다. 첫 시험(01~17) 뒤 코드 검토에서 나온 지적을 고친 코드로 EDGE01 시험을 다시 했고, 위 화면과 기록은 다시 한 시험의 것입니다.</div>
+
+  <div class="post-foot">
+    <a href="../pfsense-transparent-firewall/"><span class="k">← 이전 글</span>서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a>
+    <a href="../aws-db-power-cut/"><span class="k">다음 글 →</span>주 DB 전원을 바로 끊었을 때: 승격 23.0초, 유실 0건</a>
+  </div>
+</article>
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

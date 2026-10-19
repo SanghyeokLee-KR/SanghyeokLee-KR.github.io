@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>비동기 복제에서 확인받은 쓰기 36건이 사라졌습니다 · 이상혁</title>
+<meta name="description" content="로컬 Docker의 PostgreSQL 비동기 복제에서 primary를 강제 종료해 ACK 받은 쓰기 122건 중 36건 유실을 확인하고, Patroni 엄격 동기 복제와 423 쓰기 게이트로 바꾼 과정입니다.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+</head>
+<body>
+<a class="skip" href="#post">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../../">처음으로</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<article class="post" id="post">
+  <p class="post-meta"><time datetime="2026-09-12">2026.09.12</time><span class="tag">DB</span><span>로컬 Docker · failstop</span></p>
+  <h1>비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</h1>
+  <p class="lead">로컬 Docker에서 PostgreSQL 비동기 복제의 primary를 강제 종료하고, 클라이언트가 커밋 확인(ACK)을 받은 행이 승격한 standby에 남아 있는지 셌습니다. standby를 8초 멈춘 회차에서는 ACK 122건 중 36건이 없었습니다. 이 결과를 근거로 DB 복제를 Patroni 엄격 동기로 바꾸고, 앱에는 동기 standby가 없을 때 쓰기를 거절하는 게이트를 넣었습니다.</p>
+  <dl class="facts-mini">
+    <dt>환경</dt><dd>로컬 Docker 한 호스트, <code>postgres:17-alpine</code> 2대(각 메모리 512MiB), 비동기 스트리밍 복제</dd>
+    <dt>증상</dt><dd>standby 8초 정지 뒤 primary 급사: ACK 122건 중 36건 유실(29.5%)</dd>
+    <dt>결과</dt><dd>Patroni 엄격 동기 2노드로 전환 결정(ADR 0036), 동기 standby가 없으면 쓰기를 423으로 거절</dd>
+    <dt>관련 작업</dt><dd><a href="../../work/failstop/">failstop</a></dd>
+  </dl>
+
+  <h2>당시 DB 구성</h2>
+  <p>그때 DB는 primary 한 대와 standby 한 대의 비동기 스트리밍 복제였습니다. <code>synchronous_standby_names</code>를 비워 두었기 때문에 primary는 자기 디스크에 WAL을 쓰면 바로 커밋을 확인합니다. primary가 죽으면 사람이 standby를 승격하고 앱의 DB 주소를 바꾸는 수동 절차였습니다.</p>
+  <p>비동기 복제에 유실 창이 있다는 것은 알고 있었지만, 이 구성에서 실제로 몇 건을 잃는지는 잰 적이 없었습니다. 그래서 primary 급사 시 유실량, 승격 명령 시간, 옛 primary 재편입을 한 번의 주행으로 묶어 측정했습니다.</p>
+
+  <h2>시험 방법</h2>
+  <p>스크립트는 <code>harness/scale/failover_rpo_check.py</code>이고 배선은 <code>deploy/compose.node-data.yml</code> 그대로입니다. 쓰기 스레드가 한 트랜잭션에 한 행씩 <code>INSERT … RETURNING n</code>을 보내고, 서버가 값을 돌려준 번호만 ACK로 기록합니다. 동시에 다른 스레드가 20만 행 INSERT를 반복해 WAL을 만듭니다. 프로브만 돌리면 WAL이 거의 없어 복제가 밀리지 않기 때문입니다.</p>
+  <p>회차는 두 개입니다. natural은 그대로 primary를 죽였고, lagged는 <code>docker pause</code>로 standby를 8초 얼린 뒤 죽였습니다.</p>
+<pre><code><span class="c"># 스크립트가 실행하는 장애 주입과 승격 순서</span>
+<span class="p">$</span> docker pause &lt;standby&gt;                 <span class="c"># lagged 회차만, 8초</span>
+<span class="p">$</span> docker update --restart=no &lt;primary&gt;   <span class="c"># 재시작 정책이 옛 primary를 되살리지 않게</span>
+<span class="p">$</span> docker kill -s KILL &lt;primary&gt;
+<span class="p">$</span> docker unpause &lt;standby&gt;
+<span class="p">$</span> docker exec -u postgres &lt;standby&gt; pg_ctl promote -D /var/lib/postgresql/data</code></pre>
+  <p>유실은 "ACK 받은 번호 중 승격한 노드에 없는 것"으로 셌습니다. 최댓값까지의 구간으로 세면 중간에 실패한 요청까지 유실로 잡히므로, ACK 번호 목록을 그대로 넘겨 대조했습니다.</p>
+<pre><code>SELECT count(*) FROM unnest(ARRAY[<span class="c">…ACK 받은 번호…</span>]::bigint[]) g
+ WHERE NOT EXISTS (SELECT 1 FROM rpo_probe p WHERE p.n = g);</code></pre>
+  <p>주행마다 프로브 테이블이 standby에 복제됐는지 먼저 확인하고, ACK가 0건이면 주행을 중단하게 했습니다. 처음에는 공식 이미지가 초기화 중 임시 서버를 한 번 내리는 사이에 테이블 생성 DDL이 조용히 실패했고, 테이블이 없는 채로 유실 0이 나온 적이 있었기 때문입니다.</p>
+
+  <h2>결과</h2>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>항목</th><th>natural</th><th>lagged</th></tr></thead>
+    <tbody>
+      <tr><td>ACK 받은 행</td><td>88</td><td>122</td></tr>
+      <tr><td>승격 노드의 최대 번호</td><td>88</td><td>86</td></tr>
+      <tr><td>유실</td><td>0</td><td>36(29.5%)</td></tr>
+      <tr><td>구간 WAL 생성량</td><td>697.9 MiB</td><td>991.7 MiB</td></tr>
+      <tr><td>승격 명령 시간</td><td>1.697초</td><td>1.886초</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>lagged 회차의 ACK 속도는 약 4.4행/s여서 8초면 약 35행입니다. 실제 유실은 36행이었습니다. standby가 멈춰 있던 동안 primary가 확인해 준 쓰기가 거의 그대로 사라졌습니다. 이 구성에서 유실량은 복제 지연과 같고, natural 회차의 0건은 이 호스트와 이 부하에서 지연이 작았다는 뜻입니다.</p>
+  <p>승격 명령 시간은 <code>docker kill</code>부터 승격한 노드가 쓰기를 받을 때까지입니다. 사람이 장애를 알아차리고, 승격을 판단하고, 앱 <code>DB_HOST</code>를 바꾸는 시간은 들어 있지 않아서 RTO로 쓰지 않았습니다.</p>
+
+  <h3>옛 primary 재편입은 pg_rewind가 실패했습니다</h3>
+  <p><code>wal_log_hints</code>는 <code>on</code>이었지만 되감기에 필요한 WAL이 이미 없었습니다.</p>
+<pre><code>pg_rewind: servers diverged at WAL location 0/2F1BFFF0 on timeline 1
+pg_rewind: error: could not open file ".../pg_wal/000000010000000000000021": No such file or directory
+pg_rewind: error: could not find previous WAL record at 0/21FFFFC0</code></pre>
+  <p><code>pg_rewind</code>는 분기 지점이 아니라 마지막 공통 체크포인트부터 WAL을 읽습니다. 그 지점은 분기 지점보다 209.8 MiB 앞이었고, <code>wal_keep_size</code>가 기본값 0인 상태에서 28초 동안 991.7 MiB를 써서 세그먼트가 이미 재활용됐습니다. 결국 전량 베이스백업(428.7 MiB)으로 다시 붙였고, 스트리밍 재개 확인까지 272.549초가 걸렸습니다. 그동안 새 primary는 복제 상대 없이 혼자 돌았습니다.</p>
+
+  <h2>Patroni 엄격 동기 복제로 바꿨습니다</h2>
+  <p>2026-09-24~25에 유실 0을 가용성보다 앞에 두기로 하고 ADR 0036으로 기록했습니다.</p>
+  <ul>
+    <li>PostgreSQL 두 노드를 Patroni가 관리하고, 리더 선출은 etcd 세 멤버(db-1, db-2, bot-1)로 합니다.</li>
+    <li><code>synchronous_mode: true</code>, <code>synchronous_mode_strict: true</code>, <code>synchronous_node_count: 1</code>. primary는 standby가 WAL을 디스크에 쓴 뒤에만 커밋을 확인합니다.</li>
+    <li>Patroni는 <code>/sync</code>에 적힌 동기 standby만 자동 승격하므로, 승격된 노드는 확인된 커밋을 모두 가집니다.</li>
+    <li>동기 standby가 없으면 비동기로 내려가지 않고 쓰기를 멈춥니다. 엄격을 끄면 눈에 보이는 정지가 보이지 않는 유실 위험으로 바뀌어서 그 선택지는 기각했습니다.</li>
+  </ul>
+  <p>대가는 쓰기 가용성입니다. DB 한 대를 잃으면 그 노드가 standby로 돌아올 때까지 거래가 멈춥니다. 재합류용 <code>wal_keep_size</code>는 처음 16MB로 두었는데, 2026-09-27 로컬 시연 스택에서 재합류가 약 10분 막힌 뒤 1GB로 올렸습니다.</p>
+
+  <h3>앱은 커밋이 멈추면 쓰기를 423으로 거절합니다</h3>
+  <p>앱은 노드마다 1초에 한 번 <code>pg_logical_emit_message</code> 탐지 커밋을 보냅니다. 이 커밋이 2초 안에 끝나지 않고 원인이 <code>SyncRep</code> 대기로 확인되거나, <code>synchronous_standby_names</code>가 <code>'*'</code>이면 쓰기 가능 상태를 SUSPENDED로 바꿉니다. <code>WriteGateFilter</code>는 이 상태를 보고 쓰기 요청을 DB에 닿기 전에 거절합니다.</p>
+<pre><code><span class="c">// server/app/src/main/java/kr/exchange/api/common/WriteGateFilter.java (일부)</span>
+protected boolean shouldNotFilter(HttpServletRequest request) {
+    String method = request.getMethod();
+    return "GET".equals(method) || "HEAD".equals(method) || "OPTIONS".equals(method);
+}
+…
+switch (view.state()) {
+    case ACTIVE -&gt; {
+        request.setAttribute(GENERATION_ATTRIBUTE, view.generation());
+        chain.doFilter(request, response);
+    }
+    case SUSPENDED -&gt; {
+        suspendedRejections.increment();
+        errorRenderer.write(response, tradingSuspended(view));  <span class="c">// 423 trading_suspended</span>
+    }
+    case UNREACHABLE -&gt; {
+        …
+        errorRenderer.write(response, databaseUnavailable());   <span class="c">// 503</span>
+    }
+}</code></pre>
+  <p>필터는 수용 제한·인증 필터보다 앞에 있어서, 거절할 때 요청 바디·수용 허가·멱등 키·잔고 예약을 건드리지 않습니다. 조회 메서드는 그대로 통과합니다. 503 대신 423을 쓴 이유는 인그레스 때문입니다. 503이면 인그레스가 쓰기 업스트림에서 리더를 빼 계좌·주문 조회까지 502가 되는데, 423은 <code>proxy_next_upstream</code> 목록에 없어 재시도와 퇴출이 일어나지 않습니다. 423은 "이 시도는 쓰지 않았다"는 뜻이고, 클라이언트는 재개 뒤 같은 멱등 키로 다시 보냅니다.</p>
+
+  <h2>로컬 Docker에서 다시 확인한 결과</h2>
+  <p>Patroni 4.1.5, etcd v3.5.34, HAProxy 3.0.27로 만든 폐기용 스택에서 장애 시나리오를 돌렸습니다. 2026-09-25 회차에서 primary 강제 종료(E-P1), primary 호스트 격리와 비대칭 격리(E-P3a·b), 봇·k6 부하 중 강제 종료(E-P5 두 번) 등이 PASS했고 확인받은 쓰기의 유실은 0이었습니다. 승격은 22.75~27.68초였습니다. 2026-09-27 시연 스택에서 거래 중 주 DB를 강제 종료한 여섯 회차도 회차마다 1만~2만 4천 건의 확인받은 쓰기 중 유실이 0이었습니다.</p>
+
+  <div class="note">모두 로컬 Docker 한 호스트의 결과입니다. primary와 standby가 같은 커널과 디스크를 써서 AZ 간 지연이 없고, 비동기 회차는 조건마다 한 번씩만 돌렸습니다. 비동기 시험의 프로브는 psql로 직접 쓴 행이라 주문 경로가 아니라 저장 계층의 유실량입니다. Docker Desktop에는 <code>/dev/watchdog</code>이 없어 Patroni 워치독은 쓰지 않았습니다. AWS에서 잰 결과는 <a href="../aws-db-power-cut/">주 DB 전원 차단 시험</a>에 따로 적었습니다.</div>
+
+  <div class="post-foot">
+    <a href="../ctf-port80-hijack/"><span class="k">← 이전 글</span>apache2에 80번 포트를 빼앗긴 2차 공격</a>
+    <a href="../app-hang-hikaricp/"><span class="k">다음 글 →</span>/api 504 진단: 가상 스레드와 HikariCP 라이브락</a>
+  </div>
+</article>
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

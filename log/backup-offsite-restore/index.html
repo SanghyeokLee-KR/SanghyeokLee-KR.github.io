@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다 · 이상혁</title>
+<meta name="description" content="VM 실습망에서 Databasus로 주 DB 논리 백업을 만들어 웹 진입 서버의 SFTP 전용 계정에 보관하고, 복원 검증으로 표 109개와 행 수를 원본과 대조한 기록.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+<style>
+  .post-foot a + a { margin-left: auto; text-align: right; }
+</style>
+</head>
+<body>
+<a class="skip" href="#post">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../../">처음으로</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<article class="post" id="post">
+  <p class="post-meta"><time datetime="2026-09-26">2026.09.26</time><span class="tag">백업</span><span>VM 실습망 · failstop</span></p>
+  <h1>DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</h1>
+  <p class="lead">VM 실습망의 주 DB(DB01)를 Databasus v3.59.0으로 매일 논리 백업하도록 설정했습니다. 백업 파일은 DB 서버가 아닌 웹 진입 서버(EDGE01)의 SFTP 전용 계정에 보관합니다. 첫 백업이 실제로 서버 밖에 도착했는지 확인했고, 복원 검증을 돌려 되살린 DB의 표 수와 행 수를 원본과 맞춰 봤습니다.</p>
+  <dl class="facts-mini">
+    <dt>환경</dt><dd>VM 실습망(작업 PC 한 대의 VirtualBox 가상망). DB01 192.168.10.31, 관제 서버 OPS01 192.168.10.41, 웹 진입 서버 EDGE01 192.168.10.11</dd>
+    <dt>구성</dt><dd>OPS01의 Databasus(Docker) → EDGE01 <code>dbbackup</code> 계정(SFTP 전용, chroot) / 매일 09:00, 암호화, 보존 7일</dd>
+    <dt>결과</dt><dd>첫 백업 0.45 MB(원본 3.05 MB) EDGE01 도착, 복원 검증 성공(표 109개, <code>pg_restore</code> 종료 코드 0), 원본과 행 수 일치</dd>
+    <dt>관련 작업</dt><dd><a href="../../work/failstop/">failstop</a></dd>
+  </dl>
+
+  <h2>백업을 어디에 둘지</h2>
+  <p>DB 서버 디스크에만 백업을 두면 그 서버가 망가졌을 때 백업도 같이 잃습니다. 그래서 백업 도구는 관제 서버(OPS01)에, 보관 위치는 웹 진입 서버(EDGE01)에 두었습니다. DB01은 백업을 만들 데이터만 내주고, 파일은 다른 서버로 바로 나갑니다.</p>
+  <p>Databasus 관리 화면은 OPS01의 루프백(127.0.0.1:4005)에만 열어 두고, 작업 PC에서는 SSH 터널(14005 → 4005)로 접속했습니다. 작업 전 상태는 아래와 같습니다. 보관 폴더는 비어 있고, DB01에는 백업용 계정 <code>databasus_ro</code>가 있습니다.</p>
+<pre><code><span class="c"># 2026-09-26 22:31:07 KST  작업 PC</span>
+<span class="p">PS&gt;</span> ssh ops01 "sudo docker ps"
+CONTAINER ID   IMAGE                         COMMAND            CREATED         STATUS                   PORTS                      NAMES
+f3a06c5f374f   databasus/databasus:v3.59.0   "/app/start.sh"    3 minutes ago   Up 3 minutes (healthy)   <span class="hl">127.0.0.1:4005-&gt;4005/tcp</span>   databasus
+<span class="p">PS&gt;</span> ssh ops01 "sudo ss -lntp | grep 4005"
+LISTEN 0  4096  <span class="hl">127.0.0.1:4005</span>  0.0.0.0:*  users:(("docker-proxy",pid=1332,fd=8))
+<span class="p">PS&gt;</span> ssh edge01 "sudo ls -la /srv/db-backup/databasus"
+total 0
+drwx------. 2 dbbackup dbbackup  6 Sep 22 14:40 .
+drwxr-xr-x. 4 root     root     91 Sep 22 14:39 ..</code></pre>
+
+  <h2>끊겨 있던 SFTP 경로 다시 열기</h2>
+  <p>같은 날 pfSense를 경계형(NAT 라우터)으로 바꾸면서 OPS01의 host-only 주소가 없어졌습니다. EDGE01의 sshd는 <code>dbbackup@192.168.56.41</code>만 받도록 되어 있었고, nftables도 host-only 관리 대역의 22번만 열고 있어서 예행 때 만든 SFTP 경로가 끊긴 상태였습니다. 출발지를 OPS01의 lab-lan 주소로 바꾸고, 방화벽에는 그 주소의 22번만 따로 열었습니다. 네트워크에서는 OPS01의 22번만 허용하고, 어떤 계정으로 들어올 수 있는지는 sshd가 제한합니다.</p>
+<pre><code><span class="c"># EDGE01 /etc/ssh/sshd_config.d/30-db-backup.conf</span>
+AllowUsers ops@192.168.56.0/24 <span class="hl">dbbackup@192.168.10.41</span>
+
+Match User dbbackup
+    ChrootDirectory /srv/db-backup
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+    X11Forwarding no
+    PermitTTY no
+    PubkeyAuthentication yes
+
+<span class="c"># EDGE01 /etc/vm-lab/firewall.d/30-db-backup-sftp.nft</span>
+add rule inet vmlab roles iifname "enp0s8" ip saddr 192.168.10.41 tcp dport 22 \
+    ct state new counter accept comment "Databasus 백업 SFTP(OPS01)"</code></pre>
+  <p>적용 스크립트는 <code>sshd -t</code>와 <code>nft -c</code>로 문법을 먼저 검사한 뒤에만 reload합니다. Databasus 저장소 화면에는 인증 방식이 Password로 표시되지만, EDGE01은 이 계정에 공개키 인증만 허용합니다.</p>
+
+  <h2>백업 일정과 읽기 전용 계정 경고</h2>
+  <p>백업은 매일 09:00 논리 백업, 백업 파일 암호화, 보존 7일로 설정했습니다. 실패 알림은 켜 두었지만 알림을 받을 대상(Teams 등)은 아직 연결하지 않았습니다.</p>
+  <figure>
+    <img src="../../assets/img/log/backup-offsite-restore/01.jpg" width="860" height="905" loading="lazy" alt="Databasus 백업 설정 창. Backup interval Daily, 09:00, Storage 외부 백업 보관소, Encryption Encrypt backup files, Retention 1 week, Backup failed 알림 체크">
+    <figcaption>백업 일정 설정. 저장소는 EDGE01 SFTP로 연결한 '외부 백업 보관소'입니다.</figcaption>
+  </figure>
+  <p>DB를 등록할 때 Databasus가 <code>databasus_ro</code>에 쓰기 가능한 권한 <code>TEMP</code>와 <code>EXECUTE (SECURITY DEFINER)</code>가 남아 있다고 경고했습니다. DB01에서 확인해 보니 이 계정이 실행할 수 있는 SECURITY DEFINER 함수는 <code>create_balance_for_account</code> 등 네 개였습니다. 저장소의 V47.1 마이그레이션이 PUBLIC 실행 권한을 회수하는 바로 그 함수들인데, VM의 DB01에는 V47.1이 적용되어 있지 않았습니다. <code>TEMP</code>는 PostgreSQL 기본값으로 PUBLIC에 열려 있습니다. 이번에는 원인만 기록해 두고 진행했고, V47.1 적용과 TEMP 권한 정리는 하지 않았습니다.</p>
+
+  <h2>첫 백업이 서버 밖에 도착했는지</h2>
+  <p>22:58에 첫 백업이 성공했습니다. 크기는 0.45 MB(DB 3.05 MB)입니다.</p>
+  <figure>
+    <img src="../../assets/img/log/backup-offsite-restore/02.jpg" width="1600" height="1095" loading="lazy" alt="Databasus Backups 탭. 2026.09.26 22:58 백업 Successful, 0.45 MB, DB 크기 3.05 MB">
+    <figcaption>Databasus 화면의 백업 성공 표시. 화면만으로는 파일이 실제로 어디에 있는지 알 수 없어서 EDGE01에서 따로 확인했습니다.</figcaption>
+  </figure>
+  <p>관리 화면의 성공 표시만 믿지 않고 EDGE01에서 파일과 sshd 로그를 직접 봤습니다. 22:58:13에 OPS01(192.168.10.41)에서 <code>internal-sftp</code>로 접속한 기록이 있고, 474,053바이트 백업 파일과 메타데이터가 보관 폴더에 들어와 있습니다. DB01 쪽 <code>/var/lib/pgsql/17/backups/</code>에는 아무것도 나오지 않았습니다.</p>
+<pre><code><span class="c"># 2026-09-26 22:59:00 KST</span>
+<span class="p">PS&gt;</span> ssh edge01 "sudo ls -la /srv/db-backup/databasus"
+-rw-r--r--. 1 dbbackup dbbackup <span class="hl">474053</span> Sep 26 22:58 거래_DB_(주_DB)-20260926-135813-….
+-rw-r--r--. 1 dbbackup dbbackup    174 Sep 26 22:58 거래_DB_(주_DB)-20260926-135813-….metadata
+<span class="p">PS&gt;</span> ssh edge01 "sudo journalctl -u sshd --since today | grep dbbackup | tail -n 3"
+Sep 26 22:58:13 edge01.lab sshd-session[1554]: Starting session: forced-command (config) 'internal-sftp' for dbbackup from <span class="hl">192.168.10.41</span> port 51040 id 0 [postauth]
+…
+<span class="p">PS&gt;</span> ssh db01 "sudo ls /var/lib/pgsql/17/backups/ 2&gt;/dev/null; df -h /var/lib/pgsql | tail -n 1"
+/dev/sdb1  20G  494M  20G  3% /var/lib/pgsql</code></pre>
+
+  <h2>복원 검증</h2>
+  <p>백업 파일이 있어도 복원이 안 되면 쓸 수 없습니다. Databasus의 복원 검증 에이전트를 OPS01에 설치하고 수동으로 한 번 돌렸습니다. 에이전트는 임시 PostgreSQL 컨테이너에 백업을 복원한 뒤 결과를 보고합니다. 이 임시 이미지가 Docker Hub에 있어서, pfSense LAN 규칙 '패키지 저장소 443(점검 때만 켬)'을 23:03:28에 켜고 이미지를 받은 뒤 23:04:54에 다시 껐습니다. 끈 뒤에는 OPS01에서 외부 443이 막히는 것도 확인했습니다.</p>
+  <figure>
+    <img src="../../assets/img/log/backup-offsite-restore/03.jpg" width="1020" height="1560" loading="lazy" alt="Restore check details. Status Successful, Restored DB size 12.9 MB, Schemas 2, Tables 109, pg_restore exit code 0, flyway_schema_history 47행, recovery_runs 22행, journal_counters 3행">
+    <figcaption>23:12 수동 복원 검증 결과. 표 109개가 복원됐고 <code>pg_restore</code> 종료 코드는 0입니다.</figcaption>
+  </figure>
+  <p>검증 화면의 숫자를 원본 DB와 대조했습니다. DB01의 <code>public</code> 104개와 <code>harness</code> 5개를 합하면 109개로 맞고, 세 표의 행 수도 47·22·3으로 같습니다. 검증이 끝난 뒤 OPS01에는 Databasus 컨테이너만 남았습니다.</p>
+<pre><code><span class="c"># 2026-09-26 23:17:41 KST</span>
+<span class="p">PS&gt;</span> ssh db01 "sudo -u postgres psql -d exchange -c '\dt public.*' | tail -n 2"
+<span class="hl">(104 rows)</span>
+<span class="p">PS&gt;</span> ssh db01 "sudo -u postgres psql -d exchange -c '\dt harness.*' | tail -n 2"
+<span class="hl">(5 rows)</span>
+<span class="p">PS&gt;</span> ssh db01 "sudo -u postgres psql -d exchange -c 'select (select count(*) from flyway_schema_history) flyway, …'"
+ flyway | recovery_runs | journal_counters
+--------+---------------+------------------
+     <span class="hl">47</span> |            <span class="hl">22</span> |                <span class="hl">3</span>
+<span class="p">PS&gt;</span> ssh ops01 "sudo docker ps -a"
+CONTAINER ID   IMAGE                         COMMAND            CREATED          STATUS                    PORTS                      NAMES
+f3a06c5f374f   databasus/databasus:v3.59.0   "/app/start.sh"    49 minutes ago   Up 49 minutes (healthy)   127.0.0.1:4005-&gt;4005/tcp   databasus</code></pre>
+
+  <h2>확인하지 못한 것과 남은 일</h2>
+  <p>VM의 거래 DB에는 마켓·주문·원장 데이터가 0건입니다. 이번 검증으로 스키마와 기존 행이 복원된다는 것은 확인했지만, 거래 데이터가 많은 상태에서의 복원 시간과 데이터 대조는 하지 않았습니다. 물리 백업과 PITR도 켜지 않았습니다.</p>
+  <p>복원 검증 에이전트는 systemd 유닛 없이 데몬으로만 떠 있어서 OPS01을 재부팅하면 다시 켜야 합니다. 에이전트 토큰은 <code>read -s</code>로 직접 입력했고, 에이전트는 설정 파일과 로그에 토큰 앞 8자만 남깁니다. 두 파일 권한은 0600으로 맞췄습니다. 저장소를 등록할 때 SFTP 개인키가 작업 PC의 클립보드와 브라우저를 한 번 거쳤다는 점도 기록에 남겨 두었습니다.</p>
+
+  <div class="note">이 기록은 작업 PC 한 대에서 돌린 VM 실습망 결과이며 학교 AWS·개인 AWS 검증 결과가 아닙니다. 관리자 가입, DB 계정 비밀번호, SFTP 개인키, 에이전트 토큰을 입력한 화면은 캡처하지 않았습니다.</div>
+
+  <div class="post-foot">
+    <a href="../app-hang-hikaricp/"><span class="k">← 이전 글</span>/api 504 진단: 가상 스레드와 HikariCP 라이브락</a>
+    <a href="../pfsense-transparent-firewall/"><span class="k">다음 글 →</span>서버 설정을 그대로 두는 pfSense 투명 방화벽 전환</a>
+  </div>
+</article>
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>

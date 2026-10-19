@@ -238,9 +238,9 @@ SELECT ...
         </ul>
       </div>
       <div class="c7">
-        <p class="p">이 검사를 돌리다가, 비동기 복제에서는 클라이언트에 확인해 준 주문도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
+        <p class="p">이 검사를 돌리다가, 비동기 복제에서는 커밋이 확인된 쓰기도 사라지는 경우를 찾았습니다. 그래서 Patroni 엄격 동기 복제로 바꾸고, 동기 예비 DB가 없으면 앱이 주문을 <code>423</code>으로 막게 했습니다.</p>
         <div class="vs mt-s">
-          <div class="vc"><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p><p class="vd">예비 DB를 8초 멈춘 뒤 주 DB를 끄자, 확인해 준 주문 122건 중 36건이 사라졌습니다.</p></div>
+          <div class="vc"><p class="vk">비동기 복제</p><p class="vn">36<small>/ 122건</small></p><p class="vd">예비 DB를 8초 멈춘 뒤 주 DB를 끄자, 커밋이 확인된 시험용 쓰기 122건 중 36건이 사라졌습니다.</p></div>
           <div class="vc on"><p class="vk">엄격 동기 복제로 바꾼 뒤</p><p class="vn">0<small>건</small></p><p class="vd">같은 시험에서 사라진 주문이 없었습니다. 두 시험 모두 제 PC에서 돌렸습니다.</p></div>
         </div>
       </div>

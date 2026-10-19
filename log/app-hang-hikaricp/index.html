@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>/api 504 진단: 가상 스레드와 HikariCP 라이브락 · 이상혁</title>
+<meta name="description" content="학교 AWS 앱 서버에서 /api만 504를 낸 장애를 스레드 덤프로 진단했습니다. HikariCP 스레드 세 개가 Thread.yield() 루프에 갇혀 있었고, 가상 스레드를 끄고 재시작해 복구했습니다.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../../assets/fonts/plex.css">
+<link rel="stylesheet" href="../../css/site.css">
+</head>
+<body>
+<a class="skip" href="#post">본문으로 건너뛰기</a>
+
+<header class="head">
+  <div class="wrap">
+    <a class="back" href="../"><span class="arrow" aria-hidden="true">←</span> 기록 목록</a>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="../../">처음으로</a>
+      <span class="pdfs"><a href="../../infra.pdf" download>인프라 PDF<span class="ar" aria-hidden="true">↓</span></a><a href="../../backend.pdf" download>백엔드 PDF<span class="ar" aria-hidden="true">↓</span></a></span>
+    </nav>
+  </div>
+</header>
+
+<main>
+<article class="post" id="post">
+  <p class="post-meta"><time datetime="2026-09-21">2026.09.21</time><span class="tag">장애 진단</span><span>학교 AWS · failstop</span></p>
+  <h1>/api 504 진단: 가상 스레드와 HikariCP 라이브락</h1>
+  <p class="lead">학교 AWS의 첫 앱 서버(app-1)에서 정적 웹과 Grafana는 응답하는데 <code>/api/*</code>만 30초 뒤 504를 냈습니다. 서비스는 <code>active (running)</code>였고 메모리, 디스크, DB 연결에도 문제가 없었습니다. 스레드 덤프에서 HikariCP 관련 스레드 세 개가 <code>Thread.yield()</code> 루프에 갇힌 것을 찾았고, 가상 스레드를 끄고 재시작해 복구했습니다.</p>
+  <dl class="facts-mini">
+    <dt>환경</dt><dd>학교 AWS, app-1(2 vCPU, 메모리 1,909MiB). Spring Boot 앱을 systemd 서비스 <code>exchange-app</code>으로 운영하고 앞에 nginx</dd>
+    <dt>증상</dt><dd><code>/api/v1/markets</code> 등이 30초 뒤 504, 호스트 안에서 직접 호출해도 15초 동안 응답 없음</dd>
+    <dt>결과</dt><dd><code>SPRING_THREADS_VIRTUAL_ENABLED=false</code> 적용 후 재시작, 공개 <code>/api/v1/markets</code> 200(33ms)</dd>
+    <dt>관련 작업</dt><dd><a href="../../work/failstop/">failstop</a></dd>
+  </dl>
+
+  <h2>상황</h2>
+  <p>2026-09-21 08:18 UTC(17:18 KST)에 확인했습니다. nginx의 <code>proxy_connect_timeout</code>은 3초, <code>proxy_read_timeout</code>은 30초입니다. 앱 프로세스가 죽었다면 연결 거부로 바로 502가 나야 하는데 30초를 채운 504가 났으니, 8080 연결은 맺어지고 응답만 오지 않는 상태로 봤습니다.</p>
+  <p>작업 PC의 공인 IP 하나(/32)만 22번 포트로 허용하는 임시 보안 그룹 규칙을 추가하고 SSH로 접속했습니다. 원인을 찾을 때까지는 재시작이나 설정 변경 없이 읽기 전용 명령만 실행했습니다.</p>
+
+  <h2>확인한 것</h2>
+  <h3>프로세스는 살아 있고 자원도 남아 있었습니다</h3>
+<pre><code><span class="c">##### uptime / load / vCPU</span>
+ 08:18:11 up 1 day, 22:53,  1 user,  load average: <span class="hl">3.37</span>, 3.30, 2.77
+nproc=2
+<span class="c">##### 메모리</span>
+               total        used        free      shared  buff/cache   available
+Mem:            1909         692          65         123        1151         944
+<span class="c">##### CPU 상태 (steal=크레딧 소진 지표)</span>
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 5  0      0  66924    840 1178868    0    0     0     0 2854 <span class="hl">573169</span> 43 <span class="hl">57</span>  0  0  0
+ 3  0      0  66924    840 1178868    0    0     0    52 7852 <span class="hl">544109</span> 36 <span class="hl">64</span>  0  0  0
+<span class="c">##### 상위 프로세스</span>
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+  49460 exchange  20   0 3588500 522224  26312 S <span class="hl">182.4</span>  26.7  98:15.29 java
+<span class="c">##### exchange-app 서비스</span>
+     Active: active (running) since Sat 2026-09-19 16:55:35 UTC; 1 day 15h ago
+   Main PID: 49460 (java)
+     Memory: 500.1M (max: 1.3G available: 899.8M)
+…
+<span class="c">##### 앱이 연 DB 연결 수</span>
+12
+<span class="c">##### readiness (관리 8081)</span>
+code=000 time=15.001467s
+<span class="c">##### 앱 직접 호출 8080</span>
+code=000 time=15.001943s</code></pre>
+  <p>메모리는 944MiB가 남았고 서비스 사용량도 한도 1.3G 아래였습니다. 루트 디스크는 13%, inode는 1%를 썼습니다. primary와 standby 두 DB 모두 5432 TCP 연결이 됐고, 앱은 primary에 연결 12개를 유지하고 있었습니다. steal이 0이라 t3 CPU 크레딧 소진도 아닙니다.</p>
+  <p>눈에 띈 것은 CPU입니다. 2 vCPU에서 load가 3.37이었고, 시스템 시간이 57~64%, 컨텍스트 스위치가 초당 45만~57만 회였습니다. java 프로세스 하나가 %CPU 182.4를 쓰고 있었습니다.</p>
+
+  <h3>스레드 덤프에서 같은 세 지점이 나왔습니다</h3>
+  <p><code>top -H</code>로 CPU를 쓰는 스레드를 보니 <code>HikariP…</code> 두 개(66.7%, 13.3%), <code>ForkJoi…</code>(60.0%), <code>market-…</code>(40.0%), <code>Virtual…</code>(33.3%)가 위에 있었습니다. 서버에 <code>jcmd</code>가 없어 SIGQUIT으로 스레드 덤프를 journald에 남겼고, 08:18:59와 08:19:47에 두 번 떴습니다.</p>
+<pre><code>"HikariPool-1:housekeeper" #22 [49480] daemon … runnable
+   java.lang.Thread.State: RUNNABLE
+        at java.lang.Thread.yield0(java.base@21.0.12.1/Native Method)
+        at java.lang.Thread.yield(java.base@21.0.12.1/Thread.java:445)
+        at <span class="hl">com.zaxxer.hikari.util.ConcurrentBag.unreserve(ConcurrentBag.java:322)</span>
+        at com.zaxxer.hikari.pool.HikariPool$KeepaliveTask.run(HikariPool.java:887)
+…
+"market-catalog-refresh" #23 [49481] daemon … runnable
+        at java.lang.Thread.yield(java.base@21.0.12.1/Thread.java:445)
+        at <span class="hl">com.zaxxer.hikari.util.ConcurrentBag.requite(ConcurrentBag.java:198)</span>
+        at com.zaxxer.hikari.pool.HikariPool.recycle(HikariPool.java:447)
+…
+"ForkJoinPool-1-worker-1" #41 [49513] daemon …
+   <span class="hl">Carrying virtual thread #1450149</span>
+…
+"HikariPool-1:connection-adder" #1450104 [167172] daemon … cpu=871608.42ms elapsed=1714.36s … runnable
+        at java.lang.Thread.yield(java.base@21.0.12.1/Thread.java:445)
+        at <span class="hl">com.zaxxer.hikari.util.ConcurrentBag.add(ConcurrentBag.java:224)</span>
+        at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:755)</code></pre>
+  <p>48초 뒤의 두 번째 덤프도 같은 세 지점(<code>add:224</code>, <code>requite:198</code>, <code>unreserve:322</code>)에 있었습니다. JVM은 데드락을 보고하지 않았습니다.</p>
+
+  <h2>원인</h2>
+  <p>세 지점은 모두 HikariCP의 <code>ConcurrentBag</code>이 연결을 기다리는 스레드가 있을 때 인계 큐에 연결을 넘기려 하고, 실패하면 <code>Thread.yield()</code> 후 다시 시도하는 구간입니다. 진행 없이 CPU만 쓰는 라이브락으로 판단했습니다.</p>
+  <p>앱은 <code>spring.threads.virtual.enabled: true</code>로 돌고 있었습니다. 요청을 처리하며 연결을 기다리는 쪽은 가상 스레드이고, 연결을 넘기는 쪽(<code>connection-adder</code>, <code>housekeeper</code>, <code>market-catalog-refresh</code>)은 플랫폼 스레드입니다. 2 vCPU에서 플랫폼 스레드 세 개가 yield 루프로 코어를 채우면 가상 스레드를 실어 나를 캐리어 스레드가 돌 여유가 줄고, 인계를 받을 쪽이 늦어지니 인계가 다시 실패합니다. 덤프의 스레드 번호(<code>#1450104</code>, <code>#1450149</code>)로 보면 기동 후 스레드가 백만 개 넘게 만들어졌습니다.</p>
+  <p>이 판단은 실행 중 상태를 관측한 결과이고, 같은 조건을 재현해 확정하지는 않았습니다. <code>connection-adder</code>는 덤프 시점에 만들어진 지 1,714초였고 CPU 시간은 871초였지만, 최초 계기는 찾지 못했습니다. 서비스 로그에는 30분 주기 WebSocket 통계만 있고 오류가 없었습니다. 풀 상한(요청 16, append 14, 리스 2)이 원인이라는 근거도 찾지 못했습니다.</p>
+
+  <h2>조치</h2>
+  <p>설정 파일을 기존 명명 규칙대로 백업하고 해시가 같은지 확인한 뒤, 되돌리는 방법을 주석으로 적고 가상 스레드를 끄는 한 줄을 추가했습니다. 파일 권한 <code>root:exchange 0640</code>은 그대로 두었습니다.</p>
+<pre><code><span class="c">##### 1) 백업 (기존 백업 명명 규칙 유지)</span>
+-rw-r-----. 1 root exchange 962 Sep 19 16:55 /etc/exchange/app.env
+-rw-r-----. 1 root exchange 962 Sep 19 16:55 /etc/exchange/app.env.before-vthreads-20260921
+<span class="c">##### 백업 해시 대조</span>
+      2 <span class="c">…(같은 SHA-256 두 줄)</span>
+<span class="c">##### 3) 설정 추가</span>
+# 2026-09-21 HikariCP ConcurrentBag 라이브락 대응. 가상 스레드 인계 실패로
+# connection-adder/housekeeper/market-catalog-refresh가 Thread.yield 스핀에 갇혀
+# 요청 처리가 멈췄다. 되돌리려면 이 줄을 지운다. …
+<span class="hl">SPRING_THREADS_VIRTUAL_ENABLED=false</span>
+<span class="c">##### 4) 재시작 직전 상태 기록</span>
+2026-09-21T08:21:19+00:00
+재시작 전 PID: 49460
+<span class="c">##### 5) 재시작</span>
+-- 재시작 명령 반환: 0
+재시작 후 PID: 169481</code></pre>
+  <p>JAR과 코드는 바꾸지 않았고, 저장소의 <code>application.yml</code>에 있는 <code>spring.threads.virtual.enabled: true</code>도 그대로 두었습니다. 이 서버만 환경변수로 덮어쓴 상태입니다. 기동은 12.7초가 걸렸습니다. 엔진이 마켓별 스냅샷을 채택하고 83건을 재생한 뒤 리더 리스를 epoch=6으로 얻었고, readiness가 08:22:07에 200을 반환했습니다.</p>
+
+  <h2>결과</h2>
+  <p>장애 때와 같은 항목을 다시 재서 비교했습니다.</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>항목</th><th>장애 중</th><th>조치 후</th></tr></thead>
+    <tbody>
+      <tr><td>컨텍스트 스위치</td><td>초당 459,033~573,169</td><td>초당 78~1,227</td></tr>
+      <tr><td>CPU 시스템 시간</td><td>57~64%</td><td>1~2%</td></tr>
+      <tr><td><code>ConcurrentBag</code> yield 스핀 프레임</td><td>3건</td><td>0건</td></tr>
+      <tr><td>요청 처리 스레드</td><td>가상 스레드와 ForkJoin 캐리어</td><td><code>http-nio</code> 플랫폼 스레드 24개</td></tr>
+      <tr><td>호스트 안 <code>/api/v1/markets</code></td><td>15초 타임아웃</td><td>200, 0.004초</td></tr>
+      <tr><td>공개 <code>/api/v1/markets</code></td><td>504, 30초</td><td>200, 33ms</td></tr>
+      <tr><td>앱의 primary 연결 수</td><td>12</td><td>10</td></tr>
+    </tbody>
+  </table>
+  </div>
+<pre><code><span class="c">##### yield 스핀 재발 여부</span>
+ConcurrentBag yield 스핀 프레임: 0건 (장애 시 3건)
+Carrying virtual thread: 0건 (장애 시 1건)
+<span class="c">##### 내부 API 응답</span>
+/api/v1/markets -&gt; 200 0.003725s
+<span class="c">##### 최근 체결 (봇 거래 재개 확인)</span>
+{"schema_version":"1.0","data":[{"trade_id":"1000000232465","market":"KRW-BTC", … "timestamp":"2026-09-21T08:22:19.424Z", …</code></pre>
+  <p>작업 PC에서 공개 주소로 <code>/api/v1/markets</code>, <code>/api/v1/candles/1m</code>, <code>/api/v1/orderbook</code>, <code>/api/v1/trades</code>를 호출해 모두 200을 확인했고, 봇 거래도 08:22:18부터 체결이 이어졌습니다. 진단 초반에 본 <code>/api/v1/candles?market=…</code>의 404는 실제 경로가 <code>/api/v1/candles/{unit}</code>이라서 난 것으로 이번 장애와 관계없습니다.</p>
+
+  <div class="note">가상 스레드를 끈 것은 문제가 난 경로를 피한 조치이고, HikariCP의 인계 실패 자체를 고친 것은 아닙니다. 같은 조합을 다시 켜면 재발할 수 있습니다. 부하를 올린 장시간 운영에서 플랫폼 스레드 풀이 충분한지는 이 작업에서 확인하지 않았습니다.</div>
+
+  <div class="post-foot">
+    <a href="../async-replication-loss/"><span class="k">← 이전 글</span>비동기 복제에서 확인받은 쓰기 122건 중 36건이 사라졌습니다</a>
+    <a href="../backup-offsite-restore/"><span class="k">다음 글 →</span>DB 백업을 서버 밖에 보관하고 복원까지 확인했습니다</a>
+  </div>
+</article>
+</main>
+
+<footer class="foot slim wrap">
+  <div class="foot-meta">
+    <span>이상혁 · <a href="mailto:kljl6773@gmail.com">kljl6773@gmail.com</a></span>
+    <span class="links"><a href="../../">처음으로</a><a href="../">기록</a><a href="https://github.com/SanghyeokLee-KR">GitHub</a></span>
+  </div>
+</footer>
+</body>
+</html>
