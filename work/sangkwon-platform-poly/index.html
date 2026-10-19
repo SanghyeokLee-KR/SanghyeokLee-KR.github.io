@@ -89,7 +89,7 @@
   <h2 id="ch-deploy">EC2를 한 대씩 교체하는 배포 순서</h2>
   <p>새 버전을 올릴 때 두 서버를 한꺼번에 내리지 않고, 한 대를 바꾸는 동안 다른 한 대가 요청을 모두 받도록 순서를 정했습니다. 내려가는 서버는 처리 중인 요청을 마저 끝내고, 그사이 ALB 헬스체크가 그 서버를 대상에서 뺍니다.</p>
   <figure>
-    <div class="pan"><div class="crop" style="--ct:2.9%;--ar:1381/567"><img src="../../assets/img/sangkwon/rolling.jpg" width="1381" height="607" loading="lazy" alt="무중단 롤링 배포 단계표: 현행 운영, EC2-A 교체, A 헬스 통과, EC2-B 교체, 완료. 단계마다 ALB가 보내는 곳과 각 서버의 상태"></div></div>
+    <div class="pan"><div class="crop" style="--ct:2.9%;--ar:1381/567"><img src="../../assets/img/sangkwon/rolling.jpg" width="1381" height="607" loading="lazy" alt="롤링 배포 단계표: 현행 운영, EC2-A 교체, A 헬스 통과, EC2-B 교체, 완료. 단계마다 ALB가 보내는 곳과 각 서버의 상태"></div></div>
     <p class="pan-hint" aria-hidden="true">옆으로 밀어 보기 →</p>
     <figcaption><b>배포 순서</b> · 단계마다 ALB가 어느 서버로 보내는지, 각 서버가 어떤 상태인지 정리한 표입니다.</figcaption>
   </figure>

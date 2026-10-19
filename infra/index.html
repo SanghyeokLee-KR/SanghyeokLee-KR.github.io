@@ -178,7 +178,7 @@
         </table>
         <p class="sub-k mt">시험 중 찾아서 고친 문제</p>
         <ol class="notes">
-          <li><span class="t">DB 연결이 끊기면 리더 없이 멈췄습니다</span><span class="d">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 <em>13.9초</em> 만에 이어받았습니다.</span></li>
+          <li><span class="t">DB 연결이 끊기면 리더 없이 멈췄습니다</span><span class="d">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 고친 직후 <em>13.9초</em> 만에 이어받았고, 이후 28회 반복에서는 길어도 13.5초였습니다.</span></li>
           <li><span class="t">호가 집계가 주문 처리를 막았습니다</span><span class="d">집계 결과를 1초 동안 캐시하자, 놓치지 않고 접수한 주문이 <em>초당 40건에서 80건</em>으로 늘었습니다.</span></li>
         </ol>
       </div>
@@ -245,7 +245,7 @@
       <div class="c4 panel">
         <p class="pk">DB 전원을 끊었을 때<span>AWS</span></p>
         <p class="pn">23.0<small>초</small></p>
-        <p class="pd">주 DB 전원을 끊자 예비 DB가 새 주 DB로 승격됐습니다. 끊기 직전에 확인해 준 주문 196건을 하나씩 대조했고, <em>사라진 주문은 없었습니다.</em></p>
+        <p class="pd">주 DB 전원을 끊자 예비 DB가 새 주 DB로 승격됐습니다. 장애 4초 전까지 1분 동안 커밋된 주문 196건을 새 주 DB와 하나씩 대조했고, <em>사라진 주문은 없었습니다.</em></p>
       </div>
       <div class="c4 panel">
         <p class="pk">OS를 통째로 지웠을 때<span>가상 머신</span></p>
@@ -357,7 +357,7 @@
       </div>
       <div class="c5" style="display:flex;flex-direction:column;justify-content:flex-end">
         <ol class="attack">
-          <li><span class="k">1차</span><span class="a">감시 스크립트와 nginx를 끄고 서버를 둘러봤습니다</span><span class="r">남아 있던 다른 복구 장치가 1분 안에 되살렸습니다.</span></li>
+          <li><span class="k">1차</span><span class="a">감시 스크립트와 nginx를 끄고 서버를 둘러봤습니다</span><span class="r">남아 있던 다른 복구 장치가 되살렸고, Teams 알림 기준 다운 감지 2초 뒤 복구됐습니다.</span></li>
           <li><span class="k">2차</span><span class="a">apache2를 설치해 80번 포트를 빼앗았습니다</span><span class="r">#1이 스스로 빠지고 #2·#3이 채점을 받는 사이, 팀원이 들어가 apache2를 정리했습니다. 채점은 끊기지 않았습니다.</span></li>
           <li><span class="k">3차</span><span class="a">nginx가 다시 켜지지 못하게 막았습니다</span><span class="r">systemctl mask로 막힌 nginx를 감시 스크립트가 다시 풀고 띄웠습니다.</span></li>
         </ol>

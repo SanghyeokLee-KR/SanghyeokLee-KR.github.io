@@ -150,7 +150,7 @@ fi</code></pre>
   <p>공격자가 친 명령은 auditd가 잡아 관제 화면에 바로 띄웠습니다. 시각이 초 단위로 남아서, 공격이 어떤 순서로 들어왔는지 그대로 따라갈 수 있습니다.</p>
 
   <h3>1차 · 감시 스크립트를 끄고 서버를 둘러봤습니다</h3>
-  <p>감시 스크립트와 nginx를 한꺼번에 껐지만, 남아 있던 다른 복구 장치가 1분 안에 되살렸습니다.</p>
+  <p>감시 스크립트와 nginx를 한꺼번에 껐지만, 남아 있던 다른 복구 장치가 되살렸고, Teams 알림 기준 다운 감지 2초 뒤 복구됐습니다.</p>
   <p class="sub">1차 공격 때 친 명령</p>
   <ol class="tl">
     <li><time>00:03:44</time><span>감시 스크립트와 nginx를 한꺼번에 강제로 끕니다.<span class="cmd">pkill -9 -f "nginx_.*_watch.sh"; systemctl stop nginx; pkill -9 -x nginx</span></span></li>

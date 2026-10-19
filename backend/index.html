@@ -207,7 +207,7 @@ SELECT ...
         <p class="sub-k">장애 시험 중 찾아서 고친 문제</p>
         <ol class="attack">
           <li><span class="k">DB 지연</span><span class="a">DB를 느리게만 했는데 리더가 바뀌었습니다</span><span class="r">정산 트랜잭션의 <code>FOR SHARE</code>가 리스 갱신을 막고 있었습니다. <code>FOR KEY SHARE</code>와 유일 인덱스로 바꾼 뒤, 같은 시험 세 번 모두 리더가 그대로였습니다.</span></li>
-          <li><span class="k">연결 끊김</span><span class="a">연결이 끊기면 리더 없이 멈췄습니다</span><span class="r">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 13.9초 만에 이어받았습니다.</span></li>
+          <li><span class="k">연결 끊김</span><span class="a">연결이 끊기면 리더 없이 멈췄습니다</span><span class="r">트랜잭션을 연 채 멈춘 세션이 잠금을 쥐고 있었습니다. DB에 10초 제한과 keepalive를 걸자 고친 직후 시험에서 13.9초 만에 이어받았고, 이후 28회 반복에서는 길어도 13.5초였습니다.</span></li>
           <li><span class="k">리더 교대</span><span class="a">새 리더가 이미 끝난 리스를 받았습니다</span><span class="r">만료 시각을 잠금을 기다리기 전부터 세고 있었습니다. 잠금을 얻은 뒤부터 세도록 고치자 이어받기가 10초 안팎으로 고르게 나왔습니다.</span></li>
           <li><span class="k">옛 리더</span><span class="a">물러난 리더가 500을 돌려줬습니다</span><span class="r">리더가 아닌 서버는 503을 돌려주게 바꿨습니다. 그 뒤로 다시 돌린 시험에서는 주문 500이 한 건도 나오지 않았습니다.</span></li>
         </ol>
